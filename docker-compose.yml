@@ -1,0 +1,60 @@
+# Local infrastructure for Travora: PostgreSQL + RustFS (S3-compatible photo storage).
+# Start:  docker compose up -d
+# Stop:   docker compose down        (add -v to also delete the data)
+#
+# These credentials are for local development only.
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: travora
+      POSTGRES_PASSWORD: travora
+      POSTGRES_DB: travora
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U travora -d travora"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # S3-compatible object storage (MinIO no longer publishes public images).
+  storage:
+    image: rustfs/rustfs:latest
+    restart: unless-stopped
+    environment:
+      RUSTFS_ACCESS_KEY: travora
+      RUSTFS_SECRET_KEY: travora-secret
+      RUSTFS_CONSOLE_ENABLE: "true"
+    ports:
+      - "9000:9000" # S3 API
+      - "9001:9001" # Web console: http://localhost:9001
+    volumes:
+      - storage-data:/data
+
+  # Creates the private photos bucket, then exits.
+  storage-setup:
+    image: amazon/aws-cli:latest
+    depends_on:
+      - storage
+    environment:
+      AWS_ACCESS_KEY_ID: travora
+      AWS_SECRET_ACCESS_KEY: travora-secret
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: >
+      sh -c "
+        for i in $$(seq 1 30); do
+          aws --endpoint-url http://storage:9000 s3api list-buckets >/dev/null 2>&1 && break;
+          sleep 1;
+        done;
+        aws --endpoint-url http://storage:9000 s3api head-bucket --bucket travora-photos 2>/dev/null ||
+        aws --endpoint-url http://storage:9000 s3api create-bucket --bucket travora-photos
+      "
+
+volumes:
+  postgres-data:
+  storage-data:

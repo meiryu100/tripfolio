@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Travora
 
-## Getting Started
+A social travel app built around an interactive world map. Mark the countries you've visited and the ones you want to visit, keep trips with dates, photos and notes, and explore the world through the people you follow.
 
-First, run the development server:
+**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · TanStack Query · Zustand (UI state) · Drizzle ORM · PostgreSQL 17 · S3-compatible storage (RustFS locally) · d3-geo map · zod
+
+## Getting started
+
+Requires Node 20+ and Docker Desktop.
 
 ```bash
+npm install
+cp .env.example .env.local      # defaults match docker-compose.yml
+docker compose up -d            # PostgreSQL + S3 storage (creates the photos bucket)
+npm run db:setup                # migrate + load countries + demo community
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 and use **“Just looking?”** on the login page, or sign in as `demo@travora.app` / `travora123`. All demo accounts use the password `travora123`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+In development, emails (password resets) are printed in the terminal running `npm run dev`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Scripts
 
-## Learn More
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Dev server |
+| `npm run build` / `start` | Production build / server |
+| `npm run db:generate` | Create a migration after editing `src/server/db/schema.ts` |
+| `npm run db:migrate` | Apply migrations |
+| `npm run db:seed` | Load countries + demo users (idempotent) |
+| `npm run db:studio` | Browse the database |
+| `npm run countries` | Rebuild `src/data/*` from the world-countries / world-atlas datasets |
 
-To learn more about Next.js, take a look at the following resources:
+### Google sign-in (optional)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Create an OAuth client at https://console.cloud.google.com/apis/credentials with the redirect URI `{APP_URL}/api/auth/google/callback`, then set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `.env.local`. The “Continue with Google” button appears automatically.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project layout
 
-## Deploy on Vercel
+```
+src/
+  app/                    Pages (App Router) and API route handlers (app/api/**)
+  features/               Feature modules: data hooks + feature components
+    auth/ map/ trips/ social/ explore/ profile/ settings/ stats/
+  components/             Shared UI (Button, Sheet, Avatar, cards, app shell…)
+  lib/                    Client/shared: API client, types, validation (zod), utils
+  server/                 Server-only code
+    db/                   Drizzle schema, connection, seed data
+    auth/                 Password hashing, sessions, Google OAuth
+    http/                 Route wrapper (auth, CSRF, rate limits, errors), uploads
+    services/             Business logic + authorization (one file per domain)
+    storage/              S3 client + image processing (sharp)
+  proxy.ts                Redirects signed-out visitors away from app pages
+drizzle/                  SQL migrations
+scripts/                  db-migrate, db-seed, build-countries
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the data model, API, security model and how to extend it.

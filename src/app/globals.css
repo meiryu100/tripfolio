@@ -1,26 +1,258 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Theme: Telemedicine palette (calm medical teal, "video" green, "waiting" amber,
+ * trust white) with Soft UI Evolution surfaces and AI-Native accents.
+ * Text/background pairs are chosen for ≥ 4.5:1 contrast.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f0fdfa;
+  --surface: #ffffff;
+  --surface-2: #e8f1f6;
+  --border: #cdeee8;
+  --fg: #134e4a;
+  --muted: #475569;
+  --brand: #0e7490;
+  --brand-fg: #ffffff;
+  --brand-soft: #dff6fa;
+  --brand-bright: #0891b2;
+  --ai: #6366f1;
+  --ai-soft: #eef0ff;
+  --visited: #15803d;
+  --visited-soft: #dcfce7;
+  --wishlist: #b45309;
+  --wishlist-soft: #fef3c7;
+  /* Map fills (large areas, no text on them): brighter than the text-safe tokens. */
+  --visited-fill: #16a34a;
+  --wishlist-fill: #f59e0b;
+  --photo-stroke: #4f46e5;
+  --land: #d5e4e8;
+  --ocean: #f4fbfc;
+  --danger: #dc2626;
+  --on-status: #ffffff;
+
+  /* Soft UI Evolution: layered, low-opacity, slightly tinted shadows. */
+  --shadow-sm: 0 1px 2px rgb(19 78 74 / 0.06), 0 1px 1px rgb(19 78 74 / 0.04);
+  --shadow: 0 1px 2px rgb(19 78 74 / 0.05), 0 4px 12px -2px rgb(19 78 74 / 0.08), 0 12px 32px -12px rgb(19 78 74 / 0.12);
+  --shadow-lg: 0 2px 6px rgb(19 78 74 / 0.06), 0 16px 40px -8px rgb(19 78 74 / 0.18);
+  --highlight: inset 0 1px 0 rgb(255 255 255 / 0.9);
+  --pressed: inset 0 2px 4px rgb(19 78 74 / 0.12);
+}
+
+.dark {
+  --bg: #071416;
+  --surface: #0e1e21;
+  --surface-2: #15292d;
+  --border: #21393e;
+  --fg: #e6f6f4;
+  --muted: #9fb3ba;
+  --brand: #22d3ee;
+  --brand-fg: #062a30;
+  --brand-soft: #0d3138;
+  --brand-bright: #22d3ee;
+  --ai: #a5b4fc;
+  --ai-soft: #1d2147;
+  --visited: #4ade80;
+  --visited-soft: #0f2f1c;
+  --wishlist: #fbbf24;
+  --wishlist-soft: #33270b;
+  --visited-fill: #22c55e;
+  --wishlist-fill: #fbbf24;
+  --photo-stroke: #a5b4fc;
+  --land: #233a3f;
+  --ocean: #0a191c;
+  --danger: #f87171;
+  --on-status: #06201a;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 8px 24px -8px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 2px 6px rgb(0 0 0 / 0.4), 0 20px 48px -12px rgb(0 0 0 / 0.6);
+  --highlight: inset 0 1px 0 rgb(255 255 255 / 0.04);
+  --pressed: inset 0 2px 4px rgb(0 0 0 / 0.4);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-bright: var(--brand-bright);
+  --color-ai: var(--ai);
+  --color-ai-soft: var(--ai-soft);
+  --color-visited: var(--visited);
+  --color-visited-soft: var(--visited-soft);
+  --color-wishlist: var(--wishlist);
+  --color-wishlist-soft: var(--wishlist-soft);
+  --color-land: var(--land);
+  --color-ocean: var(--ocean);
+  --color-danger: var(--danger);
+  --color-on-status: var(--on-status);
+  --color-visited-fill: var(--visited-fill);
+  --color-wishlist-fill: var(--wishlist-fill);
+  --shadow-card: var(--shadow), var(--highlight);
+  --shadow-soft: var(--shadow-sm), var(--highlight);
+  --shadow-float: var(--shadow-lg);
+  --shadow-pressed: var(--pressed);
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-heading-face);
   --font-mono: var(--font-geist-mono);
+
+  /* Soft UI radii: 8–12px for controls, a little more for large surfaces. */
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 14px;
+  --radius-3xl: 20px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 100% -10%, color-mix(in oklab, var(--ai) 7%, transparent), transparent 60%),
+    radial-gradient(900px 500px at -10% 0%, color-mix(in oklab, var(--brand-bright) 8%, transparent), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--fg);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading-face), var(--font-body), ui-sans-serif, sans-serif;
+  text-wrap: balance;
+}
+
+/* Tailwind v4 leaves buttons with the default arrow cursor; restore the hand. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  [role="option"],
+  [role="switch"],
+  label[for],
+  summary {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
+
+/* Grid items default to min-width:auto and push layouts wider than phones; let them shrink. */
+@layer base {
+  .grid > * {
+    min-width: 0;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-bright);
+  outline-offset: 2px;
+}
+
+/* ─── Motion (200–300ms, soft easing) ───────────────────────────────────── */
+
+@keyframes sheet-up {
+  from { transform: translateY(16px) scale(0.99); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes rise-in {
+  from { transform: translateY(6px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes toast-in {
+  from { transform: translateY(8px) scale(0.98); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes dot-pulse {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.35; }
+  40% { transform: scale(1); opacity: 1; }
+}
+@keyframes ai-shimmer {
+  from { background-position: 0% 50%; }
+  to { background-position: 200% 50%; }
+}
+
+.animate-sheet { animation: sheet-up 0.26s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.animate-fade { animation: fade-in 0.2s ease-out; }
+.animate-rise { animation: rise-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.animate-toast { animation: toast-in 0.24s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* AI-Native typing indicator (3-dot pulse) */
+.typing-dots { display: inline-flex; gap: 6px; }
+.typing-dots > span {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: dot-pulse 1.2s ease-in-out infinite;
+}
+.typing-dots > span:nth-child(2) { animation-delay: 0.15s; }
+.typing-dots > span:nth-child(3) { animation-delay: 0.3s; }
+
+/* Gradient text for AI-native accents */
+.text-gradient {
+  background: linear-gradient(100deg, var(--brand-bright), var(--ai), var(--brand-bright));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: ai-shimmer 8s linear infinite;
+}
+
+/* Soft glass surface for floating chrome (nav, map controls, overlays) */
+.glass {
+  background: color-mix(in oklab, var(--surface) 82%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+
+/* AI-Native "context card": quiet surface with an accent rule on the left */
+.context-card {
+  border-left: 3px solid var(--ai);
+  background: var(--ai-soft);
+}
+
+/* A country that just changed status glows briefly. */
+@keyframes country-pulse {
+  0% { filter: brightness(1.35) drop-shadow(0 0 0 transparent); }
+  40% { filter: brightness(1.15) drop-shadow(0 0 6px color-mix(in oklab, var(--brand-bright) 70%, transparent)); }
+  100% { filter: none; }
+}
+.country-pulse { animation: country-pulse 0.9s ease-out; }
+
+.country-path {
+  transition: fill 0.25s ease, filter 0.2s ease;
+  vector-effect: non-scaling-stroke;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
