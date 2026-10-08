@@ -5,11 +5,13 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { Page } from "@/components/app-shell";
 import { Stat, TripGrid, TripGridSkeleton } from "@/components/cards";
+import { CountUp, Reveal } from "@/components/motion";
 import { CountrySearch } from "@/components/country-search";
 import { Button, EmptyState, ErrorState, Skeleton, buttonClass } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
 import { useUserMap } from "@/features/map/api";
-import { MapSkeleton, WorldMap } from "@/features/map/world-map";
+import { MapPanel } from "@/features/map/map-panel";
+import { useUserRegions } from "@/features/map/regions-api";
 import { ActivityItem } from "@/features/social/activity-item";
 import { flatten, useFeed, useProfile } from "@/features/social/api";
 import { computeStats, type TravelStats } from "@/features/stats/compute";
@@ -17,7 +19,7 @@ import { ByContinent, ContinentChecklist, Milestones, WorldProgress } from "@/fe
 import { useUserTrips } from "@/features/trips/api";
 import { getCountry } from "@/lib/countries";
 import type { CountryStatus } from "@/lib/types";
-import { openCountry, openTripEditor, useUI } from "@/lib/ui";
+import { openCountry, openTripEditor } from "@/lib/ui";
 import { greeting } from "@/lib/utils";
 
 export default function HomePage() {
@@ -25,7 +27,6 @@ export default function HomePage() {
   const map = useUserMap(me.username);
   const profile = useProfile(me.username);
   const trips = useUserTrips(me.username, { limit: 4 });
-  const selected = useUI((s) => (s.countrySheet?.username === me.username ? s.countrySheet.code : null));
   const stats = useMemo(() => computeStats(map.data?.statuses ?? {}), [map.data]);
   const recent = flatten(trips.data).slice(0, 4);
   const isEmpty = map.isSuccess && stats.visited === 0 && stats.wishlist === 0;
@@ -38,7 +39,9 @@ export default function HomePage() {
             {/* Client-only page, so local time is safe here. */}
             {greeting()}, {me.firstName}
           </p>
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Welcome back to your world</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
+            Welcome back to <span className="text-gradient">your world</span>
+          </h1>
         </div>
         <CountrySearch
           className="w-full sm:w-72"
@@ -53,36 +56,35 @@ export default function HomePage() {
           Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-[84px]" />)
         ) : (
           <>
-            <Stat value={stats.visited} label="Countries Visited" tone="visited" icon={Globe2} />
-            <Stat value={stats.wishlist} label="Countries to Visit" tone="wishlist" icon={Heart} href="/wishlist" />
-            <Stat value={profile.data?.counts.trips ?? "–"} label="Trips" icon={Luggage} href="/trips" />
-            <Stat value={`${stats.explored.toFixed(1)}%`} label="of the World" tone="brand" icon={MapPinned} />
+            <Reveal index={0}>
+              <Stat value={stats.visited} label="Countries Visited" tone="visited" icon={Globe2} />
+            </Reveal>
+            <Reveal index={1}>
+              <Stat value={stats.wishlist} label="Countries to Visit" tone="wishlist" icon={Heart} href="/wishlist" />
+            </Reveal>
+            <Reveal index={2}>
+              <Stat value={profile.data?.counts.trips ?? "–"} label="Trips" icon={Luggage} href="/trips" />
+            </Reveal>
+            <Reveal index={3}>
+              <Stat value={<CountUp value={stats.explored} decimals={1} suffix="%" />} label="of the World" tone="brand" icon={MapPinned} />
+            </Reveal>
           </>
         )}
       </section>
 
       {map.data && <InsightCard statuses={map.data.statuses} explored={stats.explored} username={me.username} />}
 
-      <section className="relative" aria-label="Your world map">
-        {map.isPending ? (
-          <MapSkeleton />
-        ) : map.isError ? (
-          <ErrorState body="We couldn't load your map." onRetry={() => map.refetch()} />
-        ) : (
-          <WorldMap
-            statuses={map.data.statuses}
-            photoCountries={map.data.photoCountries}
-            selected={selected}
-            onSelect={(code) => openCountry(code, me.username)}
-            className="aspect-[4/3] w-full border border-border shadow-card sm:aspect-[16/9] lg:aspect-[2/1]"
-          />
-        )}
+      <Reveal as="section" className="relative" aria-label="Your world map">
+        <MapPanel
+          username={me.username}
+          className="aspect-[4/3] w-full border border-border shadow-card sm:aspect-[16/9] lg:aspect-[2/1]"
+        />
         {isEmpty && (
           <div className="pointer-events-none absolute inset-x-0 top-4 flex justify-center px-4">
             <p className="glass rounded-full px-4 py-2 text-sm font-medium shadow-card">Tap any country to start building your world</p>
           </div>
         )}
-      </section>
+      </Reveal>
 
       {isEmpty && (
         <EmptyState
@@ -134,25 +136,28 @@ export default function HomePage() {
         )}
       </section>
 
-      {map.data && !isEmpty && <TravelStatsSection stats={stats} photos={profile.data?.counts.photos ?? null} />}
+      {map.data && !isEmpty && <TravelStatsSection stats={stats} photos={profile.data?.counts.photos ?? null} username={me.username} />}
 
       <FriendsActivity />
     </Page>
   );
 }
 
-function TravelStatsSection({ stats, photos }: { stats: TravelStats; photos: number | null }) {
+function TravelStatsSection({ stats, photos, username }: { stats: TravelStats; photos: number | null; username: string }) {
+  const regions = useUserRegions(username);
+  const usStates = Object.entries(regions.data?.statuses ?? {}).filter(([code, st]) => st === "visited" && code !== "US-DC").length;
   return (
-    <section className="mt-10" aria-labelledby="travel-stats">
+    <Reveal as="section" className="mt-10" aria-labelledby="travel-stats">
       <h2 id="travel-stats" className="mb-3 text-xl font-bold">
         My Travel Stats
       </h2>
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="grid gap-4 lg:col-span-2">
           <WorldProgress stats={stats} />
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
             <Stat value={stats.visited} label="Countries" tone="visited" />
             <Stat value={`${stats.continentsVisited} / 7`} label="Continents" />
+            <Stat value={`${usStates} / 50`} label="US states" />
             <Stat value={photos ?? "–"} label="Photos" />
             <Stat value={stats.wishlist} label="On Wishlist" tone="wishlist" />
           </div>
@@ -163,7 +168,7 @@ function TravelStatsSection({ stats, photos }: { stats: TravelStats; photos: num
           <ByContinent stats={stats} />
         </div>
       </div>
-    </section>
+    </Reveal>
   );
 }
 
@@ -172,7 +177,7 @@ function FriendsActivity() {
   const items = flatten(feed.data).slice(0, 4);
   if (feed.isPending || items.length === 0) return null;
   return (
-    <section className="mt-10" aria-labelledby="friends-activity">
+    <Reveal as="section" className="mt-10" aria-labelledby="friends-activity">
       <div className="mb-3 flex items-center justify-between">
         <h2 id="friends-activity" className="text-xl font-bold">
           From people you follow
@@ -186,7 +191,7 @@ function FriendsActivity() {
           <ActivityItem key={a.id} activity={a} compact />
         ))}
       </div>
-    </section>
+    </Reveal>
   );
 }
 

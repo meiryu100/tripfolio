@@ -1,12 +1,15 @@
 "use client";
 
-import { Camera, Heart, MapPinned, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Camera, Compass, Globe2, MapPinned, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
+import { CountUp, Parallax, Reveal } from "@/components/motion";
 import { illustration, Photo } from "@/components/photo";
-import { buttonClass } from "@/components/ui";
+import { Avatar, buttonClass } from "@/components/ui";
 import { useMeQuery } from "@/features/auth/api";
+import { useExplore } from "@/features/explore/api";
 import { WorldMap } from "@/features/map/world-map";
+import { getCountry } from "@/lib/countries";
 import type { CountryStatus } from "@/lib/types";
 
 const PREVIEW: Record<string, CountryStatus> = Object.fromEntries([
@@ -14,95 +17,204 @@ const PREVIEW: Record<string, CountryStatus> = Object.fromEntries([
   ...["AR", "CL", "NZ", "ZA", "KE", "IN", "NO", "ID", "MN", "CO"].map((c) => [c, "wishlist"]),
 ]);
 
-const FEATURES = [
-  { icon: MapPinned, title: "Countries Visited", body: "Tap a country to paint your map green. Watch your % of the world grow.", color: "text-visited bg-visited-soft" },
-  { icon: Heart, title: "Countries Wishlist", body: "Keep a list of where you're going next, right on the same map.", color: "text-wishlist bg-wishlist-soft" },
-  { icon: Camera, title: "Travel Photos", body: "Attach photos, dates and notes to every trip — or keep it to a single tap.", color: "text-brand bg-brand-soft" },
-  { icon: Users, title: "Social Profiles", body: "Follow friends, explore their maps, and discover your next destination.", color: "text-ai bg-ai-soft" },
+const STORY = [
+  {
+    icon: MapPinned,
+    kicker: "01 · Map it",
+    title: "Paint the world you've seen",
+    body: "Tap a country and it lights up. Visited in green, dreams in orange — and a live count of how much of the planet you've explored.",
+  },
+  {
+    icon: Camera,
+    kicker: "02 · Remember it",
+    title: "Keep every trip, not just the country",
+    body: "Dates, cities, photos and the story you'll want to tell. Go back to Japan three times? That's three trips on one country.",
+  },
+  {
+    icon: Users,
+    kicker: "03 · Share it",
+    title: "Discover the world through friends",
+    body: "Follow travelers, explore their maps, and find your next destination in the places they loved.",
+  },
 ];
 
 export default function LandingPage() {
   const me = useMeQuery().data;
   return (
-    <div className="min-h-dvh">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        <Logo />
-        {me ? (
-          <Link href="/home" className={buttonClass("primary", "sm")}>
-            Open my world
-          </Link>
-        ) : (
-          <Link href="/login" className={buttonClass("ghost", "sm")}>
-            Log In
-          </Link>
-        )}
+    <div className="min-h-dvh overflow-x-clip">
+      <header className="glass sticky top-0 z-30 border-b border-border/60">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+          <Logo />
+          {me ? (
+            <Link href="/home" className={buttonClass("primary", "sm")}>
+              Open my world
+            </Link>
+          ) : (
+            <div className="flex items-center gap-1">
+              <Link href="/login" className={buttonClass("ghost", "sm")}>
+                Log In
+              </Link>
+              <Link href="/register" className={buttonClass("primary", "sm", "hidden sm:inline-flex")}>
+                Get Started
+              </Link>
+            </div>
+          )}
+        </div>
       </header>
 
-      <section className="relative mx-auto max-w-6xl px-4 pt-8 pb-16 sm:px-6 sm:pt-14">
-        <div className="relative z-10 mx-auto max-w-2xl text-center">
-          <p className="glass mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border px-3.5 py-1.5 text-sm font-medium text-muted shadow-soft">
-            <Sparkles className="size-4 text-ai" aria-hidden /> Your travel memory, beautifully organized
+      {/* ── Hero: headline + parallax layers (map, floating cards, stats) ── */}
+      <section className="relative mx-auto max-w-6xl px-4 pt-14 pb-20 sm:px-6 sm:pt-20">
+        <div className="animate-rise relative z-10 mx-auto max-w-3xl text-center">
+          <p className="glass mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border px-4 py-1.5 text-sm font-medium text-muted shadow-soft">
+            <Sparkles className="size-4 text-ai" aria-hidden /> Your travel memory, beautifully mapped
           </p>
-          <h1 className="text-5xl font-bold tracking-tight sm:text-7xl">
+          <h1 className="text-5xl leading-[1.02] font-bold tracking-tight sm:text-7xl">
             Your world.
             <br />
             <span className="text-gradient">Your journeys.</span>
             <br />
-            <span className="text-brand">Your memories.</span>
+            Your memories.
           </h1>
-          <p className="mx-auto mt-5 max-w-lg text-lg text-muted">
+          <p className="mx-auto mt-6 max-w-xl text-lg text-muted sm:text-xl">
             Map every country you&apos;ve been to, keep the stories behind them, and explore the world through other travelers.
           </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href={me ? "/home" : "/register"} className={buttonClass("primary", "lg", "min-w-44")}>
-              Get Started
+          <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link href={me ? "/home" : "/register"} className={buttonClass("primary", "lg", "min-w-48 text-base")}>
+              Start your map <ArrowRight className="size-5" />
             </Link>
             {!me && (
-              <Link href="/login" className={buttonClass("secondary", "lg", "min-w-44")}>
-                Log In
+              <Link href="/login" className={buttonClass("secondary", "lg", "min-w-48 text-base")}>
+                I have an account
               </Link>
             )}
           </div>
         </div>
 
-        <div className="relative mt-12">
-          <WorldMap statuses={PREVIEW} zoomable={false} className="aspect-[2/1] w-full border border-border shadow-card" />
-          <FloatingCard className="top-[8%] left-[3%] hidden sm:flex" emoji="🗻" hue={350} title="Japan Adventure" sub="Mar 12 – Mar 25 · 8 photos" />
-          <FloatingCard className="right-[4%] bottom-[18%] hidden md:flex" emoji="🏔️" hue={140} title="Inca Trail" sub="@davidtravel · 83 countries" />
-          <div className="absolute top-4 right-4 rounded-2xl border border-border glass px-4 py-3 shadow-card">
-            <p className="text-2xl font-semibold text-visited tabular-nums">20</p>
-            <p className="text-xs text-muted">Countries · 10.3% of the world</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-border">
-        <div className="mx-auto grid max-w-6xl gap-4 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
-          {FEATURES.map(({ icon: Icon, title, body, color }) => (
-            <div key={title} className="rounded-2xl border border-border bg-surface p-5 shadow-card transition duration-200 hover:-translate-y-0.5 hover:shadow-float">
-              <span className={`flex size-10 items-center justify-center rounded-xl ${color}`}>
-                <Icon className="size-5" />
-              </span>
-              <h3 className="mt-4 font-semibold">{title}</h3>
-              <p className="mt-1 text-sm text-muted">{body}</p>
+        <div className="relative mt-16">
+          <Parallax speed={-0.05}>
+            <div className="aurora-border rounded-[2rem] p-1.5 shadow-float">
+              <WorldMap statuses={PREVIEW} zoomable={false} className="aspect-[2/1] w-full rounded-[1.6rem]" />
             </div>
-          ))}
+          </Parallax>
+
+          <Parallax speed={-0.14} className="absolute top-[6%] -left-2 hidden sm:block lg:-left-10">
+            <FloatingTrip emoji="🗻" hue={350} title="Autumn in Japan" sub="Nov 8 – Nov 21 · 3 photos" flag="🇯🇵" />
+          </Parallax>
+          <Parallax speed={-0.22} className="absolute right-0 bottom-[12%] hidden md:block lg:-right-10">
+            <FloatingTrip emoji="🏔️" hue={140} title="Andes & Machu Picchu" sub="@daniel.wanders" flag="🇵🇪" delay />
+          </Parallax>
+          <Parallax speed={-0.1} className="absolute -top-6 right-4 sm:right-10">
+            <div className="glass animate-float rounded-3xl border border-border px-5 py-4 shadow-float">
+              <p className="font-heading text-3xl font-bold text-visited">
+                <CountUp value={20} />
+              </p>
+              <p className="text-xs text-muted">
+                countries · <CountUp value={10.3} decimals={1} suffix="%" /> of the world
+              </p>
+            </div>
+          </Parallax>
         </div>
       </section>
 
-      <footer className="py-8 text-center text-sm text-muted">Travora · Made for people who collect places.</footer>
+      {/* ── Story: three steps, alternating, revealed on scroll ── */}
+      <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-20 sm:px-6 md:grid-cols-3">
+        {STORY.map(({ icon: Icon, kicker, title, body }, i) => (
+          <Reveal key={title} index={i} className="lift rounded-3xl border border-border bg-surface/80 p-7 shadow-card backdrop-blur">
+            <span className="bg-aurora flex size-12 items-center justify-center rounded-2xl text-white shadow-glow" aria-hidden>
+              <Icon className="size-6" />
+            </span>
+            <p className="mt-5 text-xs font-semibold tracking-[0.18em] text-brand uppercase">{kicker}</p>
+            <h2 className="mt-2 text-2xl font-bold">{title}</h2>
+            <p className="mt-2 text-muted">{body}</p>
+          </Reveal>
+        ))}
+      </section>
+
+      <CommunityStrip signedIn={Boolean(me)} />
+
+      {/* ── Closing call to action ── */}
+      <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
+        <Reveal className="bg-aurora relative overflow-hidden rounded-[2rem] px-6 py-16 text-center text-white shadow-float sm:px-12">
+          <Globe2 className="mx-auto size-12 opacity-90" aria-hidden />
+          <h2 className="mx-auto mt-4 max-w-2xl text-4xl font-bold sm:text-5xl">Where will your map go next?</h2>
+          <p className="mx-auto mt-3 max-w-lg text-lg text-white/90">It takes a minute to start. Your first country is one tap away.</p>
+          <Link
+            href={me ? "/home" : "/register"}
+            className="shine mt-8 inline-flex h-13 items-center gap-2 rounded-xl bg-white px-7 text-base font-semibold text-[#0c4a6e] shadow-float transition duration-300 hover:-translate-y-0.5"
+          >
+            {me ? "Open my world" : "Create your free account"} <ArrowRight className="size-5" />
+          </Link>
+        </Reveal>
+      </section>
+
+      <footer className="pb-10 text-center text-sm text-muted">Tripfolio · Made for people who collect places.</footer>
     </div>
   );
 }
 
-function FloatingCard({ className, emoji, hue, title, sub }: { className: string; emoji: string; hue: number; title: string; sub: string }) {
+function FloatingTrip({ emoji, hue, title, sub, flag, delay }: { emoji: string; hue: number; title: string; sub: string; flag: string; delay?: boolean }) {
   return (
-    <div className={`absolute items-center gap-3 rounded-2xl border border-border glass p-2 pr-4 shadow-card ${className}`}>
-      <Photo photo={illustration(emoji, hue)} className="size-12 rounded-xl" emojiSize="text-2xl" />
+    <div
+      className="glass animate-float flex items-center gap-3 rounded-3xl border border-border p-2.5 pr-5 shadow-float"
+      style={delay ? { animationDelay: "-3s" } : undefined}
+    >
+      <Photo photo={illustration(emoji, hue)} className="size-14 rounded-2xl" emojiSize="text-2xl" />
       <div>
-        <p className="text-sm font-semibold">{title}</p>
+        <p className="flex items-center gap-1.5 text-sm font-semibold">
+          <span aria-hidden>{flag}</span> {title}
+        </p>
         <p className="text-xs text-muted">{sub}</p>
       </div>
     </div>
+  );
+}
+
+/** Real journeys from the community — social proof with real photos. */
+function CommunityStrip({ signedIn }: { signedIn: boolean }) {
+  const { data } = useExplore();
+  // One trip per traveler, so the strip shows a variety of people and places.
+  const seen = new Set<string>();
+  const trips = (data?.journeys ?? []).filter((t) => t.cover && !seen.has(t.userId) && seen.add(t.userId)).slice(0, 6);
+  if (!trips.length) return null;
+  return (
+    <section className="pb-24" aria-labelledby="community">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold tracking-[0.18em] text-brand uppercase">From the community</p>
+            <h2 id="community" className="mt-2 text-3xl font-bold sm:text-4xl">
+              Real trips, <span className="text-gradient">real travelers</span>
+            </h2>
+          </div>
+          <Link href={signedIn ? "/explore" : "/register"} className={buttonClass("secondary")}>
+            <Compass className="size-4" /> Explore journeys
+          </Link>
+        </Reveal>
+      </div>
+      <div className="no-scrollbar mx-auto flex max-w-6xl snap-x gap-4 overflow-x-auto px-4 pb-4 sm:px-6">
+        {trips.map((t, i) => {
+          const c = getCountry(t.countryCode);
+          return (
+            <Reveal key={t.id} index={i} className="w-72 shrink-0 snap-start">
+              <div className="lift group relative overflow-hidden rounded-3xl shadow-card">
+                <Photo photo={t.cover} size="full" className="aspect-[4/5] w-full transition duration-700 group-hover:scale-[1.06]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" aria-hidden />
+                <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+                  <p className="flex items-center gap-1.5 text-sm font-medium text-white/90">
+                    <span aria-hidden>{c?.flag}</span> {c?.name}
+                  </p>
+                  <p className="mt-1 font-heading text-xl leading-tight font-bold">{t.title}</p>
+                  {t.author && (
+                    <p className="mt-3 flex items-center gap-2 text-sm text-white/90">
+                      <Avatar user={t.author} size={24} /> @{t.author.username}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </Reveal>
+          );
+        })}
+      </div>
+    </section>
   );
 }

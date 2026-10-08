@@ -14,7 +14,7 @@ import { useTrip } from "@/features/trips/api";
 import { ApiError } from "@/lib/api-client";
 import { getCountry } from "@/lib/countries";
 import type { Photo as PhotoType } from "@/lib/types";
-import { openTripEditor } from "@/lib/ui";
+import { openTripEditor, useUI } from "@/lib/ui";
 import { formatDateRange, plural } from "@/lib/utils";
 
 export default function TripDetailsPage() {
@@ -22,6 +22,11 @@ export default function TripDetailsPage() {
   const me = useMe();
   const { data: trip, isPending, isError, error, refetch } = useTrip(id);
   const [lightbox, setLightbox] = useState<number | null>(null);
+
+  useEffect(() => {
+    useUI.setState({ viewingTripOwner: trip?.userId ?? null });
+    return () => useUI.setState({ viewingTripOwner: null });
+  }, [trip?.userId]);
 
   if (isPending) {
     return (
@@ -49,6 +54,8 @@ export default function TripDetailsPage() {
   const isMine = trip.userId === me.id;
   const dates = formatDateRange(trip.startDate, trip.endDate, true);
   const photos = trip.photos ?? [];
+  // Photo credits (e.g. "📷 Photos via Wikimedia Commons: …") are shown as a caption, not as part of the story.
+  const [story, credit] = splitCredit(trip.description);
 
   return (
     <Page back={<BackLink fallback={isMine ? "/trips" : `/u/${trip.author?.username ?? ""}`} label={c?.name ?? "Back"} />}>
@@ -96,9 +103,9 @@ export default function TripDetailsPage() {
         </Link>
       )}
 
-      {trip.description && (
+      {story && (
         <blockquote className="context-card mt-6 rounded-r-2xl px-5 py-4 text-lg leading-relaxed whitespace-pre-line">
-          “{trip.description}”
+          “{story}”
         </blockquote>
       )}
 
@@ -124,6 +131,7 @@ export default function TripDetailsPage() {
             ))}
           </div>
         )}
+        {credit && <p className="mt-3 text-xs text-muted">{credit}</p>}
       </section>
 
       {isMine && (
@@ -135,6 +143,12 @@ export default function TripDetailsPage() {
       {lightbox !== null && <Lightbox photos={photos} index={lightbox} onIndex={setLightbox} onClose={() => setLightbox(null)} />}
     </Page>
   );
+}
+
+function splitCredit(description: string): [string, string | null] {
+  const i = description.lastIndexOf("📷");
+  if (i === -1) return [description, null];
+  return [description.slice(0, i).trim(), description.slice(i).trim()];
 }
 
 function Lightbox({

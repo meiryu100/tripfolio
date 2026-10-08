@@ -2,6 +2,7 @@
 
 import { CalendarDays, Check, ChevronRight, Circle, Compass, Heart, Images, Plus } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { TripCover } from "@/components/photo";
 import { Avatar, Button, Sheet, SheetClose, Skeleton } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
@@ -11,7 +12,7 @@ import { useUserTrips } from "@/features/trips/api";
 import { errorMessage } from "@/lib/api-client";
 import { getCountry } from "@/lib/countries";
 import type { CountryStatus, Trip, UserSummary } from "@/lib/types";
-import { closeCountry, openTripEditor, pulseCountry, toast, useUI } from "@/lib/ui";
+import { closeCountry, openTripEditor, pulseCountry, setMapView, toast, useUI } from "@/lib/ui";
 import { cn, formatDateRange, plural } from "@/lib/utils";
 import { useSetCountryStatus, useUserMap } from "./api";
 
@@ -72,6 +73,7 @@ function CountrySheetBody({ code, username }: { code: string; username: string }
 
       <div className="overflow-y-auto px-6 pb-6">
         {isMine ? <MyCountry code={code} name={country.name} /> : <TheirCountry code={code} username={username} />}
+        {code === "US" && <OpenStatesMap />}
         <PeopleYouFollow code={code} exclude={isMine ? undefined : username} />
         <Link
           href={`/explore/${code.toLowerCase()}`}
@@ -234,6 +236,33 @@ function TheirCountry({ code, username }: { code: string; username: string }) {
         )}
       </div>
     </div>
+  );
+}
+
+/** The USA has its own states map: jump to it from the country sheet. */
+function OpenStatesMap() {
+  const router = useRouter();
+  const open = () => {
+    closeCountry();
+    setMapView("US");
+    const tabs = document.querySelector('[role="tablist"][aria-label="Map"]');
+    if (tabs) tabs.scrollIntoView({ behavior: "smooth", block: "center" });
+    else router.push("/map");
+  };
+  return (
+    <button
+      onClick={open}
+      className="lift mt-5 flex w-full items-center gap-3 rounded-2xl border border-border bg-surface p-3 text-left shadow-soft"
+    >
+      <span className="bg-aurora flex size-11 shrink-0 items-center justify-center rounded-xl text-xl shadow-glow" aria-hidden>
+        🇺🇸
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-semibold">Open the 50 states map</span>
+        <span className="block text-sm text-muted">Mark the states you&apos;ve visited</span>
+      </span>
+      <ChevronRight className="size-5 text-muted" aria-hidden />
+    </button>
   );
 }
 

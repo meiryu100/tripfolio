@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowRight, Globe2, PartyPopper, X } from "lucide-react";
+import { ArrowRight, PartyPopper, X } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { CountrySearch } from "@/components/country-search";
@@ -16,6 +17,7 @@ import { getCountry } from "@/lib/countries";
 import type { CountryStatus, Me } from "@/lib/types";
 import { toast } from "@/lib/ui";
 import { cn } from "@/lib/utils";
+import mark from "../../../public/brand/tripfolio-mark.png";
 
 type Step = 0 | 1 | 2 | 3;
 
@@ -90,8 +92,8 @@ export default function OnboardingPage() {
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 pb-8 sm:px-6">
         {step === 0 && (
           <Centered>
-            <HeroBadge><Globe2 className="size-10" /></HeroBadge>
-            <h1 className="mt-6 text-4xl font-bold tracking-tight">Welcome to Travora, {me.firstName} 🌎</h1>
+            <Image src={mark} alt="" priority className="animate-float h-32 w-auto drop-shadow-xl" />
+            <h1 className="mt-6 text-4xl font-bold tracking-tight">Welcome to Tripfolio, {me.firstName} 🌎</h1>
             <p className="mt-3 max-w-md text-lg text-muted">
               Let&apos;s paint your map. It takes about a minute — and you can skip anything.
             </p>
@@ -150,7 +152,7 @@ export default function OnboardingPage() {
 
 function HeroBadge({ children }: { children: React.ReactNode }) {
   return (
-    <span aria-hidden className="flex size-20 items-center justify-center rounded-3xl bg-gradient-to-br from-brand-bright to-ai text-white shadow-float">
+    <span aria-hidden className="flex size-20 items-center justify-center rounded-3xl bg-aurora text-white shadow-float">
       {children}
     </span>
   );

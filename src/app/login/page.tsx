@@ -57,8 +57,8 @@ function LoginForm() {
           type="button"
           className="mt-4 w-full rounded-xl border border-dashed border-border px-4 py-3 text-left text-sm text-muted transition hover:border-brand/50 hover:text-fg"
           onClick={() => {
-            setEmail("demo@travora.app");
-            setPassword("travora123");
+            setEmail("demo@tripfolio.app");
+            setPassword("tripfolio123");
           }}
         >
           <span className="font-semibold text-fg">Just looking?</span> Fill in the demo account (Meir, 27 countries).

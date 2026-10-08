@@ -3,12 +3,15 @@
  * "seed:emoji:hue" scheme and render as illustrated covers.
  */
 
-export const SEED_PASSWORD = "travora123";
-export const DEMO_EMAIL = "demo@travora.app";
+import travelers from "./seed-travelers.json";
+
+export const SEED_PASSWORD = "tripfolio123";
+export const DEMO_EMAIL = "demo@tripfolio.app";
 
 export interface SeedUser {
   id: string;
   firstName: string;
+  gender: "male" | "female";
   lastName: string;
   username: string;
   bio: string;
@@ -32,6 +35,7 @@ const photo = (emoji: string, hue: number) => `seed:${emoji}:${hue}`;
 export const SEED_USERS: SeedUser[] = [
   {
     id: "u_demo",
+    gender: "male",
     firstName: "Meir",
     lastName: "Yoshvaev",
     username: "meir",
@@ -49,6 +53,7 @@ export const SEED_USERS: SeedUser[] = [
   },
   {
     id: "u_david",
+    gender: "male",
     firstName: "David",
     lastName: "Cohen",
     username: "davidtravel",
@@ -65,6 +70,7 @@ export const SEED_USERS: SeedUser[] = [
   },
   {
     id: "u_sarah",
+    gender: "female",
     firstName: "Sarah",
     lastName: "Levi",
     username: "sarahwanders",
@@ -80,6 +86,7 @@ export const SEED_USERS: SeedUser[] = [
   },
   {
     id: "u_noa",
+    gender: "female",
     firstName: "Noa",
     lastName: "Ben-David",
     username: "noa.abroad",
@@ -94,6 +101,7 @@ export const SEED_USERS: SeedUser[] = [
   },
   {
     id: "u_lucas",
+    gender: "male",
     firstName: "Lucas",
     lastName: "Martin",
     username: "lucasgoes",
@@ -108,6 +116,7 @@ export const SEED_USERS: SeedUser[] = [
   },
   {
     id: "u_maya",
+    gender: "female",
     firstName: "Maya",
     lastName: "Rosen",
     username: "mayamaps",
@@ -135,3 +144,120 @@ export const SEED_FOLLOWS: Array<[string, string, number]> = [
   ["u_lucas", "u_sarah", 18],
 ];
 
+
+// ─── A traveler with real photos ─────────────────────────────────────────────
+
+export interface CommonsPhoto {
+  /** File name on Wikimedia Commons (without the "File:" prefix). */
+  file: string;
+  artist: string;
+  license: string;
+}
+
+export interface PhotoTraveler {
+  firstName: string;
+  lastName: string;
+  gender: "male" | "female";
+  username: string;
+  email: string;
+  bio: string;
+  location: string;
+  wishlist: string[];
+  /** Usernames this traveler follows. */
+  follows: string[];
+  trips: Array<{
+    country: string;
+    title: string;
+    startDate: string;
+    endDate: string;
+    cities: string[];
+    notes: string;
+    photos: CommonsPhoto[];
+  }>;
+}
+
+/**
+ * Travelers whose trips use freely licensed photos from Wikimedia Commons.
+ * Photos are downloaded at seed time (not stored in the repo) and credited in
+ * each trip, as CC BY / CC BY-SA require. The 20 community travelers live in
+ * seed-travelers.json.
+ */
+export const PHOTO_TRAVELER: PhotoTraveler = {
+  firstName: "Daniel",
+  gender: "male",
+  lastName: "Avraham",
+  username: "daniel.wanders",
+  email: "daniel@example.com",
+  bio: "Chasing sunrises and street food 🌅",
+  location: "Haifa, Israel",
+  wishlist: ["NZ", "NO", "MA", "AR", "VN"],
+  follows: ["meir", "davidtravel", "sarahwanders"],
+  trips: [
+    {
+      country: "JP",
+      title: "Autumn in Japan",
+      startDate: "2024-11-08",
+      endDate: "2024-11-21",
+      cities: ["Tokyo", "Fujiyoshida", "Kyoto"],
+      notes:
+        "Climbed the 398 steps at Chureito at sunrise for that Fuji view, then got lost (happily) in the thousand torii of Fushimi Inari. Kiyomizu-dera in full autumn colour was unreal.",
+      photos: [
+        { file: "Torii path with lantern at Fushimi Inari Taisha Shrine, Kyoto, Japan.jpg", artist: "Basile Morin", license: "CC BY-SA 4.0" },
+        { file: "Chureito Pagoda and Mount Fuji 2023-03-07.jpg", artist: "Stjepko Krehula", license: "CC BY 4.0" },
+        { file: "Kiyomizu-dera, Kyoto, November 2016 -01.jpg", artist: "Martin Falbisoner", license: "CC BY-SA 4.0" },
+      ],
+    },
+    {
+      country: "PE",
+      title: "Andes & Machu Picchu",
+      startDate: "2025-05-03",
+      endDate: "2025-05-16",
+      cities: ["Lima", "Cusco", "Aguas Calientes"],
+      notes: "Four days on the Inca Trail to reach the Sun Gate at dawn. Rainbow Mountain at 5,200 m nearly broke me — worth every breath.",
+      photos: [
+        { file: "99 - Machu Picchu - Juin 2009.edit3.jpg", artist: "Martin St-Amant (S23678)", license: "CC BY-SA 3.0" },
+        { file: "Vinicunca (Rainbow Mountain).jpg", artist: "Steve FUNG", license: "CC BY-SA 4.0" },
+      ],
+    },
+    {
+      country: "IS",
+      title: "Iceland Ring Road",
+      startDate: "2025-02-10",
+      endDate: "2025-02-20",
+      cities: ["Reykjavík", "Vík", "Höfn", "Grundarfjörður"],
+      notes:
+        "Ten days of waterfalls, black sand and icebergs. Skógafoss soaked us, Jökulsárlón was silent and blue, and Kirkjufell under snow looked painted.",
+      photos: [
+        { file: "Skógafoss July 2014.JPG", artist: "Martin Falbisoner", license: "CC BY-SA 4.0" },
+        { file: "Icebergs in the Jökulsárlón Glacier Lagoon, Iceland.jpg", artist: "Marine SABRES", license: "CC BY 4.0" },
+        { file: "Kirkjufell in winter.jpg", artist: "Beardhatcode", license: "CC0" },
+      ],
+    },
+    {
+      country: "IT",
+      title: "Cinque Terre & Rome",
+      startDate: "2025-08-22",
+      endDate: "2025-09-01",
+      cities: ["Manarola", "Vernazza", "Rome"],
+      notes: "Hiked between the five villages, swam off the rocks in Manarola, then a few hot days of pasta and ruins in Rome.",
+      photos: [
+        { file: "Manarola NW Cinque Terre Sep23 A7C 07233.jpg", artist: "Timothy A. Gonsalves", license: "CC BY-SA 4.0" },
+        { file: "Rome Colosseum exterior 2.jpg", artist: "Nicholas Hartmann", license: "CC BY-SA 4.0" },
+      ],
+    },
+    {
+      country: "TH",
+      title: "Bangkok to the Islands",
+      startDate: "2026-01-05",
+      endDate: "2026-01-19",
+      cities: ["Bangkok", "Krabi", "Koh Phi Phi"],
+      notes: "Temples by the river in Bangkok, then island hopping. Maya Bay at 7am before the boats arrived was pure turquoise.",
+      photos: [
+        { file: "Templo Wat Arun, Bangkok, Tailandia, 2013-08-22, DD 30.jpg", artist: "Diego Delso", license: "CC BY-SA 3.0" },
+        { file: "Maya Bay, Koh Phi Phi, Krabi, Thailand.jpg", artist: "Vyacheslav Argenberg", license: "CC BY 4.0" },
+      ],
+    },
+  ],
+};
+
+export const COMMUNITY_TRAVELERS = travelers as PhotoTraveler[];

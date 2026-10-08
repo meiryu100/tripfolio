@@ -3,74 +3,97 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Theme: Telemedicine palette (calm medical teal, "video" green, "waiting" amber,
- * trust white) with Soft UI Evolution surfaces and AI-Native accents.
- * Text/background pairs are chosen for ≥ 4.5:1 contrast.
+ * Theme: Travel & Tourism — sky blue + adventure orange + vibrant destination
+ * colors, styled as Aurora UI (flowing northern-lights gradients) with
+ * Motion-Driven interactions (scroll reveals, staggered entrances, parallax).
+ * Text/background pairs are chosen for ≥ 4.5:1 contrast; the bright sky
+ * (#0EA5E9) is used for gradients and accents, never behind small text.
  */
 :root {
-  --bg: #f0fdfa;
+  --bg: #f0f9ff;
   --surface: #ffffff;
-  --surface-2: #e8f1f6;
-  --border: #cdeee8;
-  --fg: #134e4a;
+  --surface-2: #e8f2f8;
+  --border: #cfe6f5;
+  --fg: #0c4a6e;
   --muted: #475569;
-  --brand: #0e7490;
+  --brand: #0369a1;
   --brand-fg: #ffffff;
-  --brand-soft: #dff6fa;
-  --brand-bright: #0891b2;
-  --ai: #6366f1;
-  --ai-soft: #eef0ff;
-  --visited: #15803d;
-  --visited-soft: #dcfce7;
-  --wishlist: #b45309;
-  --wishlist-soft: #fef3c7;
-  /* Map fills (large areas, no text on them): brighter than the text-safe tokens. */
-  --visited-fill: #16a34a;
-  --wishlist-fill: #f59e0b;
-  --photo-stroke: #4f46e5;
-  --land: #d5e4e8;
-  --ocean: #f4fbfc;
+  --brand-soft: #e0f2fe;
+  --brand-bright: #0ea5e9;
+  /* Second stop of the primary gradient (white text passes on both stops). */
+  --brand-2: #4f46e5;
+  /* Aurora accent (violet) — used for AI/insight touches and gradients. */
+  --ai: #7c3aed;
+  --ai-soft: #f3efff;
+  --sun: #ea580c;
+  --visited: #047857;
+  --visited-soft: #d1fae5;
+  --wishlist: #c2410c;
+  --wishlist-soft: #ffedd5;
+  /* Map fills (large areas, no text on them): vivid destination colors. */
+  --visited-fill: #10b981;
+  --wishlist-fill: #f97316;
+  --photo-stroke: #7c3aed;
+  --land: #d6e6f2;
+  --ocean: #f5fbff;
   --danger: #dc2626;
   --on-status: #ffffff;
 
-  /* Soft UI Evolution: layered, low-opacity, slightly tinted shadows. */
-  --shadow-sm: 0 1px 2px rgb(19 78 74 / 0.06), 0 1px 1px rgb(19 78 74 / 0.04);
-  --shadow: 0 1px 2px rgb(19 78 74 / 0.05), 0 4px 12px -2px rgb(19 78 74 / 0.08), 0 12px 32px -12px rgb(19 78 74 / 0.12);
-  --shadow-lg: 0 2px 6px rgb(19 78 74 / 0.06), 0 16px 40px -8px rgb(19 78 74 / 0.18);
-  --highlight: inset 0 1px 0 rgb(255 255 255 / 0.9);
-  --pressed: inset 0 2px 4px rgb(19 78 74 / 0.12);
+  /* Aurora layer colors */
+  --aurora-1: #38bdf8;
+  --aurora-2: #a78bfa;
+  --aurora-3: #f472b6;
+  --aurora-4: #fdba74;
+  --aurora-opacity: 0.38;
+
+  --shadow-sm: 0 1px 2px rgb(12 74 110 / 0.06), 0 1px 1px rgb(12 74 110 / 0.04);
+  --shadow: 0 1px 2px rgb(12 74 110 / 0.05), 0 6px 16px -4px rgb(12 74 110 / 0.1), 0 18px 40px -16px rgb(12 74 110 / 0.16);
+  --shadow-lg: 0 4px 10px rgb(12 74 110 / 0.06), 0 24px 56px -12px rgb(12 74 110 / 0.24);
+  --highlight: inset 0 1px 0 rgb(255 255 255 / 0.85);
+  --pressed: inset 0 2px 4px rgb(12 74 110 / 0.12);
+  --glow: 0 0 0 1px rgb(14 165 233 / 0.15), 0 10px 30px -10px rgb(14 165 233 / 0.45);
 }
 
 .dark {
-  --bg: #071416;
-  --surface: #0e1e21;
-  --surface-2: #15292d;
-  --border: #21393e;
-  --fg: #e6f6f4;
-  --muted: #9fb3ba;
-  --brand: #22d3ee;
-  --brand-fg: #062a30;
-  --brand-soft: #0d3138;
-  --brand-bright: #22d3ee;
-  --ai: #a5b4fc;
-  --ai-soft: #1d2147;
-  --visited: #4ade80;
-  --visited-soft: #0f2f1c;
-  --wishlist: #fbbf24;
-  --wishlist-soft: #33270b;
-  --visited-fill: #22c55e;
-  --wishlist-fill: #fbbf24;
-  --photo-stroke: #a5b4fc;
-  --land: #233a3f;
-  --ocean: #0a191c;
+  --bg: #050b18;
+  --surface: #0b1426;
+  --surface-2: #12203a;
+  --border: #1e2e4a;
+  --fg: #e6f1ff;
+  --muted: #9fb0c8;
+  --brand: #38bdf8;
+  --brand-fg: #04121f;
+  --brand-soft: #0c2541;
+  --brand-bright: #38bdf8;
+  --brand-2: #a78bfa;
+  --ai: #c4b5fd;
+  --ai-soft: #1b1838;
+  --sun: #fb923c;
+  --visited: #34d399;
+  --visited-soft: #062e24;
+  --wishlist: #fb923c;
+  --wishlist-soft: #33190a;
+  --visited-fill: #10b981;
+  --wishlist-fill: #f97316;
+  --photo-stroke: #c4b5fd;
+  --land: #1b2a44;
+  --ocean: #08111f;
   --danger: #f87171;
-  --on-status: #06201a;
+  --on-status: #022c22;
+
+  /* Night sky: real northern-lights greens, cyans and violets. */
+  --aurora-1: #22d3ee;
+  --aurora-2: #34d399;
+  --aurora-3: #8b5cf6;
+  --aurora-4: #ec4899;
+  --aurora-opacity: 0.32;
 
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 8px 24px -8px rgb(0 0 0 / 0.5);
-  --shadow-lg: 0 2px 6px rgb(0 0 0 / 0.4), 0 20px 48px -12px rgb(0 0 0 / 0.6);
-  --highlight: inset 0 1px 0 rgb(255 255 255 / 0.04);
-  --pressed: inset 0 2px 4px rgb(0 0 0 / 0.4);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 10px 28px -10px rgb(0 0 0 / 0.6);
+  --shadow-lg: 0 4px 10px rgb(0 0 0 / 0.4), 0 24px 56px -12px rgb(0 0 0 / 0.7);
+  --highlight: inset 0 1px 0 rgb(255 255 255 / 0.05);
+  --pressed: inset 0 2px 4px rgb(0 0 0 / 0.45);
+  --glow: 0 0 0 1px rgb(56 189 248 / 0.25), 0 10px 34px -10px rgb(56 189 248 / 0.5);
 }
 
 @theme inline {
@@ -84,8 +107,10 @@
   --color-brand-fg: var(--brand-fg);
   --color-brand-soft: var(--brand-soft);
   --color-brand-bright: var(--brand-bright);
+  --color-brand-2: var(--brand-2);
   --color-ai: var(--ai);
   --color-ai-soft: var(--ai-soft);
+  --color-sun: var(--sun);
   --color-visited: var(--visited);
   --color-visited-soft: var(--visited-soft);
   --color-wishlist: var(--wishlist);
@@ -100,39 +125,38 @@
   --shadow-soft: var(--shadow-sm), var(--highlight);
   --shadow-float: var(--shadow-lg);
   --shadow-pressed: var(--pressed);
+  --shadow-glow: var(--glow);
   --font-sans: var(--font-body);
   --font-heading: var(--font-heading-face);
   --font-mono: var(--font-geist-mono);
 
-  /* Soft UI radii: 8–12px for controls, a little more for large surfaces. */
-  --radius-lg: 8px;
-  --radius-xl: 10px;
-  --radius-2xl: 14px;
-  --radius-3xl: 20px;
+  /* Friendly, rounded travel-app radii. */
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 18px;
+  --radius-3xl: 28px;
 }
 
 html {
   color-scheme: light;
+  scroll-behavior: smooth;
 }
 html.dark {
   color-scheme: dark;
 }
 
 body {
-  background:
-    radial-gradient(1200px 600px at 100% -10%, color-mix(in oklab, var(--ai) 7%, transparent), transparent 60%),
-    radial-gradient(900px 500px at -10% 0%, color-mix(in oklab, var(--brand-bright) 8%, transparent), transparent 60%),
-    var(--bg);
-  background-attachment: fixed;
+  background: var(--bg);
   color: var(--fg);
   font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.55;
   -webkit-tap-highlight-color: transparent;
 }
 
 h1, h2, h3 {
   font-family: var(--font-heading-face), var(--font-body), ui-sans-serif, sans-serif;
+  letter-spacing: -0.02em;
   text-wrap: balance;
 }
 
@@ -164,10 +188,102 @@ h1, h2, h3 {
   outline-offset: 2px;
 }
 
-/* ─── Motion (200–300ms, soft easing) ───────────────────────────────────── */
+/* ─── Aurora background ─────────────────────────────────────────────────── */
+
+/* A fixed layer of large blurred color fields that slowly drift (8–12s loops). */
+.aurora {
+  position: fixed;
+  inset: -20vmax;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: var(--aurora-opacity);
+  filter: blur(70px) saturate(1.2);
+}
+.aurora > span {
+  position: absolute;
+  width: 55vmax;
+  height: 55vmax;
+  border-radius: 9999px;
+  mix-blend-mode: normal;
+  will-change: transform;
+}
+.aurora > span:nth-child(1) { background: radial-gradient(closest-side, var(--aurora-1), transparent); top: 0; left: 5%; animation: aurora-a 11s ease-in-out infinite alternate; }
+.aurora > span:nth-child(2) { background: radial-gradient(closest-side, var(--aurora-2), transparent); top: 10%; right: 0; animation: aurora-b 12s ease-in-out infinite alternate; }
+.aurora > span:nth-child(3) { background: radial-gradient(closest-side, var(--aurora-3), transparent); bottom: 0; left: 30%; animation: aurora-c 10s ease-in-out infinite alternate; }
+.aurora > span:nth-child(4) { background: radial-gradient(closest-side, var(--aurora-4), transparent); bottom: 10%; left: -5%; width: 40vmax; height: 40vmax; animation: aurora-b 9s ease-in-out infinite alternate-reverse; }
+
+@keyframes aurora-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(12vmax, 6vmax, 0) scale(1.15); }
+}
+@keyframes aurora-b {
+  from { transform: translate3d(0, 0, 0) scale(1.1); }
+  to { transform: translate3d(-10vmax, 8vmax, 0) scale(0.95); }
+}
+@keyframes aurora-c {
+  from { transform: translate3d(0, 0, 0) rotate(0deg); }
+  to { transform: translate3d(6vmax, -10vmax, 0) rotate(25deg); }
+}
+
+/* Animated aurora gradient (for text, borders, buttons). */
+.text-gradient {
+  background: linear-gradient(100deg, var(--brand-bright), var(--ai), #ec4899, var(--sun), var(--brand-bright));
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: aurora-flow 10s linear infinite;
+}
+.bg-aurora {
+  background: linear-gradient(120deg, #0ea5e9, #6366f1, #ec4899, #f97316, #0ea5e9);
+  background-size: 300% 300%;
+  animation: aurora-flow 12s ease-in-out infinite;
+}
+@keyframes aurora-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Gradient hairline border for highlighted cards. */
+.aurora-border {
+  position: relative;
+  isolation: isolate;
+}
+.aurora-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: linear-gradient(120deg, var(--brand-bright), var(--ai), #ec4899, var(--sun));
+  background-size: 300% 300%;
+  animation: aurora-flow 10s ease-in-out infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Glass surface for floating chrome (nav, map controls, overlays). */
+.glass {
+  background: color-mix(in oklab, var(--surface) 72%, transparent);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+}
+
+/* Insight "context card": aurora-tinted surface with an accent rule. */
+.context-card {
+  border-left: 3px solid var(--ai);
+  background: linear-gradient(100deg, var(--ai-soft), color-mix(in oklab, var(--brand-soft) 70%, transparent));
+}
+
+/* ─── Motion-Driven ─────────────────────────────────────────────────────── */
 
 @keyframes sheet-up {
-  from { transform: translateY(16px) scale(0.99); opacity: 0; }
+  from { transform: translateY(24px) scale(0.98); opacity: 0; }
   to { transform: none; opacity: 1; }
 }
 @keyframes fade-in {
@@ -175,26 +291,74 @@ h1, h2, h3 {
   to { opacity: 1; }
 }
 @keyframes rise-in {
-  from { transform: translateY(6px); opacity: 0; }
-  to { transform: none; opacity: 1; }
+  from { transform: translateY(14px); opacity: 0; filter: blur(4px); }
+  to { transform: none; opacity: 1; filter: none; }
 }
 @keyframes toast-in {
-  from { transform: translateY(8px) scale(0.98); opacity: 0; }
+  from { transform: translateY(16px) scale(0.96); opacity: 0; }
   to { transform: none; opacity: 1; }
 }
 @keyframes dot-pulse {
   0%, 80%, 100% { transform: scale(0.6); opacity: 0.35; }
   40% { transform: scale(1); opacity: 1; }
 }
-@keyframes ai-shimmer {
-  from { background-position: 0% 50%; }
-  to { background-position: 200% 50%; }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
-.animate-sheet { animation: sheet-up 0.26s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.animate-fade { animation: fade-in 0.2s ease-out; }
-.animate-rise { animation: rise-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-.animate-toast { animation: toast-in 0.24s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.animate-sheet { animation: sheet-up 0.38s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-fade { animation: fade-in 0.25s ease-out; }
+/* Page entrance: every screen slides up out of a soft blur. */
+.animate-rise { animation: rise-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-toast { animation: toast-in 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-float { animation: float 6s ease-in-out infinite; }
+
+/*
+ * Scroll reveal (Intersection Observer, see <Reveal />). Only hidden once JS
+ * has marked <html class="js">, so content is never lost without JavaScript.
+ * --i staggers children: each item waits 70ms longer than the previous one.
+ */
+.js .reveal {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--i, 0) * 70ms),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--i, 0) * 70ms);
+}
+.js .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Interactive lift for cards (300–400ms, transform-only for GPU). */
+.lift {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+}
+.lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg), var(--glow);
+}
+
+/* Light sweep across primary buttons on hover. */
+.shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+.shine:hover::after {
+  transform: translateX(120%);
+}
 
 /* AI-Native typing indicator (3-dot pulse) */
 .typing-dots { display: inline-flex; gap: 6px; }
@@ -208,39 +372,16 @@ h1, h2, h3 {
 .typing-dots > span:nth-child(2) { animation-delay: 0.15s; }
 .typing-dots > span:nth-child(3) { animation-delay: 0.3s; }
 
-/* Gradient text for AI-native accents */
-.text-gradient {
-  background: linear-gradient(100deg, var(--brand-bright), var(--ai), var(--brand-bright));
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: ai-shimmer 8s linear infinite;
-}
-
-/* Soft glass surface for floating chrome (nav, map controls, overlays) */
-.glass {
-  background: color-mix(in oklab, var(--surface) 82%, transparent);
-  backdrop-filter: blur(14px) saturate(1.4);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-}
-
-/* AI-Native "context card": quiet surface with an accent rule on the left */
-.context-card {
-  border-left: 3px solid var(--ai);
-  background: var(--ai-soft);
-}
-
 /* A country that just changed status glows briefly. */
 @keyframes country-pulse {
-  0% { filter: brightness(1.35) drop-shadow(0 0 0 transparent); }
-  40% { filter: brightness(1.15) drop-shadow(0 0 6px color-mix(in oklab, var(--brand-bright) 70%, transparent)); }
+  0% { filter: brightness(1.4) drop-shadow(0 0 0 transparent); }
+  40% { filter: brightness(1.15) drop-shadow(0 0 8px color-mix(in oklab, var(--brand-bright) 75%, transparent)); }
   100% { filter: none; }
 }
 .country-pulse { animation: country-pulse 0.9s ease-out; }
 
 .country-path {
-  transition: fill 0.25s ease, filter 0.2s ease;
+  transition: fill 0.35s ease, filter 0.25s ease;
   vector-effect: non-scaling-stroke;
 }
 
@@ -250,9 +391,13 @@ h1, h2, h3 {
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
   }
+  .js .reveal { opacity: 1; transform: none; }
+  .aurora > span { animation: none; }
 }

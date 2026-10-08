@@ -4,6 +4,7 @@ import { Compass, Heart, Search, SearchX, TrendingUp, Trophy, Users, X } from "l
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { Page } from "@/components/app-shell";
+import { Reveal } from "@/components/motion";
 import { TripGrid, TripGridSkeleton, UserRow, UserRowSkeleton } from "@/components/cards";
 import { StatusDot } from "@/components/country-search";
 import { Photo } from "@/components/photo";
@@ -194,21 +195,22 @@ function CountryStrip({ items, loading }: { items?: { code: string; meta: string
     <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-4 sm:px-0 lg:grid-cols-8">
       {loading
         ? Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-32 w-32 shrink-0 sm:w-auto" />)
-        : items?.map(({ code, meta }) => {
+        : items?.map(({ code, meta }, i) => {
             const c = getCountry(code);
             if (!c) return null;
             return (
+              <Reveal key={code} index={i} className="shrink-0 sm:shrink">
               <Link
-                key={code}
                 href={`/explore/${code.toLowerCase()}`}
-                className="flex w-32 shrink-0 flex-col items-center rounded-2xl border border-border bg-surface px-3 py-4 text-center shadow-card transition duration-200 hover:-translate-y-0.5 hover:border-brand/40 sm:w-auto"
+                className="lift group flex h-full w-32 flex-col items-center rounded-3xl border border-border bg-surface/85 px-3 py-5 text-center shadow-card backdrop-blur hover:border-brand/40 sm:w-auto"
               >
-                <span className="text-4xl" aria-hidden>
+                <span className="text-5xl transition duration-500 group-hover:scale-110" aria-hidden>
                   {c.flag}
                 </span>
                 <span className="mt-2 w-full truncate text-sm font-semibold">{c.name}</span>
                 <span className="text-xs text-muted">{meta}</span>
               </Link>
+              </Reveal>
             );
           })}
     </div>
@@ -217,12 +219,12 @@ function CountryStrip({ items, loading }: { items?: { code: string; meta: string
 
 function Section({ title, icon: Icon, children, className }: { title: string; icon?: typeof Compass; children: ReactNode; className?: string }) {
   return (
-    <section className={className}>
+    <Reveal as="section" className={className}>
       <h2 className="mb-3 flex items-center gap-2 text-xl font-bold">
         {Icon && <Icon className="size-5 text-brand-bright" aria-hidden />}
         {title}
       </h2>
       {children}
-    </section>
+    </Reveal>
   );
 }

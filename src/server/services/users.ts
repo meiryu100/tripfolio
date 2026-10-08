@@ -52,6 +52,7 @@ export async function assertAvailable(fields: { username?: string; email?: strin
 export async function createUser(input: {
   firstName: string;
   lastName: string;
+  gender?: "male" | "female";
   username: string;
   email: string;
   password?: string;
@@ -64,6 +65,7 @@ export async function createUser(input: {
       publicId: generatePublicId(),
       firstName: input.firstName,
       lastName: input.lastName,
+      gender: input.gender, // undefined → column default (male), e.g. Google sign-ups
       username: input.username,
       email: input.email,
       passwordHash: input.password ? await hashPassword(input.password) : null,
@@ -87,6 +89,7 @@ export async function toMe(u: UserRow): Promise<Me> {
   return {
     ...toUserSummary(u),
     publicId: u.publicId,
+    gender: u.gender,
     email: u.email,
     bio: u.bio,
     location: u.location,

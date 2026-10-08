@@ -1,23 +1,25 @@
-# Local infrastructure for Travora: PostgreSQL + RustFS (S3-compatible photo storage).
+# Local infrastructure for Tripfolio: PostgreSQL + RustFS (S3-compatible photo storage).
 # Start:  docker compose up -d
 # Stop:   docker compose down        (add -v to also delete the data)
 #
 # These credentials are for local development only.
+
+name: tripfolio
 
 services:
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: travora
-      POSTGRES_PASSWORD: travora
-      POSTGRES_DB: travora
+      POSTGRES_USER: tripfolio
+      POSTGRES_PASSWORD: tripfolio
+      POSTGRES_DB: tripfolio
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U travora -d travora"]
+      test: ["CMD-SHELL", "pg_isready -U tripfolio -d tripfolio"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -27,8 +29,8 @@ services:
     image: rustfs/rustfs:latest
     restart: unless-stopped
     environment:
-      RUSTFS_ACCESS_KEY: travora
-      RUSTFS_SECRET_KEY: travora-secret
+      RUSTFS_ACCESS_KEY: tripfolio
+      RUSTFS_SECRET_KEY: tripfolio-secret
       RUSTFS_CONSOLE_ENABLE: "true"
     ports:
       - "9000:9000" # S3 API
@@ -42,8 +44,8 @@ services:
     depends_on:
       - storage
     environment:
-      AWS_ACCESS_KEY_ID: travora
-      AWS_SECRET_ACCESS_KEY: travora-secret
+      AWS_ACCESS_KEY_ID: tripfolio
+      AWS_SECRET_ACCESS_KEY: tripfolio-secret
       AWS_DEFAULT_REGION: us-east-1
     entrypoint: >
       sh -c "
@@ -51,8 +53,8 @@ services:
           aws --endpoint-url http://storage:9000 s3api list-buckets >/dev/null 2>&1 && break;
           sleep 1;
         done;
-        aws --endpoint-url http://storage:9000 s3api head-bucket --bucket travora-photos 2>/dev/null ||
-        aws --endpoint-url http://storage:9000 s3api create-bucket --bucket travora-photos
+        aws --endpoint-url http://storage:9000 s3api head-bucket --bucket tripfolio-photos 2>/dev/null ||
+        aws --endpoint-url http://storage:9000 s3api create-bucket --bucket tripfolio-photos
       "
 
 volumes:

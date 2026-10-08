@@ -2,6 +2,7 @@
 
 export type CountryStatus = "visited" | "wishlist";
 export type Theme = "light" | "dark" | "system";
+export type Gender = "male" | "female";
 
 export interface Country {
   code: string;
@@ -62,6 +63,7 @@ export interface Profile extends UserSummary {
 
 export interface Me extends UserSummary {
   publicId: string;
+  gender: Gender;
   email: string;
   bio: string;
   location: string;

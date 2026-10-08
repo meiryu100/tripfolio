@@ -12,10 +12,10 @@ import { env } from "../env";
  * S3-compatible object storage (RustFS locally, S3/R2/MinIO in production).
  * The bucket is private: files are only served through authorized API routes.
  */
-const globalForS3 = globalThis as unknown as { travoraS3?: S3Client };
+const globalForS3 = globalThis as unknown as { tripfolioS3?: S3Client };
 
 const s3 =
-  globalForS3.travoraS3 ??
+  globalForS3.tripfolioS3 ??
   new S3Client({
     endpoint: env.s3.endpoint,
     region: env.s3.region,
@@ -25,7 +25,7 @@ const s3 =
         ? { accessKeyId: env.s3.accessKeyId, secretAccessKey: env.s3.secretAccessKey }
         : undefined,
   });
-if (!env.isProd) globalForS3.travoraS3 = s3;
+if (!env.isProd) globalForS3.tripfolioS3 = s3;
 
 export async function putObject(key: string, body: Buffer, contentType: string) {
   await s3.send(

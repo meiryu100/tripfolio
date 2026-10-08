@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { ReactNode } from "react";
 import { Page } from "@/components/app-shell";
+import { Reveal } from "@/components/motion";
 import { BackLink, TripGrid, TripGridSkeleton } from "@/components/cards";
 import { Avatar, Button, EmptyState, ErrorState, NotFound, Skeleton } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
@@ -162,12 +163,12 @@ function Person({ user, wish, children }: { user: UserSummary; wish?: boolean; c
 
 function Section({ title, icon: Icon, children }: { title: string; icon?: typeof Compass; children: ReactNode }) {
   return (
-    <section>
+    <Reveal as="section">
       <h2 className="mb-3 flex items-center gap-2 text-xl font-bold">
         {Icon && <Icon className="size-5 text-brand-bright" aria-hidden />}
         {title}
       </h2>
       {children}
-    </section>
+    </Reveal>
   );
 }

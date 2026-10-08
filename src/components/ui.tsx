@@ -24,7 +24,7 @@ type Size = "sm" | "md" | "lg";
 // Soft UI Evolution: raised by a soft layered shadow, pressed with an inset one.
 const variants: Record<Variant, string> = {
   primary:
-    "bg-gradient-to-b from-brand to-[color-mix(in_oklab,var(--brand)_88%,black)] text-brand-fg shadow-soft hover:brightness-110 active:shadow-pressed",
+    "shine bg-gradient-to-r from-brand to-brand-2 text-brand-fg shadow-soft hover:shadow-glow hover:-translate-y-px active:translate-y-0 active:shadow-pressed",
   secondary: "bg-surface text-fg border border-border shadow-soft hover:bg-surface-2 active:shadow-pressed",
   ghost: "text-fg hover:bg-surface-2 active:shadow-pressed",
   danger: "bg-danger text-white shadow-soft hover:brightness-110 active:shadow-pressed",
@@ -39,7 +39,7 @@ const sizes: Record<Size, string> = {
 
 export function buttonClass(variant: Variant = "primary", size: Size = "md", className?: string) {
   return cn(
-    "inline-flex items-center justify-center font-semibold transition duration-200 ease-out select-none whitespace-nowrap active:translate-y-px",
+    "inline-flex items-center justify-center font-semibold transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] select-none whitespace-nowrap active:translate-y-px",
     "disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-bright",
     variants[variant],
     sizes[size],
@@ -226,7 +226,7 @@ export function EmptyState({
 }) {
   return (
     <div className={cn("animate-rise flex flex-col items-center rounded-2xl border border-border bg-surface/70 px-6 py-10 text-center shadow-soft", className)}>
-      <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-brand-soft text-brand shadow-soft [&_svg]:size-6" aria-hidden>
+      <div className="bg-aurora mb-4 flex size-14 items-center justify-center rounded-2xl text-white shadow-glow [&_svg]:size-7" aria-hidden>
         {icon}
       </div>
       <p className="font-semibold">{title}</p>

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { useMe } from "@/features/auth/api";
 import { SearchDialog } from "@/features/explore/search-dialog";
+import { useUI } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 import { Logo } from "./logo";
 import { Avatar } from "./ui";
@@ -41,6 +42,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const me = useMe();
   const [searchOpen, setSearchOpen] = useState(false);
+  const viewing = useUI((s) => s.viewingTripOwner);
+  const isOwnTrip = viewing === null || viewing === me.id;
   const profileActive = isActive(pathname, "/profile") || pathname.startsWith(`/u/${me.username}`);
 
   // ⌘K / Ctrl+K opens global search.
@@ -73,7 +76,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             <SideLink
               key={item.href}
               {...item}
-              active={isActive(pathname, item.href)}
+              // Someone else's trip page shouldn't light up "My Trips".
+              active={isActive(pathname, item.href) && !(item.href === "/trips" && pathname !== "/trips" && !isOwnTrip)}
               badge={item.href === "/notifications" ? me.unreadNotifications : item.href === "/friends" ? me.pendingRequests : 0}
             />
           ))}

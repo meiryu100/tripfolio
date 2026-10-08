@@ -63,6 +63,15 @@ export async function setStatus(userId: string, code: string, status: "VISITED" 
       where: and(eq(schema.trips.userId, userId), eq(schema.trips.countryCode, code)),
     });
     if (hasTrips) throw new HttpError("CONFLICT", "You have trips here — delete them first to move it to your wishlist.");
+    const visitedRegion = await db.query.userRegions.findFirst({
+      columns: { id: true },
+      where: and(
+        eq(schema.userRegions.userId, userId),
+        eq(schema.userRegions.countryCode, code),
+        eq(schema.userRegions.status, "VISITED"),
+      ),
+    });
+    if (visitedRegion) throw new HttpError("CONFLICT", "You've visited states here — clear them on the USA map first.");
   }
   const prev = await db.query.userCountries.findFirst({
     where: and(eq(schema.userCountries.userId, userId), eq(schema.userCountries.countryCode, code)),
@@ -88,6 +97,8 @@ export async function removeStatus(userId: string, code: string) {
   await db
     .delete(schema.userCountries)
     .where(and(eq(schema.userCountries.userId, userId), eq(schema.userCountries.countryCode, code)));
+  // Its states/regions go with it.
+  await db.delete(schema.userRegions).where(and(eq(schema.userRegions.userId, userId), eq(schema.userRegions.countryCode, code)));
 }
 
 /** Onboarding: set many countries at once (never downgrades visited → wishlist). */

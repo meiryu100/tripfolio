@@ -33,7 +33,7 @@ export async function requestPasswordReset(email: string) {
   });
   await sendMail({
     to: user.email,
-    subject: "Reset your Travora password",
+    subject: "Reset your Tripfolio password",
     text: `Hi ${user.firstName},\n\nReset your password here (valid for 1 hour):\n${env.appUrl}/reset-password?token=${token}\n\nIf you didn't ask for this, you can ignore this email.`,
   });
 }

@@ -8,6 +8,27 @@
       "when": 1791313598725,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791318818525,
+      "tag": "0001_user_gender",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791319009308,
+      "tag": "0002_gender_default_male",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791491844691,
+      "tag": "0003_user_regions",
+      "breakpoints": true
     }
   ]
 }

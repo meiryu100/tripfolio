@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Page } from "@/components/app-shell";
 import { AvatarPicker } from "@/components/avatar-picker";
+import { GenderPicker } from "@/components/gender-picker";
 import { BackLink } from "@/components/cards";
 import { Button, FormError, Input, Textarea } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
 import { useRemoveAvatar, useUpdateProfile, useUploadAvatar } from "@/features/settings/api";
 import { ApiError, errorMessage } from "@/lib/api-client";
+import type { Gender } from "@/lib/types";
 import { toast } from "@/lib/ui";
 import { profileSchema } from "@/lib/validation";
 
@@ -22,6 +24,7 @@ export default function EditProfilePage() {
   const [form, setForm] = useState({
     firstName: me.firstName,
     lastName: me.lastName,
+    gender: me.gender as Gender | null, // always set for existing accounts
     username: me.username,
     bio: me.bio,
     location: me.location,
@@ -88,6 +91,14 @@ export default function EditProfilePage() {
               </Link>
             </>
           }
+        />
+        <GenderPicker
+          value={form.gender}
+          onChange={(gender) => {
+            setForm((f) => ({ ...f, gender }));
+            setErrors((e) => ({ ...e, gender: "" }));
+          }}
+          error={errors.gender}
         />
         <Textarea label="Bio" optional value={form.bio} onChange={set("bio")} maxLength={160} placeholder="Exploring the world" error={errors.bio} />
         <Input label="Location" optional value={form.location} onChange={set("location")} placeholder="Tel Aviv, Israel" error={errors.location} />

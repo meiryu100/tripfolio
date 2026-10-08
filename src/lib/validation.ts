@@ -17,11 +17,16 @@ export const passwordSchema = z
   .min(8, "Use at least 8 characters.")
   .max(200, "That password is too long.");
 
+export const GENDERS = ["male", "female"] as const;
+/** Required: there is no default, the user must pick one. */
+export const genderSchema = z.enum(GENDERS, { message: "Please choose male or female." });
+
 const nameSchema = (label: string) => z.string().trim().min(1, `${label} is required.`).max(50);
 
 export const registerSchema = z.object({
   firstName: nameSchema("First name"),
   lastName: nameSchema("Last name"),
+  gender: genderSchema,
   username: usernameSchema,
   email: emailSchema,
   password: passwordSchema,
@@ -49,6 +54,7 @@ const websiteSchema = z
 export const profileSchema = z.object({
   firstName: nameSchema("First name"),
   lastName: nameSchema("Last name"),
+  gender: genderSchema,
   username: usernameSchema,
   bio: trimmed(160),
   location: trimmed(80),
@@ -86,6 +92,11 @@ export const countryCodeSchema = z
 
 export const countryStatusSchema = z.object({
   countryCode: countryCodeSchema,
+  status: z.enum(["VISITED", "WANT_TO_VISIT"]),
+});
+
+export const regionStatusSchema = z.object({
+  regionCode: z.string().trim().toUpperCase().regex(/^[A-Z]{2}-[A-Z0-9]{1,3}$/, "Unknown region."),
   status: z.enum(["VISITED", "WANT_TO_VISIT"]),
 });
 

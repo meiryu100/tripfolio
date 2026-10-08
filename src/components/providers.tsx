@@ -41,7 +41,7 @@ export function Providers({ children }: { children: ReactNode }) {
 
 export function applyTheme(theme: Theme) {
   try {
-    localStorage.setItem("travora-theme", theme);
+    localStorage.setItem("tripfolio-theme", theme);
   } catch {}
   const dark = theme === "dark" || (theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.classList.toggle("dark", dark);
@@ -51,7 +51,7 @@ export function applyTheme(theme: Theme) {
 function ThemeSync() {
   const theme = useMeQuery().data?.settings.theme;
   useEffect(() => {
-    const current = theme ?? (localStorage.getItem("travora-theme") as Theme | null) ?? "system";
+    const current = theme ?? (localStorage.getItem("tripfolio-theme") as Theme | null) ?? "system";
     applyTheme(current);
     if (current !== "system") return;
     const mq = matchMedia("(prefers-color-scheme: dark)");

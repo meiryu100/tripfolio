@@ -18,7 +18,7 @@ function useMeMutation<V>(fn: (v: V) => Promise<{ me: Me }>) {
 }
 
 export const useUpdateProfile = () =>
-  useMeMutation((input: { firstName: string; lastName: string; username: string; bio: string; location: string; website: string }) =>
+  useMeMutation((input: { firstName: string; lastName: string; gender: "male" | "female"; username: string; bio: string; location: string; website: string }) =>
     api.patch<{ me: Me }>("/api/me", input),
   );
 

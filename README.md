@@ -1,4 +1,4 @@
-# Travora
+# Tripfolio
 
 A social travel app built around an interactive world map. Mark the countries you've visited and the ones you want to visit, keep trips with dates, photos and notes, and explore the world through the people you follow.
 
@@ -16,7 +16,9 @@ npm run db:setup                # migrate + load countries + demo community
 npm run dev
 ```
 
-Open http://localhost:3000 and use **“Just looking?”** on the login page, or sign in as `demo@travora.app` / `travora123`. All demo accounts use the password `travora123`.
+Open http://localhost:3000 and use **“Just looking?”** on the login page, or sign in as `demo@tripfolio.app` / `tripfolio123`. All demo accounts use the password `tripfolio123`.
+
+The seed also creates a community of **21 travelers** with real photos: **@daniel.wanders** plus 20 more defined in `src/server/db/seed-travelers.json` (10 male, 10 female, 2–3 countries each, 110 photos in total). Photos are downloaded from Wikimedia Commons at seed time (freely licensed; photographers and licenses are credited under each trip's gallery). This step needs an internet connection and takes about a minute and a half; if a download fails the trip is still created, just without that photo.
 
 In development, emails (password resets) are printed in the terminal running `npm run dev`.
 

@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthLayout } from "@/components/auth-layout";
 import { AvatarPicker } from "@/components/avatar-picker";
+import { GenderPicker } from "@/components/gender-picker";
 import { GoogleButton } from "@/components/google-button";
 import { Button, FormError, Input } from "@/components/ui";
 import { useRegister } from "@/features/auth/api";
 import { useUploadAvatar } from "@/features/settings/api";
 import { ApiError, errorMessage } from "@/lib/api-client";
+import type { Gender } from "@/lib/types";
 import { toast } from "@/lib/ui";
 import { registerSchema } from "@/lib/validation";
 
@@ -17,7 +19,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const register = useRegister();
   const uploadAvatar = useUploadAvatar();
-  const [form, setForm] = useState({ firstName: "", lastName: "", username: "", email: "", password: "", confirm: "" });
+  const [form, setForm] = useState({ firstName: "", lastName: "", gender: null as Gender | null, username: "", email: "", password: "", confirm: "" });
   const [avatar, setAvatar] = useState<{ file: File; url: string } | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -74,6 +76,14 @@ export default function RegisterPage() {
           hint="Lowercase letters, numbers, dots and underscores"
         />
         <Input label="Email" type="email" autoComplete="email" value={form.email} onChange={set("email")} error={errors.email} />
+        <GenderPicker
+          value={form.gender}
+          onChange={(gender) => {
+            setForm((f) => ({ ...f, gender }));
+            setErrors((e) => ({ ...e, gender: "" }));
+          }}
+          error={errors.gender}
+        />
         <Input label="Password" type="password" autoComplete="new-password" value={form.password} onChange={set("password")} error={errors.password} hint="At least 8 characters" />
         <Input label="Confirm password" type="password" autoComplete="new-password" value={form.confirm} onChange={set("confirm")} error={errors.confirm} />
         <FormError message={formError} />

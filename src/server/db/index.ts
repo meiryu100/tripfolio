@@ -4,19 +4,17 @@ import * as schema from "./schema";
 
 export type DB = NodePgDatabase<typeof schema>;
 
-// Reuse one pool across hot reloads in development.
-const globalForDb = globalThis as unknown as { travoraPool?: Pool; travoraDb?: DB };
+// Reuse one connection pool across hot reloads in development. The Drizzle
+// client is cheap and is rebuilt on every reload so it always sees the current schema.
+const globalForDb = globalThis as unknown as { tripfolioPool?: Pool };
 
 function connectionString() {
-  return process.env.DATABASE_URL?.trim() || "postgres://travora:travora@localhost:5432/travora";
+  return process.env.DATABASE_URL?.trim() || "postgres://tripfolio:tripfolio@localhost:5432/tripfolio";
 }
 
-export const pool = globalForDb.travoraPool ?? new Pool({ connectionString: connectionString(), max: 10 });
-export const db: DB = globalForDb.travoraDb ?? drizzle(pool, { schema });
+export const pool = globalForDb.tripfolioPool ?? new Pool({ connectionString: connectionString(), max: 10 });
+export const db: DB = drizzle(pool, { schema });
 
-if (process.env.NODE_ENV !== "production") {
-  globalForDb.travoraPool = pool;
-  globalForDb.travoraDb = db;
-}
+if (process.env.NODE_ENV !== "production") globalForDb.tripfolioPool = pool;
 
 export { schema };

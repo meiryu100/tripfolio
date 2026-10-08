@@ -60,7 +60,7 @@ export default function SettingsPage() {
           <Row>
             <div className="flex-1">
               <p className="font-medium">Account ID</p>
-              <p className="text-sm text-muted">Your permanent Travora ID. It never changes.</p>
+              <p className="text-sm text-muted">Your permanent Tripfolio ID. It never changes.</p>
             </div>
             <button
               onClick={() => navigator.clipboard?.writeText(me.publicId).then(() => toast("Account ID copied", "info"))}

@@ -1,0 +1,1597 @@
+[
+ {
+  "firstName": "Lior",
+  "lastName": "Ben-Ami",
+  "gender": "male",
+  "username": "lior.outdoors",
+  "email": "lioroutdoors@example.com",
+  "bio": "Mountains first, coffee second ⛰️",
+  "location": "Jerusalem, Israel",
+  "wishlist": [
+   "NP",
+   "PE",
+   "IS"
+  ],
+  "follows": [
+   "omer.backpacks",
+   "mateo.wild",
+   "tom_hendricks",
+   "lucasgoes"
+  ],
+  "trips": [
+   {
+    "country": "IT",
+    "title": "Dolomites hut to hut",
+    "startDate": "2024-07-14",
+    "endDate": "2024-07-22",
+    "cities": [
+     "Cortina d'Ampezzo",
+     "Dobbiaco",
+     "Braies"
+    ],
+    "notes": "Five days walking between rifugi. The loop around Tre Cime is crowded by 10am, so we started at 5:30 and had it almost to ourselves. Lago di Braies looks fake in real life — went back at sunset when the tour buses left.",
+    "photos": [
+     {
+      "file": "Dolomites - Dobbiaco area - Day 5 to Tre Cime (Drei Zinnen) - classic, stormy views of the peaks - (11059231115).jpg",
+      "artist": "Murray Foubister",
+      "license": "CC BY-SA 2.0"
+     },
+     {
+      "file": "Lago di Braies South Tyrol 3.jpg",
+      "artist": "kallerna",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "AU",
+    "title": "Sydney & the Great Ocean Road",
+    "startDate": "2023-11-02",
+    "endDate": "2023-11-16",
+    "cities": [
+     "Sydney",
+     "Torquay",
+     "Port Campbell"
+    ],
+    "notes": "Walked the Harbour Bridge at night, which beats paying for the climb. Rented a camper for the Great Ocean Road — the Twelve Apostles are eight now, but nobody tells you that. Saw koalas in the trees at Kennett River.",
+    "photos": [
+     {
+      "file": "Sydney Harbour Bridge night.jpg",
+      "artist": "Diliff",
+      "license": "CC BY-SA 3.0"
+     },
+     {
+      "file": "Princetown (AU), Port Campbell National Park, Twelve Apostles -- 2019 -- 0969.jpg",
+      "artist": "Dietmar Rabich",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "MA",
+    "title": "Marrakech to the Sahara",
+    "startDate": "2022-10-18",
+    "endDate": "2022-10-27",
+    "cities": [
+     "Marrakech",
+     "Aït Benhaddou",
+     "Merzouga"
+    ],
+    "notes": "Jemaa el-Fnaa at night is chaos in the best way — get the snail soup. The drive over the Atlas is long but the camel ride into Erg Chebbi and sleeping under that many stars made up for it.",
+    "photos": [
+     {
+      "file": "Jamaa El Fna, Marrakesh, Morocco, 20250124 1804 7017.jpg",
+      "artist": "Jakub Hałun",
+      "license": "CC BY 4.0"
+     },
+     {
+      "file": "Dunes-Merzouga-Erg Chebi.JPG",
+      "artist": "Nomadz",
+      "license": "CC BY-SA 3.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Maya",
+  "lastName": "Goldberg",
+  "gender": "female",
+  "username": "maya.goes",
+  "email": "mayagoes@example.com",
+  "bio": "Collecting sunsets & museum tickets ✨",
+  "location": "Tel Aviv, Israel",
+  "wishlist": [
+   "JP",
+   "GR",
+   "PT"
+  ],
+  "follows": [
+   "hannah.weiss",
+   "tom_hendricks",
+   "meir"
+  ],
+  "trips": [
+   {
+    "country": "EG",
+    "title": "Cairo, Aswan & Abu Simbel",
+    "startDate": "2025-02-06",
+    "endDate": "2025-02-15",
+    "cities": [
+     "Cairo",
+     "Aswan",
+     "Abu Simbel"
+    ],
+    "notes": "The pyramids are SO much bigger than you imagine 🐪 Bargain hard for the camel ride (we didn't, oops). The 3am convoy to Abu Simbel was brutal but standing in front of those statues at sunrise… I actually cried a little.",
+    "photos": [
+     {
+      "file": "Camels resting at the Pyramids of Giza.jpg",
+      "artist": "Caoimheen3",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Templo de Nefertari, Abu Simbel, Egipto, 2022-04-02, DD 153.jpg",
+      "artist": "Diego Delso",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "FR",
+    "title": "Paris in the spring",
+    "startDate": "2024-04-11",
+    "endDate": "2024-04-17",
+    "cities": [
+     "Paris"
+    ],
+    "notes": "Picnic on the Champ de Mars with cheese from a market in the 7th, then the tower sparkling at 10pm. Montmartre is touristy but the view from Sacré-Cœur at golden hour is worth the stairs. Ate way too many croissants, no regrets.",
+    "photos": [
+     {
+      "file": "Paris - The Eiffel Tower in spring - 2307.jpg",
+      "artist": "Jorge Royan",
+      "license": "CC BY-SA 3.0"
+     },
+     {
+      "file": "Paris - Basilique du Sacré-Cœur de Montmartre - 2025-09-30 23-31-57 001.jpg",
+      "artist": "Giò Terra (Terragio67)",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Tom",
+  "lastName": "Hendricks",
+  "gender": "male",
+  "username": "tom_hendricks",
+  "email": "tomhendricks@example.com",
+  "bio": "Professional overthinker, amateur traveler",
+  "location": "Amsterdam, Netherlands",
+  "wishlist": [
+   "VN",
+   "MX",
+   "JP"
+  ],
+  "follows": [
+   "shira.deep.blue",
+   "ben.trekker",
+   "davidtravel"
+  ],
+  "trips": [
+   {
+    "country": "TH",
+    "title": "Chiang Mai & Krabi",
+    "startDate": "2023-02-01",
+    "endDate": "2023-02-18",
+    "cities": [
+     "Chiang Mai",
+     "Krabi",
+     "Railay"
+    ],
+    "notes": "Took the songthaew up to Doi Suthep instead of walking the monk trail. My knees thank me, my pride does not. Railay is only reachable by longtail boat which makes it feel like a secret, except for the 400 other people on the beach.",
+    "photos": [
+     {
+      "file": "Phra That Doi Suthep 01.jpg",
+      "artist": "Wikimedia Commons contributor",
+      "license": "CC BY 3.0"
+     },
+     {
+      "file": "Railay Beach 5.jpg",
+      "artist": "kallerna",
+      "license": "CC BY-SA 3.0"
+     }
+    ]
+   },
+   {
+    "country": "DE",
+    "title": "A long weekend in Berlin",
+    "startDate": "2025-01-24",
+    "endDate": "2025-01-28",
+    "cities": [
+     "Berlin"
+    ],
+    "notes": "Minus four degrees and absolutely worth it. Brandenburg Gate at night with nobody around, East Side Gallery in the snow, and the best currywurst of my life at a stand near Warschauer Straße.",
+    "photos": [
+     {
+      "file": "Brandenburg Gate Quadriga at Night.jpg",
+      "artist": "א (Aleph)",
+      "license": "CC BY-SA 2.5"
+     },
+     {
+      "file": "2025-01-26 East Side Gallery 070.jpg",
+      "artist": "C.Suthorn",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Sofia",
+  "lastName": "Marques",
+  "gender": "female",
+  "username": "sofia.marques",
+  "email": "sofiamarques@example.com",
+  "bio": "Slow steps, big views",
+  "location": "Porto, Portugal",
+  "wishlist": [
+   "IS",
+   "NZ",
+   "AR"
+  ],
+  "follows": [
+   "camille.slowtravel",
+   "shira.deep.blue",
+   "lucasgoes"
+  ],
+  "trips": [
+   {
+    "country": "NP",
+    "title": "Everest Base Camp trek",
+    "startDate": "2023-10-05",
+    "endDate": "2023-10-21",
+    "cities": [
+     "Lukla",
+     "Namche Bazaar",
+     "Dingboche",
+     "Gorak Shep"
+    ],
+    "notes": "Sixteen days, one bad night of altitude headache in Dingboche, and Ama Dablam watching over us almost the whole way. Namche on acclimatisation day was my favourite — apple pie at 3,440 metres hits different.",
+    "photos": [
+     {
+      "file": "Himalayas, Ama Dablam, Nepal.jpg",
+      "artist": "Vyacheslav Argenberg",
+      "license": "CC BY 4.0"
+     },
+     {
+      "file": "Namche Bazaar facing Kongde Ri towards west.jpg",
+      "artist": "Nirojsedhai",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "ES",
+    "title": "Andalusia road trip",
+    "startDate": "2025-04-08",
+    "endDate": "2025-04-16",
+    "cities": [
+     "Seville",
+     "Córdoba",
+     "Granada"
+    ],
+    "notes": "Book the Alhambra tickets weeks ahead, seriously. We watched it turn gold from the Mirador de San Nicolás with a crowd of guitar players. Plaza de España in Seville felt like a film set, especially rowing on the little canal.",
+    "photos": [
+     {
+      "file": "Alhambra in the evening.jpg",
+      "artist": "Jebulon",
+      "license": "Public domain"
+     },
+     {
+      "file": "Seville, Plaza de España (38625005691) (edited).jpg",
+      "artist": "Dmitry Dzhus from London",
+      "license": "CC BY 2.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Yuki",
+  "lastName": "Tanaka",
+  "gender": "female",
+  "username": "yuki.eats.world",
+  "email": "yukieatsworld@example.com",
+  "bio": "I travel for the food. The views are a bonus 🍜",
+  "location": "Vancouver, Canada",
+  "wishlist": [
+   "MX",
+   "PE",
+   "TR"
+  ],
+  "follows": [
+   "noa.saltwater",
+   "maya.goes",
+   "meir",
+   "davidtravel"
+  ],
+  "trips": [
+   {
+    "country": "JP",
+    "title": "Snow country & Kanazawa",
+    "startDate": "2024-02-02",
+    "endDate": "2024-02-08",
+    "cities": [
+     "Takayama",
+     "Shirakawa-go",
+     "Kanazawa"
+    ],
+    "notes": "Visiting my grandmother's side of the country. Shirakawa-go under heavy snow is quiet in a way that's hard to describe. In Kanazawa: gold leaf ice cream (gimmicky, delicious) and the freshest nodoguro at Omicho market.",
+    "photos": [
+     {
+      "file": "Shirakawa-go 20170202-3.jpg",
+      "artist": "Suicasmo",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Kenroku-en with wedding couple.jpg",
+      "artist": "SOHAFun",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "IN",
+    "title": "Rajasthan",
+    "startDate": "2023-12-08",
+    "endDate": "2023-12-20",
+    "cities": [
+     "Jaipur",
+     "Jodhpur",
+     "Udaipur"
+    ],
+    "notes": "Dal baati churma in Jaipur, laal maas in Jodhpur, rooftop dinner facing the City Palace in Udaipur. The Hawa Mahal is best from the café across the street at 8am before the traffic starts.",
+    "photos": [
+     {
+      "file": "East facade Hawa Mahal Jaipur from ground level (July 2022) - img 01.jpg",
+      "artist": "Chainwit",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "City Palace Udaipur Rajasthan India.JPG",
+      "artist": "Hirumon",
+      "license": "CC BY 3.0"
+     }
+    ]
+   },
+   {
+    "country": "ID",
+    "title": "Ubud & the lakes",
+    "startDate": "2025-06-12",
+    "endDate": "2025-06-22",
+    "cities": [
+     "Ubud",
+     "Bedugul",
+     "Canggu"
+    ],
+    "notes": "Cooking class in Ubud where we picked our own spices — I still make that sambal matah weekly. Tegallalang early morning is lovely; by noon it's swings and influencers. Ulun Danu Bratan in the mist was magical.",
+    "photos": [
+     {
+      "file": "Rice terraces, Bali.jpg",
+      "artist": "Vyacheslav Argenberg",
+      "license": "CC BY 4.0"
+     },
+     {
+      "file": "Brantan Bali Pura-Ulun-Danu-Bratan-01.jpg",
+      "artist": "CEphoto, Uwe Aranas",
+      "license": "CC BY-SA 3.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Omer",
+  "lastName": "Shalev",
+  "gender": "male",
+  "username": "omer.backpacks",
+  "email": "omerbackpacks@example.com",
+  "bio": "One backpack, zero plans 🎒",
+  "location": "Haifa, Israel",
+  "wishlist": [
+   "IN",
+   "LA",
+   "CO"
+  ],
+  "follows": [
+   "camille.slowtravel",
+   "yuki.eats.world",
+   "noa.abroad",
+   "davidtravel"
+  ],
+  "trips": [
+   {
+    "country": "MA",
+    "title": "Morocco on a budget",
+    "startDate": "2023-03-20",
+    "endDate": "2023-04-01",
+    "cities": [
+     "Chefchaouen",
+     "Fes",
+     "Tangier"
+    ],
+    "notes": "Chefchaouen is as blue as the photos and cheaper than you'd think — 15€ a night in a riad with a rooftop. In Fes, the tannery 'guides' will find you; let one take you, tip 20 dirhams, and you get the best view of the vats.",
+    "photos": [
+     {
+      "file": "2018 01 (Blue) - Chaouen.jpg",
+      "artist": "Fbrandao.1963",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Leather tanning, Fes.jpg",
+      "artist": "Bernard Gagnon",
+      "license": "CC BY-SA 3.0"
+     }
+    ]
+   },
+   {
+    "country": "TH",
+    "title": "Bangkok & Koh Tao",
+    "startDate": "2024-08-03",
+    "endDate": "2024-08-24",
+    "cities": [
+     "Bangkok",
+     "Koh Tao"
+    ],
+    "notes": "Did my Open Water on Koh Tao — cheapest place in the world to get certified and the instructors were great. Back in Bangkok I finally saw the Grand Palace after three visits of 'next time'. Dress code is strict, bring long pants.",
+    "photos": [
+     {
+      "file": "Koh Tao Beach - panoramio.jpg",
+      "artist": "easy4444",
+      "license": "CC BY 3.0"
+     },
+     {
+      "file": "Temple of the Emerald Buddha.jpg",
+      "artist": "Nawit science",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Emma",
+  "lastName": "Larsen",
+  "gender": "female",
+  "username": "emma.through.the.lens",
+  "email": "emmathroughthelens@example.com",
+  "bio": "Photographer chasing soft light 📷",
+  "location": "Copenhagen, Denmark",
+  "wishlist": [
+   "MA",
+   "IS",
+   "JP"
+  ],
+  "follows": [
+   "sofia.marques",
+   "chiara.mangia",
+   "omer.backpacks",
+   "ben.trekker",
+   "sarahwanders"
+  ],
+  "trips": [
+   {
+    "country": "IT",
+    "title": "Florence & Val d'Orcia",
+    "startDate": "2024-05-02",
+    "endDate": "2024-05-11",
+    "cities": [
+     "Florence",
+     "Pienza",
+     "San Quirico d'Orcia"
+    ],
+    "notes": "Blue hour from Piazzale Michelangelo is unbeatable — tripod and patience. Then three slow days driving the Val d'Orcia: cypress roads, pecorino in Pienza, and a farm stay where the owner's dog adopted us.",
+    "photos": [
+     {
+      "file": "Florence Cathedral seen from Piazzale Michelangelo night dllu.jpg",
+      "artist": "Dllu",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Cypress avenue at Via Cassia in Val d'Orcia.jpg",
+      "artist": "Enrico Pighetti from Civitanova Marche, Italia",
+      "license": "CC BY 2.0"
+     }
+    ]
+   },
+   {
+    "country": "TR",
+    "title": "Cappadocia & Istanbul",
+    "startDate": "2023-09-14",
+    "endDate": "2023-09-23",
+    "cities": [
+     "Göreme",
+     "Uçhisar",
+     "Istanbul"
+    ],
+    "notes": "Woke at 4:30 three mornings in a row; the balloons only flew on one, and it was the best sunrise I've ever photographed. Istanbul felt like a different planet after the valleys — Hagia Sophia at golden hour from Sultanahmet park.",
+    "photos": [
+     {
+      "file": "Sunrise at Goreme Valley.jpg",
+      "artist": "Emrahuygun",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Hagia Sophia Mars 2013.jpg",
+      "artist": "Arild Vågen",
+      "license": "CC BY-SA 3.0"
+     }
+    ]
+   },
+   {
+    "country": "FR",
+    "title": "Provence in lavender season",
+    "startDate": "2025-07-02",
+    "endDate": "2025-07-08",
+    "cities": [
+     "Valensole",
+     "Gordes",
+     "Roussillon"
+    ],
+    "notes": "Timed it for early July and got lucky — the fields were deep purple and humming with bees. Gordes in the late afternoon light is ridiculous. Tip: stay in a small village, not Avignon, so you can shoot at sunrise.",
+    "photos": [
+     {
+      "file": "Lavender Field Provence France 021.JPG",
+      "artist": "Marek Gehrmann",
+      "license": "CC BY-SA 3.0"
+     },
+     {
+      "file": "Provence, Gordes (PRO 02.45 0957).jpg",
+      "artist": "Michael.F.H.Barth",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Lucas",
+  "lastName": "Ferreira",
+  "gender": "male",
+  "username": "lucas.on.tour",
+  "email": "lucasontour@example.com",
+  "bio": "Surf, samba and long flights 🌊",
+  "location": "São Paulo, Brazil",
+  "wishlist": [
+   "ID",
+   "AU",
+   "PE"
+  ],
+  "follows": [
+   "camille.slowtravel",
+   "tom_hendricks",
+   "lucasgoes"
+  ],
+  "trips": [
+   {
+    "country": "BR",
+    "title": "Home in Rio",
+    "startDate": "2024-12-27",
+    "endDate": "2025-01-03",
+    "cities": [
+     "Rio de Janeiro"
+    ],
+    "notes": "New Year's in Copacabana with two million people in white. Took friends from abroad up to Cristo before sunrise — clouds below us, totally worth the alarm. Pão de Açúcar cable car for sunset the next day.",
+    "photos": [
+     {
+      "file": "Redentor Over Clouds 1.jpg",
+      "artist": "Donatas Dabravolskas",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Sugarloaf Cable Car viewed from Rio de Janeiro, Brazil.jpg",
+      "artist": "Wilfredor",
+      "license": "CC0"
+     }
+    ]
+   },
+   {
+    "country": "IN",
+    "title": "Kerala backwaters & tea hills",
+    "startDate": "2023-01-10",
+    "endDate": "2023-01-22",
+    "cities": [
+     "Kochi",
+     "Alleppey",
+     "Munnar"
+    ],
+    "notes": "A night on a houseboat in Alleppey: fish curry cooked on board, fireflies, total silence. Munnar was a shock of green after the heat — walked through the tea estates and drank more chai than water.",
+    "photos": [
+     {
+      "file": "Kerala backwaters, Houseboats, India.jpg",
+      "artist": "Vyacheslav Argenberg",
+      "license": "CC BY 4.0"
+     },
+     {
+      "file": "Munnar tea gardens.jpg",
+      "artist": "unknown author",
+      "license": "Public domain"
+     }
+    ]
+   },
+   {
+    "country": "NZ",
+    "title": "South Island road trip",
+    "startDate": "2025-03-01",
+    "endDate": "2025-03-14",
+    "cities": [
+     "Queenstown",
+     "Te Anau",
+     "Lake Tekapo"
+    ],
+    "notes": "Milford Sound in the rain is better than in the sun — hundreds of temporary waterfalls. Tekapo has one of the darkest skies on earth; we lay on the grass by the Good Shepherd church at midnight and saw the Milky Way perfectly.",
+    "photos": [
+     {
+      "file": "Milford Sound Mitre Peak Cabbage tree Toetoe.JPG",
+      "artist": "MurielBendel",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Church of the Good Shepherd, Lake Tekapo, New Zealand 03.jpg",
+      "artist": "Michal Klajban",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Noa",
+  "lastName": "Peretz",
+  "gender": "female",
+  "username": "noa.saltwater",
+  "email": "noasaltwater@example.com",
+  "bio": "Salt in my hair, sand in my bag 🐚",
+  "location": "Eilat, Israel",
+  "wishlist": [
+   "MV",
+   "PH",
+   "GR"
+  ],
+  "follows": [
+   "leah.cafe.hopper",
+   "camille.slowtravel",
+   "sarahwanders",
+   "noa.abroad"
+  ],
+  "trips": [
+   {
+    "country": "AU",
+    "title": "Whitsundays & the reef",
+    "startDate": "2024-09-15",
+    "endDate": "2024-09-25",
+    "cities": [
+     "Airlie Beach",
+     "Whitsunday Island"
+    ],
+    "notes": "Whitehaven sand is so fine it squeaks. Splurged on the scenic flight to see Heart Reef — no photo does it justice. Snorkelled with a turtle that just ignored me and kept eating.",
+    "photos": [
+     {
+      "file": "Whitehaven Beach, Whitsunday Island, Queensland.jpg",
+      "artist": "Slug69",
+      "license": "CC BY-SA 2.0"
+     },
+     {
+      "file": "The heart reef, part of the Great Barrier Reef near Airlie Beach, Whitsunday Islands, Queensland.jpg",
+      "artist": "Ayanadak123",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "IT",
+    "title": "Amalfi Coast",
+    "startDate": "2023-06-20",
+    "endDate": "2023-06-28",
+    "cities": [
+     "Positano",
+     "Amalfi",
+     "Ravello"
+    ],
+    "notes": "Stayed above Positano and took the SITA bus everywhere (hold on tight). Ravello is the calm one — Villa Rufolo's gardens at 9am were empty. Best lemon granita at a tiny kiosk in Amalfi.",
+    "photos": [
+     {
+      "file": "Positano (Italy) 02.jpg",
+      "artist": "Bernard Gagnon",
+      "license": "CC BY 4.0"
+     },
+     {
+      "file": "Ravello Villa Rufolo.JPG",
+      "artist": "Istvánka",
+      "license": "CC BY-SA 3.0"
+     }
+    ]
+   },
+   {
+    "country": "JP",
+    "title": "Tokyo & Osaka",
+    "startDate": "2025-10-25",
+    "endDate": "2025-11-06",
+    "cities": [
+     "Tokyo",
+     "Kyoto",
+     "Osaka"
+    ],
+    "notes": "Shibuya crossing from the Starbucks window like every tourist ever, and I loved it. Osaka was my favourite though — Dotonbori at night, takoyaki that burned my mouth twice, and the friendliest people.",
+    "photos": [
+     {
+      "file": "Tokyo Shibuya Scramble Crossing 2018-10-09.jpg",
+      "artist": "Benh LIEU SONG (Flickr)",
+      "license": "CC BY-SA 2.0"
+     },
+     {
+      "file": "Dotonbori Neon Sign, Osaka 20190415 1.jpg",
+      "artist": "DXR",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Ethan",
+  "lastName": "Brooks",
+  "gender": "male",
+  "username": "ethan.brooks",
+  "email": "ethanbrooks@example.com",
+  "bio": "History nerd who reads every plaque",
+  "location": "Bristol, UK",
+  "wishlist": [
+   "EG",
+   "PE",
+   "TR"
+  ],
+  "follows": [
+   "jonas.alpine",
+   "hannah.weiss",
+   "chiara.mangia",
+   "lucas.on.tour",
+   "daniel.wanders"
+  ],
+  "trips": [
+   {
+    "country": "FR",
+    "title": "Normandy coast",
+    "startDate": "2023-05-27",
+    "endDate": "2023-06-03",
+    "cities": [
+     "Bayeux",
+     "Mont-Saint-Michel",
+     "Étretat"
+    ],
+    "notes": "Started with the D-Day beaches and the tapestry in Bayeux, then crossed to Mont-Saint-Michel at low tide with a guide (don't wing it, the sands are no joke). Stayed late to see the abbey lit up. Étretat's cliffs were a perfect last day.",
+    "photos": [
+     {
+      "file": "MSM sunset 02.JPG",
+      "artist": "Benh LIEU SONG",
+      "license": "CC BY 2.5"
+     },
+     {
+      "file": "Vue d'Étretat.jpg",
+      "artist": "Jörg Braukmann",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "GB",
+    "title": "Scottish Highlands",
+    "startDate": "2024-08-10",
+    "endDate": "2024-08-17",
+    "cities": [
+     "Fort William",
+     "Glenfinnan",
+     "Portree"
+    ],
+    "notes": "Waited 40 minutes on the hillside at Glenfinnan for the Jacobite steam train — worth it. Skye was wild and wet; the Storr walk in sideways rain is a rite of passage. The midges are real, bring repellent.",
+    "photos": [
+     {
+      "file": "Jacobite on Glenfinnan Viaduct 2 20211024.jpg",
+      "artist": "Daniel Kraft",
+      "license": "CC BY-SA 3.0"
+     },
+     {
+      "file": "Loch Fada Storr Skye restitch 2007-08-22.jpg",
+      "artist": "Klaus with K",
+      "license": "CC BY-SA 3.0"
+     }
+    ]
+   },
+   {
+    "country": "NZ",
+    "title": "North Island adventures",
+    "startDate": "2025-01-12",
+    "endDate": "2025-01-24",
+    "cities": [
+     "Matamata",
+     "Taupō",
+     "Rotorua"
+    ],
+    "notes": "Yes, I did the Hobbiton tour and yes, I had the ale at the Green Dragon. The Tongariro Alpine Crossing was the real highlight: 19.4 km, volcanic everything, and those Emerald Lakes look photoshopped.",
+    "photos": [
+     {
+      "file": "Hobbit holes reflected in water.jpg",
+      "artist": "Jackie.lck",
+      "license": "CC BY 2.0"
+     },
+     {
+      "file": "Emerald Lakes, New Zealand.jpg",
+      "artist": "Marcus Holland-Moritz",
+      "license": "CC BY-SA 2.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Chiara",
+  "lastName": "Rossi",
+  "gender": "female",
+  "username": "chiara.mangia",
+  "email": "chiaramangia@example.com",
+  "bio": "Will cross borders for a good bowl of noodles 🍝🍜",
+  "location": "Bologna, Italy",
+  "wishlist": [
+   "JP",
+   "TH",
+   "PE"
+  ],
+  "follows": [
+   "tom_hendricks",
+   "ethan.brooks",
+   "sarahwanders",
+   "noa.abroad"
+  ],
+  "trips": [
+   {
+    "country": "VN",
+    "title": "Ha Long Bay & Hoi An",
+    "startDate": "2024-03-03",
+    "endDate": "2024-03-15",
+    "cities": [
+     "Hanoi",
+     "Ha Long Bay",
+     "Hoi An"
+    ],
+    "notes": "Overnight cruise in Lan Ha Bay (quieter than Ha Long proper) and kayaking through caves at sunrise. Hoi An at night is lantern heaven. Ate cao lầu three times — it's only made properly in Hoi An, so no regrets.",
+    "photos": [
+     {
+      "file": "Ha Long Bay, Tower karsts.jpg",
+      "artist": "Vyacheslav Argenberg",
+      "license": "CC BY 4.0"
+     },
+     {
+      "file": "LANTERNS OF HOI AN 02.jpg",
+      "artist": "DEBA PRASAD ROY",
+      "license": "CC0"
+     }
+    ]
+   },
+   {
+    "country": "DE",
+    "title": "Bavaria with my sister",
+    "startDate": "2022-12-09",
+    "endDate": "2022-12-14",
+    "cities": [
+     "Munich",
+     "Füssen"
+    ],
+    "notes": "Christmas markets in Munich — glühwein in a different mug every night. Neuschwanstein in winter is a fairy tale, but the Marienbrücke was closed for ice so we saw it from below. Still magical.",
+    "photos": [
+     {
+      "file": "Neuschwanstein Castle 2024-02.jpg",
+      "artist": "Wilfredor",
+      "license": "CC0"
+     },
+     {
+      "file": "Rathaus and Marienplatz from Peterskirche - August 2006.jpg",
+      "artist": "Diliff",
+      "license": "CC BY-SA 3.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Amit",
+  "lastName": "Kapoor",
+  "gender": "male",
+  "username": "amit.k.travels",
+  "email": "amitktravels@example.com",
+  "bio": "Spreadsheets for itineraries, chaos for the rest",
+  "location": "London, UK",
+  "wishlist": [
+   "JP",
+   "MA",
+   "CL"
+  ],
+  "follows": [
+   "tom_hendricks",
+   "sofia.marques",
+   "ari.roadtrips",
+   "davidtravel",
+   "sarahwanders"
+  ],
+  "trips": [
+   {
+    "country": "VN",
+    "title": "Northern Vietnam",
+    "startDate": "2023-09-22",
+    "endDate": "2023-10-02",
+    "cities": [
+     "Hanoi",
+     "Sapa"
+    ],
+    "notes": "Late September is rice harvest season in Sapa and the terraces were gold. Did a two-day homestay trek with a H'mong guide — book through a local cooperative, not a hotel. Train Street in Hanoi: coffee, then step back when they shout.",
+    "photos": [
+     {
+      "file": "Rice terraces in Sapa, Vietnam.jpg",
+      "artist": "Eerin25",
+      "license": "CC0"
+     },
+     {
+      "file": "Train street, Hanoi 4.jpg",
+      "artist": "Shyamal",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "PT",
+    "title": "Lisbon & Porto",
+    "startDate": "2025-05-15",
+    "endDate": "2025-05-23",
+    "cities": [
+     "Lisbon",
+     "Sintra",
+     "Porto"
+    ],
+    "notes": "Tram 28 is cute but packed — walk Alfama instead and catch it at Largo Santa Luzia for the photo. Porto stole my heart: port tasting across the river in Gaia, francesinha, and the Ribeira at dusk.",
+    "photos": [
+     {
+      "file": "Lissabon - Alfama - Largo Santa Luzia - Streetcar - 1.jpg",
+      "artist": "Ingo Mehling",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "View of Ribeira from Cais de Gaia, 20250605 1628 9890.jpg",
+      "artist": "Jakub Hałun",
+      "license": "CC BY 4.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Hannah",
+  "lastName": "Weiss",
+  "gender": "female",
+  "username": "hannah.weiss",
+  "email": "hannahweiss@example.com",
+  "bio": "Architecture, art, and long lunches",
+  "location": "Vienna, Austria",
+  "wishlist": [
+   "ES",
+   "GE",
+   "JP"
+  ],
+  "follows": [
+   "leah.cafe.hopper",
+   "shira.deep.blue",
+   "daniel.wanders"
+  ],
+  "trips": [
+   {
+    "country": "HR",
+    "title": "Dalmatia & Plitvice",
+    "startDate": "2023-06-05",
+    "endDate": "2023-06-14",
+    "cities": [
+     "Split",
+     "Dubrovnik",
+     "Plitvice"
+    ],
+    "notes": "Walked the full Dubrovnik city walls at 8am before the cruise ships — essential. Plitvice was a dream of boardwalks and turquoise water; go early, take the long route C, skip the lunch crowds by the big lake.",
+    "photos": [
+     {
+      "file": "Dubrovnik Old Town 1.jpg",
+      "artist": "kallerna",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Waterfalls at Plitvice Lakes.jpg",
+      "artist": "OrionCro",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "IT",
+    "title": "Venice off-season",
+    "startDate": "2024-11-18",
+    "endDate": "2024-11-23",
+    "cities": [
+     "Venice",
+     "Burano"
+    ],
+    "notes": "November in Venice: foggy mornings, empty calli, and acqua alta boots from the hotel. The Rialto at dawn with only delivery boats. Burano is a box of crayons — the vaporetto ride across the lagoon is half the fun.",
+    "photos": [
+     {
+      "file": "Ponte di Rialto Venice 1.jpg",
+      "artist": "kallerna",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Burano - canal and colourful houses (35682020730).jpg",
+      "artist": "Jorge Franganillo",
+      "license": "CC BY 2.0"
+     }
+    ]
+   },
+   {
+    "country": "FR",
+    "title": "Paris & the Loire",
+    "startDate": "2025-09-10",
+    "endDate": "2025-09-18",
+    "cities": [
+     "Paris",
+     "Amboise",
+     "Chambord"
+    ],
+    "notes": "Three museum days in Paris (the Louvre at night is the move), then trains and bikes through the Loire. Chambord's double-helix staircase supposedly designed by Leonardo — I went up and down it like a child.",
+    "photos": [
+     {
+      "file": "Louvre Courtyard, Looking West.jpg",
+      "artist": "Benh LIEU SONG (Flickr)",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Chambord Castle Northwest facade.jpg",
+      "artist": "Benh LIEU SONG",
+      "license": "CC BY-SA 3.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Mateo",
+  "lastName": "Alvarez",
+  "gender": "male",
+  "username": "mateo.wild",
+  "email": "mateowild@example.com",
+  "bio": "National parks collector 🌿",
+  "location": "Buenos Aires, Argentina",
+  "wishlist": [
+   "IS",
+   "NO",
+   "CA"
+  ],
+  "follows": [
+   "camille.slowtravel",
+   "chiara.mangia",
+   "daniel.wanders",
+   "sarahwanders"
+  ],
+  "trips": [
+   {
+    "country": "BR",
+    "title": "Iguaçu & Lençóis Maranhenses",
+    "startDate": "2024-07-04",
+    "endDate": "2024-07-15",
+    "cities": [
+     "Foz do Iguaçu",
+     "Barreirinhas"
+    ],
+    "notes": "Saw the falls from the Argentine side years ago — the Brazilian side gives you the panorama. Then a long trip north to Lençóis: July is when the lagoons between the dunes are full. Swimming in a desert is surreal.",
+    "photos": [
+     {
+      "file": "Iguazu Falls Brazilian Side 2019.jpg",
+      "artist": "Geographer",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Parque Nacional dos Lençóis Maranhenses Paulo Cattelan (03).jpg",
+      "artist": "Paulo Cattelan",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "DE",
+    "title": "Saxon Switzerland & Hamburg",
+    "startDate": "2025-09-20",
+    "endDate": "2025-09-29",
+    "cities": [
+     "Dresden",
+     "Rathen",
+     "Hamburg"
+    ],
+    "notes": "The Bastei bridge at sunrise with fog in the Elbe valley below — climbed up in the dark with a headlamp. Ended in Hamburg for the Speicherstadt at night and a fish sandwich at the Sunday market.",
+    "photos": [
+     {
+      "file": "Bastei Bridge in Saxon Switzerland.jpg",
+      "artist": "Flukes69",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Hamburg, Speicherstadt, Block P -- 2016 -- 3330-6.jpg",
+      "artist": "Dietmar Rabich",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Shira",
+  "lastName": "Levin",
+  "gender": "female",
+  "username": "shira.deep.blue",
+  "email": "shiradeepblue@example.com",
+  "bio": "Freediver. Happiest 20 metres down 🌊",
+  "location": "Ramat Gan, Israel",
+  "wishlist": [
+   "MX",
+   "PH",
+   "ID"
+  ],
+  "follows": [
+   "leah.cafe.hopper",
+   "jonas.alpine",
+   "tom_hendricks",
+   "ari.roadtrips",
+   "noa.abroad",
+   "meir"
+  ],
+  "trips": [
+   {
+    "country": "TR",
+    "title": "Istanbul with mom",
+    "startDate": "2023-04-14",
+    "endDate": "2023-04-19",
+    "cities": [
+     "Istanbul"
+    ],
+    "notes": "Mom's first trip abroad in ten years. The Blue Mosque at morning prayer call, simit on the ferry to Kadıköy, and Galata at night from the Karaköy waterfront. She bargained better than me at the Grand Bazaar.",
+    "photos": [
+     {
+      "file": "Exterior of Sultan Ahmed I Mosque in Istanbul, Turkey 002.jpg",
+      "artist": "Moonik",
+      "license": "CC BY-SA 3.0"
+     },
+     {
+      "file": "Istanbul Galata Tower IMG 7475 1800.jpg",
+      "artist": "Alexxx1979",
+      "license": "CC BY-SA 3.0"
+     }
+    ]
+   },
+   {
+    "country": "GE",
+    "title": "Kazbegi & Tbilisi",
+    "startDate": "2024-06-01",
+    "endDate": "2024-06-09",
+    "cities": [
+     "Tbilisi",
+     "Stepantsminda"
+    ],
+    "notes": "Hiked up to Gergeti Trinity Church with Kazbek hiding in the clouds, then it cleared for exactly ten minutes. Tbilisi: sulphur baths, khachapuri for every meal, and wine poured like water by our guesthouse host.",
+    "photos": [
+     {
+      "file": "Gergeti Trinity Church, Mountain pasture, Georgia.jpg",
+      "artist": "Vyacheslav Argenberg",
+      "license": "CC BY 4.0"
+     },
+     {
+      "file": "Old Tbilisi town in Tbilisi, Georgia.jpg",
+      "artist": "GeoO",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "EG",
+    "title": "Dahab & Sinai",
+    "startDate": "2025-10-30",
+    "endDate": "2025-11-08",
+    "cities": [
+     "Dahab",
+     "Saint Catherine"
+    ],
+    "notes": "A week of freediving at the Blue Hole and the Canyon, lazy afternoons on the cushions at the seafront cafés. Climbed Mount Sinai at night with a Bedouin guide to watch sunrise from the summit — cold, quiet, unforgettable.",
+    "photos": [
+     {
+      "file": "Dahab - The blue hole - panoramio.jpg",
+      "artist": "Francesco Lo Bello",
+      "license": "CC BY 3.0"
+     },
+     {
+      "file": "Sunrise from the summit of Mount Sinai or Gabal Musa.jpg",
+      "artist": "Sara Nabih",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Jonas",
+  "lastName": "Becker",
+  "gender": "male",
+  "username": "jonas.alpine",
+  "email": "jonasalpine@example.com",
+  "bio": "Ski touring in winter, summits in summer",
+  "location": "Munich, Germany",
+  "wishlist": [
+   "NP",
+   "CL",
+   "NZ"
+  ],
+  "follows": [
+   "ethan.brooks",
+   "shira.deep.blue",
+   "daniel.wanders",
+   "noa.abroad"
+  ],
+  "trips": [
+   {
+    "country": "FR",
+    "title": "Chamonix week",
+    "startDate": "2024-07-20",
+    "endDate": "2024-07-27",
+    "cities": [
+     "Chamonix",
+     "Argentière"
+    ],
+    "notes": "Aiguille du Midi cable car on the first clear morning — 3,842 m in 20 minutes, mind the altitude. Hiked to Lac Blanc for the mirror view of the Mont Blanc massif. Next year: the Grands Montets glacier tour.",
+    "photos": [
+     {
+      "file": "AiguilleDuMidiTM.jpg",
+      "artist": "Nicolas Sanchez",
+      "license": "CC BY-SA 3.0"
+     },
+     {
+      "file": "Chamonix - Lac Blanc 6.jpg",
+      "artist": "Tiia Monto",
+      "license": "CC BY-SA 3.0"
+     }
+    ]
+   },
+   {
+    "country": "EG",
+    "title": "Luxor in winter",
+    "startDate": "2022-12-27",
+    "endDate": "2023-01-03",
+    "cities": [
+     "Luxor"
+    ],
+    "notes": "A complete change of scenery: Karnak's hypostyle hall makes you feel tiny. The balloon ride over the West Bank at sunrise was calm and beautiful, then Valley of the Kings before the crowds. Felucca on the Nile to finish.",
+    "photos": [
+     {
+      "file": "Columns in Karnak Temple , Luxor.JPG",
+      "artist": "Belmahdy",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Balloon over Luxor - Egypt denoised.jpg",
+      "artist": "Marcosleal",
+      "license": "CC BY-SA 3.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Leah",
+  "lastName": "Novak",
+  "gender": "female",
+  "username": "leah.cafe.hopper",
+  "email": "leahcafehopper@example.com",
+  "bio": "Rating every flat white on earth ☕",
+  "location": "Prague, Czech Republic",
+  "wishlist": [
+   "PT",
+   "JP",
+   "AU"
+  ],
+  "follows": [
+   "amit.k.travels",
+   "lior.outdoors",
+   "shira.deep.blue",
+   "ben.trekker",
+   "lucasgoes"
+  ],
+  "trips": [
+   {
+    "country": "TR",
+    "title": "Turquoise Coast",
+    "startDate": "2024-06-20",
+    "endDate": "2024-06-30",
+    "cities": [
+     "Pamukkale",
+     "Fethiye",
+     "Ölüdeniz"
+    ],
+    "notes": "Barefoot on the Pamukkale travertines (they make you take your shoes off) and swimming in Cleopatra's pool among broken columns. Ölüdeniz lagoon is the calmest water I've ever floated in. Watched the paragliders land on the beach all afternoon.",
+    "photos": [
+     {
+      "file": "The travertines of Pamukkale 3.jpg",
+      "artist": "Slyronit",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Oludeniz Lagoon in Fethiye.jpg",
+      "artist": "Tolga Kanik",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "GB",
+    "title": "London long weekend",
+    "startDate": "2025-03-07",
+    "endDate": "2025-03-11",
+    "cities": [
+     "London"
+    ],
+    "notes": "Tower Bridge at dusk, Borough Market for lunch, and a very serious flat white tour around Shoreditch. Notting Hill's pastel houses on a Saturday morning before Portobello Market gets busy.",
+    "photos": [
+     {
+      "file": "Tower Bridge London Dusk Feb 2006.jpg",
+      "artist": "Diliff",
+      "license": "CC BY-SA 3.0"
+     },
+     {
+      "file": "Colourful houses in Lancaster Road, Notting Hill 2020-07-05.jpg",
+      "artist": "Bex Walton",
+      "license": "CC BY 2.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Ari",
+  "lastName": "Mizrahi",
+  "gender": "male",
+  "username": "ari.roadtrips",
+  "email": "ariroadtrips@example.com",
+  "bio": "Give me a car and an empty highway 🚗",
+  "location": "Los Angeles, USA",
+  "wishlist": [
+   "IS",
+   "NA",
+   "AU"
+  ],
+  "follows": [
+   "jonas.alpine",
+   "maya.goes",
+   "sarahwanders"
+  ],
+  "trips": [
+   {
+    "country": "JP",
+    "title": "Hiroshima & Miyajima",
+    "startDate": "2023-04-03",
+    "endDate": "2023-04-08",
+    "cities": [
+     "Hiroshima",
+     "Miyajima"
+    ],
+    "notes": "The Peace Memorial Museum is heavy and essential. Took the ferry to Miyajima and stayed the night — once the day-trippers leave, the floating torii at sunset belongs to you and the deer. Hiroshima okonomiyaki > Osaka's, fight me.",
+    "photos": [
+     {
+      "file": "Itsukushima-jinja torii at sunset, Miyajima, Japan, 20240816 1812 4144.jpg",
+      "artist": "Jakub Hałun",
+      "license": "CC BY 4.0"
+     },
+     {
+      "file": "Genbaku Dome04-r.JPG",
+      "artist": "Oilstreet",
+      "license": "CC BY 2.5"
+     }
+    ]
+   },
+   {
+    "country": "US",
+    "title": "Arizona canyons",
+    "startDate": "2024-10-10",
+    "endDate": "2024-10-16",
+    "cities": [
+     "Page",
+     "Grand Canyon Village",
+     "Flagstaff"
+    ],
+    "notes": "Drove LA → Page → Grand Canyon in a week. Horseshoe Bend at sunrise (sunset is a parking-lot nightmare), then Mather Point for sunset at the South Rim. October is perfect — cool mornings, empty trails.",
+    "photos": [
+     {
+      "file": "USA 10187 Horseshoe Bend Luca Galuzzi 2007.jpg",
+      "artist": "Luca Galuzzi (Lucag)",
+      "license": "CC BY-SA 2.5"
+     },
+     {
+      "file": "Grand Canyon South Rim at Sunset.jpg",
+      "artist": "Mgimelfarb",
+      "license": "CC0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Camille",
+  "lastName": "Dubois",
+  "gender": "female",
+  "username": "camille.slowtravel",
+  "email": "camilleslowtravel@example.com",
+  "bio": "Trains over planes, always 🚆",
+  "location": "Lyon, France",
+  "wishlist": [
+   "NO",
+   "SE",
+   "PT"
+  ],
+  "follows": [
+   "lucas.on.tour",
+   "hannah.weiss",
+   "noa.abroad",
+   "meir"
+  ],
+  "trips": [
+   {
+    "country": "DE",
+    "title": "Rhine by train",
+    "startDate": "2023-08-06",
+    "endDate": "2023-08-12",
+    "cities": [
+     "Cologne",
+     "Koblenz",
+     "Heidelberg"
+    ],
+    "notes": "Interrail through the Rhine valley: Cologne cathedral glowing across the river from the Kranhäuser, castles on every bend, and a slow evening on Heidelberg's Old Bridge with ice cream. The train hugs the river the whole way.",
+    "photos": [
+     {
+      "file": "Kranhäuser Cologne, April 2018 -01.jpg",
+      "artist": "Martin Falbisoner",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "20230315 Hotel Holländer Hof Heidelberg 02.jpg",
+      "artist": "Flocci Nivis",
+      "license": "CC BY 4.0"
+     }
+    ]
+   },
+   {
+    "country": "JP",
+    "title": "Kyoto & Nara",
+    "startDate": "2024-11-20",
+    "endDate": "2024-11-30",
+    "cities": [
+     "Kyoto",
+     "Arashiyama",
+     "Nara"
+    ],
+    "notes": "Arashiyama bamboo at 7am before the crowds. In Nara I bought shika senbei (deer crackers) and was immediately mugged by a gang of very polite, very bowing deer. The autumn leaves were at their absolute peak.",
+    "photos": [
+     {
+      "file": "Bamboo Forest, Arashiyama, Kyoto, Japan.jpg",
+      "artist": "Basile Morin",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Shika senbei 2017.jpg",
+      "artist": "TR15336300101",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "FR",
+    "title": "Côte d'Azur",
+    "startDate": "2025-06-14",
+    "endDate": "2025-06-20",
+    "cities": [
+     "Nice",
+     "Èze",
+     "Villefranche-sur-Mer"
+    ],
+    "notes": "Socca in the Old Town, swimming off the pebbles at Castel Plage, and the Nietzsche path up to Èze — steep, shaded, and the view at the top is ridiculous. Local train along the coast for 2€, no car needed.",
+    "photos": [
+     {
+      "file": "Nice from Castle Hill 01.jpg",
+      "artist": "Spike",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Èze und Cap Ferrat-Grande Corniche.jpg",
+      "artist": "Tobi 87",
+      "license": "CC BY-SA 3.0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "firstName": "Ben",
+  "lastName": "O'Connor",
+  "gender": "male",
+  "username": "ben.trekker",
+  "email": "bentrekker@example.com",
+  "bio": "Trail runner, tea drinker, map reader",
+  "location": "Dublin, Ireland",
+  "wishlist": [
+   "PE",
+   "CL",
+   "GE"
+  ],
+  "follows": [
+   "shira.deep.blue",
+   "hannah.weiss",
+   "davidtravel",
+   "noa.abroad"
+  ],
+  "trips": [
+   {
+    "country": "NP",
+    "title": "Poon Hill & Pokhara",
+    "startDate": "2024-11-01",
+    "endDate": "2024-11-10",
+    "cities": [
+     "Pokhara",
+     "Ghorepani",
+     "Tadapani"
+    ],
+    "notes": "Short teahouse trek from Nayapul. The 4:45am climb to Poon Hill was busy but when the sun hit Annapurna South and Machapuchare, everyone went silent. Recovered by Phewa Lake with momos and paddle boats.",
+    "photos": [
+     {
+      "file": "Phewa lake in Pokhara (16093216252).jpg",
+      "artist": "Jean-Marie Hullot from France",
+      "license": "CC BY 2.0"
+     },
+     {
+      "file": "Annapurna South, Himchuli, Machapuchare Himal-3794.jpg",
+      "artist": "Bijay Chaurasia",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   },
+   {
+    "country": "DE",
+    "title": "Black Forest",
+    "startDate": "2025-08-15",
+    "endDate": "2025-08-21",
+    "cities": [
+     "Freiburg",
+     "Triberg",
+     "Titisee"
+    ],
+    "notes": "Ran the trails around Triberg falls (Germany's highest, they'll tell you) and ate Black Forest cake in the town it's named after. Freiburg's minster and its gargoyles, plus the little Bächle canals you're not supposed to step in.",
+    "photos": [
+     {
+      "file": "Triberg waterfall Germany.jpg",
+      "artist": "Mrunal Sompura",
+      "license": "CC BY-SA 4.0"
+     },
+     {
+      "file": "Freiburg-Freiburg Minster-Exterior-Gargoyles-03ASD.jpg",
+      "artist": "Asurnipal",
+      "license": "CC BY-SA 4.0"
+     }
+    ]
+   }
+  ]
+ }
+]

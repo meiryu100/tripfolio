@@ -7,14 +7,14 @@ import { FollowButton, LoadMore, TripGrid, TripGridSkeleton } from "@/components
 import { Photo } from "@/components/photo";
 import { Avatar, EmptyState, ErrorState, Skeleton, buttonClass } from "@/components/ui";
 import { useUserMap } from "@/features/map/api";
-import { MapSkeleton, WorldMap } from "@/features/map/world-map";
+import { MapPanel } from "@/features/map/map-panel";
 import { flatten } from "@/features/social/api";
 import { computeStats } from "@/features/stats/compute";
 import { ContinentChecklist, Milestones, WorldProgress } from "@/features/stats/stats-panel";
 import { useUserPhotos, useUserTrips } from "@/features/trips/api";
 import { getCountry } from "@/lib/countries";
 import type { Profile } from "@/lib/types";
-import { openCountry, useUI } from "@/lib/ui";
+
 import { cn } from "@/lib/utils";
 
 type Tab = "world" | "trips" | "photos";
@@ -80,7 +80,9 @@ function ProfileHeader({ profile: p }: { profile: Profile }) {
   const joined = new Date(p.joinedAt).toLocaleDateString(undefined, { month: "long", year: "numeric" });
   return (
     <header className="flex flex-col items-center text-center">
-      <Avatar user={p} size={104} className="shadow-float ring-4 ring-surface" />
+      <span className="bg-aurora animate-rise rounded-full p-1 shadow-glow">
+        <Avatar user={p} size={104} className="ring-4 ring-surface" />
+      </span>
       <h1 className="mt-4 text-3xl font-bold tracking-tight">
         {p.firstName} {p.lastName}
       </h1>
@@ -158,25 +160,12 @@ function Count({ value, label, href, tone }: { value: number | null; label: stri
 function WorldTab({ profile }: { profile: Profile }) {
   const map = useUserMap(profile.username);
   const trips = useUserTrips(profile.canView.trips ? profile.username : undefined, { limit: 5 });
-  const selected = useUI((s) => (s.countrySheet?.username === profile.username ? s.countrySheet.code : null));
   const stats = useMemo(() => computeStats(map.data?.statuses ?? {}), [map.data]);
   const recent = flatten(trips.data).slice(0, 5);
 
   return (
     <div className="grid gap-6">
-      {map.isPending ? (
-        <MapSkeleton />
-      ) : map.isError ? (
-        <ErrorState body="We couldn't load this map." onRetry={() => map.refetch()} />
-      ) : (
-        <WorldMap
-          statuses={map.data.statuses}
-          photoCountries={map.data.photoCountries}
-          selected={selected}
-          onSelect={(code) => openCountry(code, profile.username)}
-          className="aspect-[4/3] w-full border border-border shadow-card sm:aspect-[16/9] lg:aspect-[2/1]"
-        />
-      )}
+      <MapPanel username={profile.username} className="aspect-[4/3] w-full border border-border shadow-card sm:aspect-[16/9] lg:aspect-[2/1]" />
 
       {map.data && profile.canView.visited && (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

@@ -6,6 +6,7 @@ import { AppShell } from "@/components/app-shell";
 import { ErrorState, Spinner } from "@/components/ui";
 import { useMeQuery } from "@/features/auth/api";
 import { CountrySheet } from "@/features/map/country-sheet";
+import { RegionSheet } from "@/features/map/region-sheet";
 import { TripEditor } from "@/features/trips/trip-editor";
 import { api } from "@/lib/api-client";
 
@@ -24,7 +25,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
   if (isError && !me) {
     return (
       <main className="mx-auto max-w-md px-4 py-24">
-        <ErrorState title="We couldn't reach Travora." body="Check your connection and try again." onRetry={() => refetch()} />
+        <ErrorState title="We couldn't reach Tripfolio." body="Check your connection and try again." onRetry={() => refetch()} />
       </main>
     );
   }
@@ -41,6 +42,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
     <AppShell>
       {children}
       <CountrySheet />
+      <RegionSheet />
       <TripEditor />
     </AppShell>
   );

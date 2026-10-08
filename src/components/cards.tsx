@@ -10,6 +10,7 @@ import { getCountry } from "@/lib/countries";
 import type { Relationship, Trip, UserSummary } from "@/lib/types";
 import { toast } from "@/lib/ui";
 import { cn, formatDateRange, plural } from "@/lib/utils";
+import { CountUp, Reveal } from "./motion";
 import { TripCover } from "./photo";
 import { Avatar, Button, Skeleton } from "./ui";
 
@@ -19,14 +20,16 @@ export function TripCard({ trip, showAuthor }: { trip: Trip; showAuthor?: boolea
   return (
     <Link
       href={`/trips/${trip.id}`}
-      className="group overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition duration-200 hover:-translate-y-0.5 hover:shadow-float"
+      className="lift group block overflow-hidden rounded-3xl border border-border bg-surface shadow-card"
     >
       <div className="relative overflow-hidden">
         <TripCover
           photo={trip.cover}
           flag={c?.flag ?? "🌍"}
-          className="aspect-[16/10] w-full transition duration-500 group-hover:scale-[1.03]"
+          className="aspect-[16/10] w-full transition duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
         />
+        {/* Soft gradient so the flag/title area reads like a travel postcard. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" aria-hidden />
         {showAuthor && trip.author && (
           <span className="absolute top-2.5 left-2.5 flex items-center gap-1.5 rounded-full bg-black/55 py-0.5 pr-2.5 pl-0.5 text-xs font-medium text-white backdrop-blur">
             <Avatar user={trip.author} size={20} /> @{trip.author.username}
@@ -77,8 +80,10 @@ export function TripGrid({ trips, showAuthor, columns = 3 }: { trips: Trip[]; sh
         columns === 4 && "lg:grid-cols-4",
       )}
     >
-      {trips.map((t) => (
-        <TripCard key={t.id} trip={t} showAuthor={showAuthor} />
+      {trips.map((t, i) => (
+        <Reveal key={t.id} index={i}>
+          <TripCard trip={t} showAuthor={showAuthor} />
+        </Reveal>
       ))}
     </div>
   );
@@ -231,23 +236,27 @@ export function Stat({
       <div className="flex items-start justify-between gap-2">
         <p
           className={cn(
-            "font-heading text-2xl font-bold tracking-tight tabular-nums sm:text-3xl",
+            "font-heading text-3xl font-bold tracking-tight tabular-nums",
             tone === "visited" && "text-visited",
             tone === "wishlist" && "text-wishlist",
             tone === "brand" && "text-brand",
             tone === "ai" && "text-ai",
           )}
         >
-          {value}
+          {typeof value === "number" ? <CountUp value={value} /> : value}
         </p>
-        {Icon && <Icon className="mt-1 size-5 shrink-0 text-muted/70" aria-hidden />}
+        {Icon && (
+          <span className="bg-aurora flex size-9 shrink-0 items-center justify-center rounded-xl text-white shadow-glow" aria-hidden>
+            <Icon className="size-4.5" />
+          </span>
+        )}
       </div>
       <p className="mt-0.5 text-xs text-muted sm:text-sm">{label}</p>
     </>
   );
-  const cls = "rounded-2xl border border-border bg-surface px-4 py-3.5 shadow-card";
+  const cls = "lift block h-full rounded-3xl border border-border bg-surface/85 px-5 py-4 shadow-card backdrop-blur";
   return href ? (
-    <Link href={href} className={cn(cls, "transition duration-200 hover:-translate-y-0.5 hover:border-brand/40")}>
+    <Link href={href} className={cn(cls, "hover:border-brand/40")}>
       {body}
     </Link>
   ) : (

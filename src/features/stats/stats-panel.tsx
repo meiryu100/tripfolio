@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Crown, Flag, Globe2, Mountain, Plane } from "lucide-react";
+import { CountUp } from "@/components/motion";
 import { cn } from "@/lib/utils";
 import type { TravelStats } from "./compute";
 import { WORLD_TOTAL } from "./compute";
@@ -19,7 +20,9 @@ export function WorldProgress({ stats, className, own = true }: { stats: TravelS
             {stats.sovereignVisited} <span className="text-muted">/ {WORLD_TOTAL} countries</span>
           </p>
         </div>
-        <p className="font-heading text-3xl font-bold text-gradient tabular-nums">{pct.toFixed(1)}%</p>
+        <p className="font-heading text-4xl font-bold text-gradient">
+          <CountUp value={pct} decimals={1} suffix="%" />
+        </p>
       </div>
       <div
         role="progressbar"
@@ -30,7 +33,7 @@ export function WorldProgress({ stats, className, own = true }: { stats: TravelS
         className="mt-3 h-3 overflow-hidden rounded-full bg-surface-2 shadow-pressed"
       >
         <div
-          className="h-full rounded-full bg-gradient-to-r from-brand-bright to-ai transition-[width] duration-700 ease-out"
+          className="bg-aurora h-full rounded-full transition-[width] duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]"
           style={{ width: `${Math.max(pct, pct > 0 ? 1.5 : 0)}%` }}
         />
       </div>
@@ -99,7 +102,7 @@ export function Milestones({ stats, className }: { stats: TravelStats; className
                 className={cn(
                   "flex size-12 items-center justify-center rounded-2xl transition duration-300",
                   m.reached
-                    ? "bg-gradient-to-br from-brand-bright to-ai text-white shadow-float"
+                    ? "bg-aurora text-white shadow-glow"
                     : "bg-surface-2 text-muted/60 shadow-pressed",
                 )}
                 aria-hidden
@@ -132,7 +135,7 @@ export function ByContinent({ stats, className }: { stats: TravelStats; classNam
             <span className="truncate">{r.name}</span>
             <span className="h-2.5 overflow-hidden rounded-full bg-surface-2" aria-hidden>
               <span
-                className="block h-full rounded-full bg-gradient-to-r from-brand-bright to-brand transition-[width] duration-700"
+                className="block h-full rounded-full bg-gradient-to-r from-brand-bright to-brand-2 transition-[width] duration-1000"
                 style={{ width: `${(r.visited / max) * 100}%` }}
               />
             </span>

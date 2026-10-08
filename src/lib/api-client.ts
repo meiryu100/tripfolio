@@ -1,4 +1,4 @@
-/** Thin fetch wrapper for the Travora API. Throws ApiError with the server's message. */
+/** Thin fetch wrapper for the Tripfolio API. Throws ApiError with the server's message. */
 
 export class ApiError extends Error {
   constructor(

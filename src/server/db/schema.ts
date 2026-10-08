@@ -25,6 +25,7 @@ const timestamps = {
 // ─── Users & auth ────────────────────────────────────────────────────────────
 
 export const themeEnum = pgEnum("theme", ["light", "dark", "system"]);
+export const genderEnum = pgEnum("gender", ["male", "female"]);
 
 export const users = pgTable(
   "users",
@@ -34,6 +35,8 @@ export const users = pgTable(
     publicId: text("public_id").notNull().unique(),
     firstName: text("first_name").notNull(),
     lastName: text("last_name").notNull(),
+    /** Existing accounts default to male; new sign-ups must choose (enforced by registerSchema). */
+    gender: genderEnum("gender").notNull().default("male"),
     username: text("username").notNull(),
     email: text("email").notNull(),
     passwordHash: text("password_hash"), // null for Google-only accounts
@@ -119,6 +122,30 @@ export const userCountries = pgTable(
     ...timestamps,
   },
   (t) => [uniqueIndex("user_countries_user_country_idx").on(t.userId, t.countryCode)],
+);
+
+/**
+ * Regions inside a country (ISO 3166-2, e.g. "US-CA"). Same statuses as
+ * countries; visiting a region marks its country visited.
+ */
+export const userRegions = pgTable(
+  "user_regions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    countryCode: char("country_code", { length: 2 })
+      .notNull()
+      .references(() => countries.isoCode),
+    regionCode: text("region_code").notNull(),
+    status: countryStatusEnum("status").notNull(),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("user_regions_user_region_idx").on(t.userId, t.regionCode),
+    index("user_regions_user_country_idx").on(t.userId, t.countryCode),
+  ],
 );
 
 // ─── Trips & photos ──────────────────────────────────────────────────────────
