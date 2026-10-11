@@ -10,6 +10,8 @@ export const env = {
   isProd: process.env.NODE_ENV === "production",
   s3: {
     endpoint: optional("S3_ENDPOINT") || undefined,
+    /** Endpoint browsers use for signed photo links (defaults to S3_ENDPOINT). */
+    publicEndpoint: optional("S3_PUBLIC_ENDPOINT") || optional("S3_ENDPOINT") || undefined,
     region: optional("S3_REGION", "us-east-1"),
     bucket: optional("S3_BUCKET", "tripfolio-photos"),
     accessKeyId: optional("S3_ACCESS_KEY_ID"),

@@ -46,6 +46,8 @@ export const users = pgTable(
     location: text("location").notNull().default(""),
     website: text("website").notNull().default(""),
     onboarded: boolean("onboarded").notNull().default(false),
+    /** Demo/sample account created by the seed script, not a real sign-up. */
+    isTestUser: boolean("is_test_user").notNull().default(false),
     // Privacy
     isPrivate: boolean("is_private").notNull().default(false),
     showVisited: boolean("show_visited").notNull().default(true),

@@ -72,6 +72,7 @@ async function seedDemo() {
         location: s.location,
         isPrivate: Boolean(s.isPrivate),
         onboarded: true,
+        isTestUser: true,
         createdAt: daysAgo(400 - i * 20),
       })
       .returning({ id: schema.users.id });
@@ -192,6 +193,7 @@ async function seedPhotoTraveler(t: PhotoTraveler) {
       bio: t.bio,
       location: t.location,
       onboarded: true,
+      isTestUser: true,
       // Joined about six weeks before their first trip, so profiles read naturally.
       createdAt: new Date(Math.min(...t.trips.map((trip) => new Date(trip.startDate).getTime())) - 45 * 86_400_000),
     })

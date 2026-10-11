@@ -65,7 +65,7 @@ Lists are paginated: keyset cursors on `(created_at, id)` for feeds/notification
 - **Passwords**: scrypt (N=2¹⁵), constant-time compare, dummy hash for unknown emails (no timing-based account enumeration). Forgot-password always returns 204.
 - **Sessions**: random 256-bit token in an `HttpOnly`, `SameSite=Lax`, `Secure` (in production) cookie. Password change/reset signs out other sessions.
 - **CSRF**: SameSite cookies + Origin must match Host on every state-changing request. OAuth uses a `state` cookie.
-- **Authorization**: every read goes through `services/privacy.ts` (`visibilityFor`). Private trips/photos return **404, not 403**, so IDs can't be probed. Photos are served only through `/api/photos/:id` after that check; the bucket is private.
+- **Authorization**: every read goes through `services/privacy.ts` (`visibilityFor`). Private trips/photos return **404, not 403**, so IDs can't be probed. The bucket is private: `/api/photos/:id` checks access, then redirects to a **signed storage link** (valid ≤ 2 hours, stable within the hour so browsers cache it). Image bytes never pass through the app server. Avatars (public) use day-long links.
 - **Uploads**: size limit before buffering, the image is decoded by sharp (not trusted by extension/MIME), then re-encoded to WebP, which strips EXIF/GPS and neutralizes polyglots. Pixel limit guards against decompression bombs.
 - **Rate limits** (`http/rate-limit.ts`): auth 10/min, uploads 60/min, writes 120/min, reads 600/min per IP. In-memory — swap for Redis when running multiple instances.
 - **XSS**: React escaping everywhere, no `dangerouslySetInnerHTML` on user data; user websites open with `rel="noopener noreferrer nofollow ugc"`; photo responses send `nosniff` and a restrictive CSP.
@@ -93,4 +93,4 @@ The schema and services are organized so V2 features slot in without reshaping e
 
 - Migrations: edit `schema.ts` → `npm run db:generate` → commit the SQL → `npm run db:migrate` on deploy.
 - Production storage: point `S3_*` at AWS S3, Cloudflare R2 or MinIO; keep the bucket private.
-- Put a CDN in front of `/_next/static` and `/api/media/avatar/*` (immutable, cache-busted URLs). Trip photos are `Cache-Control: private` by design.
+- Photos and avatars are downloaded straight from object storage via signed links, so app bandwidth stays low (and R2 has no egress fees). Set `S3_PUBLIC_ENDPOINT` if browsers reach storage at a different address than the server.
