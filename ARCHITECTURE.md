@@ -86,7 +86,7 @@ The schema and services are organized so V2 features slot in without reshaping e
 - **Direct messages / groups / travel buddies**: new tables referencing `users`; reuse `privacy.ts` relationships.
 - **Cities / places / map pins**: a `places` table with lat/lng linked to `trips`; render as a second SVG layer on the same projection.
 - **Badges / challenges / leaderboards**: derive from `user_countries` + `trips`; `features/stats/compute.ts` already computes milestones and continents.
-- **Email notifications**: `services/mailer.ts` is the single integration point (currently logs to the console); `users.notify_email` is already stored.
+- **Email notifications**: `services/mailer.ts` is the single integration point (Resend when `RESEND_API_KEY` is set, console otherwise); `users.notify_email` is already stored.
 - **AI travel assistant**: a service that reads a user's map, wishlist and trips through the same services (so it inherits privacy rules).
 
 ## Operations

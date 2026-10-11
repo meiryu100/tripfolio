@@ -6,7 +6,7 @@ import { revokeAllSessions, sha256 } from "../auth/session";
 import { db, schema } from "../db";
 import { env } from "../env";
 import { HttpError } from "../http/errors";
-import { sendMail } from "./mailer";
+import { mailHtml, sendMail } from "./mailer";
 import { createUser } from "./users";
 
 const RESET_TTL_MS = 60 * 60 * 1000;
@@ -31,10 +31,17 @@ export async function requestPasswordReset(email: string) {
     userId: user.id,
     expiresAt: new Date(Date.now() + RESET_TTL_MS),
   });
+  const url = `${env.appUrl}/reset-password?token=${token}`;
   await sendMail({
     to: user.email,
     subject: "Reset your Tripfolio password",
-    text: `Hi ${user.firstName},\n\nReset your password here (valid for 1 hour):\n${env.appUrl}/reset-password?token=${token}\n\nIf you didn't ask for this, you can ignore this email.`,
+    text: `Hi ${user.firstName},\n\nReset your password here (valid for 1 hour):\n${url}\n\nIf you didn't ask for this, you can ignore this email.`,
+    html: mailHtml({
+      greeting: `Hi ${user.firstName},`,
+      lines: ["We got a request to reset your Tripfolio password. The link is valid for 1 hour."],
+      button: { label: "Reset password", url },
+      footer: "If you didn't ask for this, you can ignore this email — your password won't change.",
+    }),
   });
 }
 

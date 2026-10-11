@@ -38,6 +38,10 @@ In development, emails (password resets) are printed in the terminal running `np
 
 Create an OAuth client at https://console.cloud.google.com/apis/credentials with the redirect URI `{APP_URL}/api/auth/google/callback`, then set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `.env.local`. The “Continue with Google” button appears automatically.
 
+### Email (optional)
+
+Password-reset emails print to the server console until you set `RESEND_API_KEY` (from https://resend.com). `MAIL_FROM` defaults to `onboarding@resend.dev`, which Resend only delivers to your own account's address; verify a domain in Resend and set e.g. `MAIL_FROM="Tripfolio <hello@yourdomain.com>"` to email everyone. Seeded `@example.com` accounts are never emailed.
+
 ## Project layout
 
 ```

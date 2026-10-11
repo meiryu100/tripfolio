@@ -18,6 +18,11 @@ export const env = {
     secretAccessKey: optional("S3_SECRET_ACCESS_KEY"),
     forcePathStyle: optional("S3_FORCE_PATH_STYLE", "true") === "true",
   },
+  mail: {
+    resendApiKey: optional("RESEND_API_KEY"),
+    /** Sender address; "onboarding@resend.dev" works before you verify a domain. */
+    from: optional("MAIL_FROM", "Tripfolio <onboarding@resend.dev>"),
+  },
   google: {
     clientId: optional("GOOGLE_CLIENT_ID"),
     clientSecret: optional("GOOGLE_CLIENT_SECRET"),
