@@ -1,13 +1,15 @@
 "use client";
 
-import { CalendarDays, Camera, Globe2, Link2, Lock, MapPin, Settings, UserCheck } from "lucide-react";
+import { CalendarDays, Camera, Globe2, Link2, Lock, MapPin, MoreHorizontal, Settings, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { FollowButton, LoadMore, TripGrid, TripGridSkeleton } from "@/components/cards";
 import { Photo } from "@/components/photo";
-import { Avatar, EmptyState, ErrorState, Skeleton, buttonClass } from "@/components/ui";
+import { Avatar, Button, EmptyState, ErrorState, Skeleton, buttonClass } from "@/components/ui";
 import { useUserMap } from "@/features/map/api";
 import { MapPanel } from "@/features/map/map-panel";
+import { useChatAction } from "@/features/messages/api";
+import { UserActionsSheet } from "@/features/messages/sheets";
 import { ShareProfileButton } from "@/features/share/share";
 import { flatten } from "@/features/social/api";
 import { computeStats } from "@/features/stats/compute";
@@ -135,10 +137,38 @@ function ProfileHeader({ profile: p }: { profile: Profile }) {
             </Link>
           </>
         ) : (
-          <FollowButton user={p} relationship={p.relationship} isPrivate={p.isPrivate} size="md" className="min-w-40" />
+          <OtherActions profile={p} />
         )}
       </div>
     </header>
+  );
+}
+
+/** Follow, Message and the "⋯" menu (report, block) on someone else's profile. */
+function OtherActions({ profile: p }: { profile: Profile }) {
+  const [menu, setMenu] = useState(false);
+  const unblock = useChatAction(p.username);
+  return (
+    <>
+      {p.blocked ? (
+        <Button variant="secondary" className="min-w-40" loading={unblock.isPending} onClick={() => unblock.mutate("unblock")}>
+          Unblock
+        </Button>
+      ) : (
+        <>
+          <FollowButton user={p} relationship={p.relationship} isPrivate={p.isPrivate} size="md" className={p.canMessage ? "min-w-32" : "min-w-40"} />
+          {p.canMessage && (
+            <Link href={`/messages/t/${p.username}`} className={buttonClass("secondary", "md", "min-w-32")}>
+              Message
+            </Link>
+          )}
+        </>
+      )}
+      <Button variant="secondary" className="px-3" aria-label="More options" onClick={() => setMenu(true)}>
+        <MoreHorizontal className="size-4.5" />
+      </Button>
+      <UserActionsSheet user={p} blocked={p.blocked} open={menu} onClose={() => setMenu(false)} />
+    </>
   );
 }
 

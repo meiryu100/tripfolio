@@ -18,7 +18,12 @@ The map is the hero on Home, Profile and the full-screen Map tab. Everything els
 | `trips` | Many per country. Title, description, cities, optional dates. Saving a trip marks the country visited. |
 | `trip_photos` | Metadata + object-storage key. Files never live in the database. `trip_id` is null while an upload is pending. |
 | `follows` | `PENDING` (request to a private profile) or `ACCEPTED`. |
-| `notifications` | `FOLLOW`, `FOLLOW_REQUEST`, `FOLLOW_ACCEPTED`, `UNFOLLOW`, `TRIP`. |
+| `notifications` | `FOLLOW`, `FOLLOW_REQUEST`, `FOLLOW_ACCEPTED`, `UNFOLLOW`, `TRIP`, `MESSAGE_REQUEST`. |
+| `conversations` | One per pair of users (`user_low_id < user_high_id`). `REQUEST` until the recipient accepts, then `ACTIVE`. |
+| `conversation_members` | Per-user chat state: `last_read_at` (unread / "Seen") and `cleared_at` ("Delete chat" for that user only). |
+| `messages` | Text messages; `deleted_at` = unsent (body cleared for both people). |
+| `blocks` | Who blocked whom. No messages or follows in either direction. |
+| `message_reports` | Reports with a copy of the reported message, reviewed manually. |
 | `activities` | Append-only log behind the Travel Feed. |
 
 **Country geometry** lives in `src/data/world-110m.json` (TopoJSON, ~100 KB) with feature ids rewritten to ISO alpha-2, so the map and the database join on the same code. Keeping shapes out of the DB lets them be served from the CDN and cached forever.
@@ -29,6 +34,7 @@ The map is the hero on Home, Profile and the full-screen Map tab. Everything els
 - Onboarding bulk-marks never downgrade Visited → Want to Visit.
 - Going public auto-accepts pending follow requests.
 - Signing up from an invite link (`/register?ref=<username>`) sets `invited_by` and follows the inviter (a request if they're private).
+- **Direct messages** (`src/server/services/messages.ts`): anyone may message a public account; a private one only by followers it approved. A first message from someone the recipient doesn't follow is a **request** (Requests folder, one message until accepted, no "Seen"); replying or accepting moves it to the Inbox. Blocking removes follows both ways. Chats poll every 4 s while open (no websockets on Vercel). The agents' read-only DB role has no access to any message table.
 
 ## API (`src/app/api/**`)
 
@@ -49,7 +55,11 @@ GET    /api/me/requests       POST|DELETE /api/me/requests/:username (accept|dec
 DELETE /api/me/followers/:username        GET /api/me/friends
 
 GET    /api/users/:username   /map  /trips  /photos  /followers  /following  /share-image (1200×630 PNG)
-POST|DELETE /api/users/:username/follow
+POST|DELETE /api/users/:username/follow   POST|DELETE /api/users/:username/block   GET /api/me/blocked
+
+GET    /api/messages?folder=inbox|requests
+GET|POST|DELETE /api/messages/with/:username   (chat + mark read | send | delete for me)
+POST   /api/messages/with/:username/accept | report        DELETE /api/messages/m/:id   (unsend)
 
 POST   /api/uploads           DELETE /api/uploads/:id   (pending photos)
 POST   /api/trips             GET|PATCH|DELETE /api/trips/:id

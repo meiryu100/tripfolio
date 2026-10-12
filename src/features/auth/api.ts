@@ -6,12 +6,14 @@ import type { Me } from "@/lib/types";
 
 export const meKey = ["me"] as const;
 
-export function useMeQuery() {
+/** `poll` (ms) keeps badges like unread messages fresh while the app is open. */
+export function useMeQuery(poll?: number) {
   return useQuery({
     queryKey: meKey,
     queryFn: () => api.get<{ me: Me | null }>("/api/auth/me").then((r) => r.me),
     staleTime: 30_000,
     refetchOnWindowFocus: true,
+    refetchInterval: poll,
   });
 }
 

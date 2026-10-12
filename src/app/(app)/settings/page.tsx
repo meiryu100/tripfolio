@@ -21,11 +21,12 @@ import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { Page } from "@/components/app-shell";
 import { applyTheme } from "@/components/providers";
-import { Button, FormError, Input, Sheet, SheetClose, Skeleton, Toggle } from "@/components/ui";
+import { Avatar, Button, FormError, Input, Sheet, SheetClose, Skeleton, Toggle } from "@/components/ui";
 import { meKey, useLogout, useMe } from "@/features/auth/api";
+import { useBlocked, useChatAction } from "@/features/messages/api";
 import { changeEmail, changePassword, deleteAccount, useRevokeSessions, useSessions, useUpdateSettings } from "@/features/settings/api";
 import { ApiError, errorMessage } from "@/lib/api-client";
-import type { Me, Theme } from "@/lib/types";
+import type { Me, Theme, UserSummary } from "@/lib/types";
 import { toast } from "@/lib/ui";
 import { cn, timeAgo } from "@/lib/utils";
 
@@ -122,8 +123,12 @@ export default function SettingsPage() {
           />
         </Group>
 
+        <Group title="Blocked accounts">
+          <BlockedAccounts />
+        </Group>
+
         <Group title="Notifications">
-          <ToggleRow label="Follow notifications" hint="When someone follows you or unfollows you." checked={me.settings.notifyFollows} onChange={(v) => set({ notifyFollows: v })} />
+          <ToggleRow label="Follow notifications" hint="When someone follows you, unfollows you, or sends you a message request." checked={me.settings.notifyFollows} onChange={(v) => set({ notifyFollows: v })} />
           <ToggleRow label="Trip notifications" hint="When people you follow add a trip." checked={me.settings.notifyTrips} onChange={(v) => set({ notifyTrips: v })} />
           <ToggleRow label="Email notifications" hint="A digest of activity, sent to your email." checked={me.settings.notifyEmail} onChange={(v) => set({ notifyEmail: v })} />
         </Group>
@@ -179,6 +184,48 @@ export default function SettingsPage() {
         <DeleteAccountForm onCancel={() => setDialog(null)} />
       </Sheet>
     </Page>
+  );
+}
+
+function BlockedAccounts() {
+  const q = useBlocked();
+  if (q.isPending)
+    return (
+      <Row>
+        <Skeleton className="h-10 w-full" />
+      </Row>
+    );
+  if (!q.data?.length)
+    return (
+      <Row>
+        <p className="text-sm text-muted">You haven&apos;t blocked anyone. Blocked people can&apos;t message you or follow you.</p>
+      </Row>
+    );
+  return q.data.map((u) => <BlockedRow key={u.id} user={u} />);
+}
+
+function BlockedRow({ user }: { user: UserSummary }) {
+  const unblock = useChatAction(user.username);
+  return (
+    <Row>
+      <Link href={`/u/${user.username}`} className="flex min-w-0 flex-1 items-center gap-3">
+        <Avatar user={user} size={40} />
+        <span className="min-w-0">
+          <span className="block truncate font-medium">
+            {user.firstName} {user.lastName}
+          </span>
+          <span className="block truncate text-sm text-muted">@{user.username}</span>
+        </span>
+      </Link>
+      <Button
+        variant="secondary"
+        size="sm"
+        loading={unblock.isPending}
+        onClick={() => unblock.mutate("unblock", { onSuccess: () => toast(`You unblocked @${user.username}`, "info") })}
+      >
+        Unblock
+      </Button>
+    </Row>
   );
 }
 

@@ -8,6 +8,7 @@ import { conflict, HttpError, notFound } from "../http/errors";
 import { deleteObjects, putObject } from "../storage";
 import { processPhoto } from "../storage/images";
 import { toUserSummary } from "./mappers";
+import { messageCounts, messagingStatus } from "./messages";
 import { getVisibility } from "./privacy";
 import type { Me, Profile } from "@/lib/types";
 import type { z } from "zod";
@@ -78,7 +79,7 @@ export async function createUser(input: {
 }
 
 export async function toMe(u: UserRow): Promise<Me> {
-  const [[unread], [pending]] = await Promise.all([
+  const [[unread], [pending], messages] = await Promise.all([
     db
       .select({ n: count() })
       .from(schema.notifications)
@@ -87,6 +88,7 @@ export async function toMe(u: UserRow): Promise<Me> {
       .select({ n: count() })
       .from(schema.follows)
       .where(and(eq(schema.follows.followingId, u.id), eq(schema.follows.status, "PENDING"))),
+    messageCounts(u.id),
   ]);
   return {
     ...toUserSummary(u),
@@ -102,6 +104,7 @@ export async function toMe(u: UserRow): Promise<Me> {
     createdAt: u.createdAt.toISOString(),
     unreadNotifications: unread.n,
     pendingRequests: pending.n,
+    ...messages,
     settings: {
       isPrivate: u.isPrivate,
       showVisited: u.showVisited,
@@ -118,7 +121,7 @@ export async function toMe(u: UserRow): Promise<Me> {
 
 export async function getProfile(viewerId: string | null, username: string): Promise<Profile> {
   const owner = await requireUserByUsername(username);
-  const { rel, vis } = await getVisibility(owner, viewerId);
+  const [{ rel, vis }, messaging] = await Promise.all([getVisibility(owner, viewerId), messagingStatus(viewerId, owner)]);
 
   const [followers, following, statusCounts, tripCount, photoCount] = await Promise.all([
     db
@@ -153,6 +156,7 @@ export async function getProfile(viewerId: string | null, username: string): Pro
     isMe: viewerId === owner.id,
     relationship: rel,
     canView: vis,
+    ...messaging,
     counts: {
       followers: followers[0].n,
       following: following[0].n,

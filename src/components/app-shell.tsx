@@ -1,10 +1,10 @@
 "use client";
 
-import { Bell, Compass, Heart, Home, Luggage, Map, Search, Settings, User, Users, type LucideIcon } from "lucide-react";
+import { Bell, Compass, Heart, Home, Luggage, Map, Search, Send, Settings, User, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { useMe } from "@/features/auth/api";
+import { useMe, useMeQuery } from "@/features/auth/api";
 import { SearchDialog } from "@/features/explore/search-dialog";
 import { useUI } from "@/lib/ui";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,7 @@ const SIDEBAR: NavItem[] = [
   { href: "/trips", label: "My Trips", icon: Luggage },
   { href: "/wishlist", label: "Wishlist", icon: Heart },
   { href: "/friends", label: "Friends", icon: Users },
+  { href: "/messages", label: "Messages", icon: Send },
   { href: "/notifications", label: "Notifications", icon: Bell },
 ];
 
@@ -41,6 +42,8 @@ function isActive(pathname: string, href: string) {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const me = useMe();
+  useMeQuery(45_000); // keeps the message and notification badges fresh
+  const unreadMessages = me.unreadMessages + me.messageRequests;
   const [searchOpen, setSearchOpen] = useState(false);
   const viewing = useUI((s) => s.viewingTripOwner);
   const isOwnTrip = viewing === null || viewing === me.id;
@@ -78,7 +81,15 @@ export function AppShell({ children }: { children: ReactNode }) {
               {...item}
               // Someone else's trip page shouldn't light up "My Trips".
               active={isActive(pathname, item.href) && !(item.href === "/trips" && pathname !== "/trips" && !isOwnTrip)}
-              badge={item.href === "/notifications" ? me.unreadNotifications : item.href === "/friends" ? me.pendingRequests : 0}
+              badge={
+                item.href === "/notifications"
+                  ? me.unreadNotifications
+                  : item.href === "/friends"
+                    ? me.pendingRequests
+                    : item.href === "/messages"
+                      ? unreadMessages
+                      : 0
+              }
             />
           ))}
         </nav>
@@ -101,7 +112,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="min-w-0 flex-1 pb-20 md:pb-0">
-        {/* Mobile top bar: search, friends, notifications (the bottom bar holds the main sections) */}
+        {/* Mobile top bar: search, friends, notifications, messages (the bottom bar holds the main sections) */}
         <header className="glass sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border px-4 md:hidden">
           <Logo href="/home" />
           <div className="flex items-center gap-1">
@@ -113,6 +124,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             </IconButton>
             <IconButton label="Notifications" href="/notifications" badge={me.unreadNotifications}>
               <Bell className="size-5" />
+            </IconButton>
+            <IconButton label="Messages" href="/messages" badge={unreadMessages}>
+              <Send className="size-5" />
             </IconButton>
           </div>
         </header>

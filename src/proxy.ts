@@ -8,7 +8,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * The exception is a profile link (/u/<username>): signed-out visitors and link
  * previews get the public profile page instead, at the same URL.
  */
-const PROTECTED = ["/home", "/map", "/explore", "/trips", "/wishlist", "/friends", "/notifications", "/profile", "/settings", "/u", "/onboarding"];
+const PROTECTED = ["/home", "/map", "/explore", "/trips", "/wishlist", "/friends", "/notifications", "/messages", "/profile", "/settings", "/u", "/onboarding"];
 
 export function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
