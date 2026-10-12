@@ -40,6 +40,27 @@ world.objects.countries.geometries = world.objects.countries.geometries
     return { ...g, id: code, properties: {} };
   })
   .filter((g) => g.id && g.id !== "AQ");
+
+// Overseas territories the source draws as part of another country, split into their own shape
+// so marking the parent doesn't color a different continent (France → French Guiana in South America).
+// `where` picks the territory's polygons by their first point [lon, lat].
+const SPLITS = [{ from: "FR", to: "GF", where: ([lon]) => lon < -30 }];
+const { feature } = require("topojson-client");
+for (const { from, to, where } of SPLITS) {
+  const i = world.objects.countries.geometries.findIndex((g) => g.id === from);
+  const g = world.objects.countries.geometries[i];
+  if (g?.type !== "MultiPolygon") throw new Error(`Can't split ${to} out of ${from}`);
+  const polygons = feature(world, g).geometry.coordinates;
+  const part = g.arcs.filter((_, k) => where(polygons[k][0][0]));
+  const rest = g.arcs.filter((_, k) => !where(polygons[k][0][0]));
+  if (!part.length || !rest.length) throw new Error(`No ${to} polygons found in ${from}`);
+  world.objects.countries.geometries.splice(
+    i,
+    1,
+    { type: rest.length === 1 ? "Polygon" : "MultiPolygon", arcs: rest.length === 1 ? rest[0] : rest, id: from, properties: {} },
+    { type: part.length === 1 ? "Polygon" : "MultiPolygon", arcs: part.length === 1 ? part[0] : part, id: to, properties: {} },
+  );
+}
 delete world.objects.land;
 writeFileSync("src/data/world-110m.json", JSON.stringify(world));
 console.log(countries.length, "countries;", world.objects.countries.geometries.length, "shapes; unmatched:", unmatched);
