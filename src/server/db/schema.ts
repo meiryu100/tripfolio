@@ -3,6 +3,7 @@ import {
   type AnyPgColumn,
   boolean,
   char,
+  check,
   date,
   index,
   integer,
@@ -229,6 +230,7 @@ export const notificationTypeEnum = pgEnum("notification_type", [
   "FOLLOW_ACCEPTED",
   "UNFOLLOW",
   "TRIP",
+  "MESSAGE_REQUEST",
 ]);
 
 export const notifications = pgTable(
@@ -269,6 +271,120 @@ export const activities = pgTable(
   (t) => [index("activities_user_idx").on(t.userId, t.createdAt)],
 );
 
+// ─── Direct messages ─────────────────────────────────────────────────────────
+
+/** REQUEST until the recipient accepts (messages from people they don't follow), then ACTIVE. */
+export const conversationStateEnum = pgEnum("conversation_state", ["REQUEST", "ACTIVE"]);
+
+/** One row per pair of users: userLowId is the smaller uuid of the two. */
+export const conversations = pgTable(
+  "conversations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userLowId: uuid("user_low_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    userHighId: uuid("user_high_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    initiatorId: uuid("initiator_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    state: conversationStateEnum("state").notNull().default("ACTIVE"),
+    lastMessageAt: timestamp("last_message_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("conversations_pair_idx").on(t.userLowId, t.userHighId),
+    check("conversations_pair_order", sql`${t.userLowId} < ${t.userHighId}`),
+    index("conversations_low_idx").on(t.userLowId, t.lastMessageAt),
+    index("conversations_high_idx").on(t.userHighId, t.lastMessageAt),
+  ],
+);
+
+/** Per-user state of a conversation (2 rows each). clearedAt = "Delete chat" for this user only. */
+export const conversationMembers = pgTable(
+  "conversation_members",
+  {
+    conversationId: uuid("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    lastReadAt: timestamp("last_read_at", { withTimezone: true })
+      .notNull()
+      .default(sql`'epoch'`),
+    clearedAt: timestamp("cleared_at", { withTimezone: true }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.conversationId, t.userId] }),
+    index("conversation_members_user_idx").on(t.userId, t.conversationId),
+  ],
+);
+
+export const messages = pgTable(
+  "messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    conversationId: uuid("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    senderId: uuid("sender_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    /** Empty when unsent or photo-only. */
+    body: text("body").notNull().default(""),
+    photoKey: text("photo_key"),
+    photoWidth: integer("photo_width"),
+    photoHeight: integer("photo_height"),
+    /** Set by "Unsend"; body and photo are cleared at the same time. */
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("messages_conversation_idx").on(t.conversationId, t.createdAt)],
+);
+
+export const blocks = pgTable(
+  "blocks",
+  {
+    blockerId: uuid("blocker_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    blockedId: uuid("blocked_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.blockerId, t.blockedId] }), index("blocks_blocked_idx").on(t.blockedId)],
+);
+
+/** Keeps a copy of the reported message, so unsending it can't hide abuse. */
+export const messageReports = pgTable(
+  "message_reports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reporterId: uuid("reporter_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    reportedUserId: uuid("reported_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    conversationId: uuid("conversation_id").references(() => conversations.id, { onDelete: "set null" }),
+    messageId: uuid("message_id"),
+    messageBodyCopy: text("message_body_copy"),
+    /** spam | harassment | inappropriate | other */
+    reason: text("reason").notNull(),
+    details: text("details").notNull().default(""),
+    /** open | reviewed */
+    status: text("status").notNull().default("open"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("message_reports_status_idx").on(t.status, t.createdAt)],
+);
+
 export type UserRow = typeof users.$inferSelect;
+export type ConversationRow = typeof conversations.$inferSelect;
+export type MessageRow = typeof messages.$inferSelect;
 export type TripRow = typeof trips.$inferSelect;
 export type PhotoRow = typeof tripPhotos.$inferSelect;

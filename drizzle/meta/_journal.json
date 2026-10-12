@@ -43,6 +43,13 @@
       "when": 1791800285606,
       "tag": "0005_user_invited_by",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791835582538,
+      "tag": "0006_direct_messages",
+      "breakpoints": true
     }
   ]
 }

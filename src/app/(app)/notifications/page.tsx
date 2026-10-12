@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Camera, UserCheck, UserMinus, UserPlus } from "lucide-react";
+import { Bell, Camera, MessageCircle, UserCheck, UserMinus, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Page } from "@/components/app-shell";
@@ -18,6 +18,7 @@ const META: Record<AppNotification["type"], { icon: typeof Bell; tone: string }>
   FOLLOW_ACCEPTED: { icon: UserCheck, tone: "bg-visited-soft text-visited" },
   UNFOLLOW: { icon: UserMinus, tone: "bg-surface-2 text-muted" },
   TRIP: { icon: Camera, tone: "bg-wishlist-soft text-wishlist" },
+  MESSAGE_REQUEST: { icon: MessageCircle, tone: "bg-brand-soft text-brand" },
 };
 
 function describe(n: AppNotification) {
@@ -34,12 +35,15 @@ function describe(n: AppNotification) {
       const c = n.trip ? getCountry(n.trip.countryCode) : undefined;
       return `added a new trip${c ? ` to ${c.flag} ${c.name}` : ""}.`;
     }
+    case "MESSAGE_REQUEST":
+      return "wants to send you a message.";
   }
 }
 
 function hrefFor(n: AppNotification) {
   if (n.type === "TRIP" && n.trip) return `/trips/${n.trip.id}`;
   if (n.type === "FOLLOW_REQUEST") return "/friends";
+  if (n.type === "MESSAGE_REQUEST") return "/messages/requests";
   return `/u/${n.actor.username}`;
 }
 

@@ -127,7 +127,7 @@ export interface Page<T> {
   nextCursor: string | null;
 }
 
-export type NotificationType = "FOLLOW" | "FOLLOW_REQUEST" | "FOLLOW_ACCEPTED" | "UNFOLLOW" | "TRIP";
+export type NotificationType = "FOLLOW" | "FOLLOW_REQUEST" | "FOLLOW_ACCEPTED" | "UNFOLLOW" | "TRIP" | "MESSAGE_REQUEST";
 
 export interface AppNotification {
   id: string;
