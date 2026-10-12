@@ -20,6 +20,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // Absolute base for Open Graph image and canonical URLs.
+  metadataBase: new URL(process.env.APP_URL || "http://localhost:3000"),
   title: "Tripfolio — Your world, your journeys",
   description: "Map the countries you've visited, keep your travel memories, and explore the world through other travelers.",
 };

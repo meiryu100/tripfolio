@@ -36,6 +36,13 @@
       "when": 1791749050410,
       "tag": "0004_user_test_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791800285606,
+      "tag": "0005_user_invited_by",
+      "breakpoints": true
     }
   ]
 }

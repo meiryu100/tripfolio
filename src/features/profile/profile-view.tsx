@@ -8,6 +8,7 @@ import { Photo } from "@/components/photo";
 import { Avatar, EmptyState, ErrorState, Skeleton, buttonClass } from "@/components/ui";
 import { useUserMap } from "@/features/map/api";
 import { MapPanel } from "@/features/map/map-panel";
+import { ShareProfileButton } from "@/features/share/share";
 import { flatten } from "@/features/social/api";
 import { computeStats } from "@/features/stats/compute";
 import { ContinentChecklist, Milestones, WorldProgress } from "@/features/stats/stats-panel";
@@ -125,9 +126,10 @@ function ProfileHeader({ profile: p }: { profile: Profile }) {
       <div className="mt-5 flex gap-2">
         {p.isMe ? (
           <>
-            <Link href="/profile/edit" className={buttonClass("secondary", "md", "min-w-36")}>
+            <Link href="/profile/edit" className={buttonClass("secondary", "md", "min-w-32")}>
               Edit Profile
             </Link>
+            <ShareProfileButton username={p.username} />
             <Link href="/settings" aria-label="Settings" className={buttonClass("secondary", "md", "px-3")}>
               <Settings className="size-4.5" />
             </Link>

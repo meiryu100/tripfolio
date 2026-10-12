@@ -30,6 +30,8 @@ export const registerSchema = z.object({
   username: usernameSchema,
   email: emailSchema,
   password: passwordSchema,
+  /** Username of the person whose invite link this sign-up came from. */
+  ref: z.string().trim().toLowerCase().max(40).optional(),
 });
 
 export const loginSchema = z.object({

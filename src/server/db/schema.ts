@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   boolean,
   char,
   date,
@@ -48,6 +49,8 @@ export const users = pgTable(
     onboarded: boolean("onboarded").notNull().default(false),
     /** Demo/sample account created by the seed script, not a real sign-up. */
     isTestUser: boolean("is_test_user").notNull().default(false),
+    /** Who invited this user (they signed up from that person's link). */
+    invitedBy: uuid("invited_by").references((): AnyPgColumn => users.id, { onDelete: "set null" }),
     // Privacy
     isPrivate: boolean("is_private").notNull().default(false),
     showVisited: boolean("show_visited").notNull().default(true),

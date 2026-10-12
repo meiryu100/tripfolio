@@ -7,7 +7,8 @@ import { db, schema } from "../db";
 import { env } from "../env";
 import { HttpError } from "../http/errors";
 import { mailHtml, sendMail } from "./mailer";
-import { createUser } from "./users";
+import { follow } from "./social";
+import { createUser, findByUsername } from "./users";
 
 const RESET_TTL_MS = 60 * 60 * 1000;
 
@@ -19,7 +20,17 @@ export async function login(email: string, password: string) {
   return user;
 }
 
-export { createUser as register };
+/**
+ * Sign up. With `ref` (an invite link's username), the new user is linked to whoever
+ * invited them and follows them right away — a request if that profile is private.
+ */
+export async function register(input: Omit<Parameters<typeof createUser>[0], "invitedBy"> & { ref?: string }) {
+  const { ref, ...fields } = input;
+  const inviter = ref ? await findByUsername(ref) : undefined;
+  const user = await createUser({ ...fields, invitedBy: inviter?.id });
+  if (inviter) await follow(user.id, inviter.username).catch((err) => console.error("Invite follow failed:", err));
+  return user;
+}
 
 /** Always succeeds from the caller's point of view (no account enumeration). */
 export async function requestPasswordReset(email: string) {

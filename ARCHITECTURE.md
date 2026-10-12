@@ -10,7 +10,7 @@ The map is the hero on Home, Profile and the full-screen Map tab. Everything els
 
 | Table | Purpose |
 | --- | --- |
-| `users` | Profile, `public_id` (immutable `TW-XXXXXXX`), privacy flags, notification + theme prefs. Usernames/emails unique case-insensitively. |
+| `users` | Profile, `public_id` (immutable `TW-XXXXXXX`), privacy flags, notification + theme prefs, `invited_by` (whose invite link they joined from), `is_test_user` (seeded demo accounts). Usernames/emails unique case-insensitively. |
 | `sessions` | Server-side sessions. The id is the SHA-256 of the cookie token, so a DB leak doesn't leak live sessions. Enables “active sessions” and “log out everywhere”. |
 | `password_resets` | One-time, 1-hour reset tokens (hashed). |
 | `countries` | Reference data keyed by ISO 3166-1 alpha-2 (`JP`, `IL`…), with continent and `is_sovereign` (UN members + observers = 195, the “% of the world” denominator). |
@@ -28,6 +28,7 @@ The map is the hero on Home, Profile and the full-screen Map tab. Everything els
 - Marking a wishlist country as Visited removes it from the wishlist (it's a single status per country).
 - Onboarding bulk-marks never downgrade Visited → Want to Visit.
 - Going public auto-accepts pending follow requests.
+- Signing up from an invite link (`/register?ref=<username>`) sets `invited_by` and follows the inviter (a request if they're private).
 
 ## API (`src/app/api/**`)
 
@@ -47,7 +48,7 @@ GET    /api/me/sessions       DELETE /api/me/sessions (others)   DELETE /api/me/
 GET    /api/me/requests       POST|DELETE /api/me/requests/:username (accept|decline)
 DELETE /api/me/followers/:username        GET /api/me/friends
 
-GET    /api/users/:username   /map  /trips  /photos  /followers  /following
+GET    /api/users/:username   /map  /trips  /photos  /followers  /following  /share-image (1200×630 PNG)
 POST|DELETE /api/users/:username/follow
 
 POST   /api/uploads           DELETE /api/uploads/:id   (pending photos)
@@ -57,6 +58,8 @@ GET    /api/photos/:id[?size=thumb]        GET /api/media/avatar/:key
 GET    /api/countries/:code   /api/explore   /api/feed   /api/search?q=   /api/notifications
 POST   /api/notifications     (mark all read)
 ```
+
+**Public profiles.** `/u/<username>` without a session is rewritten by `src/proxy.ts` to `src/app/share/[username]` — a server-rendered page with Open Graph tags whose image is `/share-image`. It shows only what the owner's privacy settings allow everyone to see, and its "Join" button carries `?ref=` for invites. Everything else stays behind sign-in.
 
 Lists are paginated: keyset cursors on `(created_at, id)` for feeds/notifications/follows, offset cursors for date-ordered trips.
 

@@ -7,6 +7,7 @@ import { Page } from "@/components/app-shell";
 import { LoadMore, UserRow, UserRowSkeleton } from "@/components/cards";
 import { Button, EmptyState, ErrorState, Skeleton, buttonClass } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
+import { InviteCard } from "@/features/share/share";
 import { ActivityItem } from "@/features/social/activity-item";
 import { flatten, useAnswerRequest, useFeed, useFriends, useRequests } from "@/features/social/api";
 import { errorMessage } from "@/lib/api-client";
@@ -64,16 +65,19 @@ function Feed() {
   if (q.isError) return <ErrorState onRetry={() => q.refetch()} />;
   if (!items.length)
     return (
-      <EmptyState
-        icon={<Rss />}
-        title="Your feed is quiet"
-        body="Follow travelers to see the countries they visit and the trips they share."
-        action={
-          <Link href="/explore" className={buttonClass("primary")}>
-            Find people to follow
-          </Link>
-        }
-      />
+      <>
+        <EmptyState
+          icon={<Rss />}
+          title="Your feed is quiet"
+          body="Follow travelers to see the countries they visit and the trips they share."
+          action={
+            <Link href="/explore" className={buttonClass("primary")}>
+              Find people to follow
+            </Link>
+          }
+        />
+        <Invite className="mt-6" />
+      </>
     );
   return (
     <>
@@ -92,14 +96,27 @@ function FriendsList() {
   if (q.isPending) return <>{Array.from({ length: 4 }, (_, i) => <UserRowSkeleton key={i} />)}</>;
   if (q.isError) return <ErrorState onRetry={() => q.refetch()} />;
   if (!q.data.length)
-    return <EmptyState icon={<Users />} title="No friends yet" body="When you and someone follow each other, they'll show up here." />;
+    return (
+      <>
+        <EmptyState icon={<Users />} title="No friends yet" body="When you and someone follow each other, they'll show up here." />
+        <Invite className="mt-6" />
+      </>
+    );
   return (
-    <div className="divide-y divide-border">
-      {q.data.map((u) => (
-        <UserRow key={u.id} user={u} relationship={{ following: true, followsYou: true, friends: true, requested: false }} />
-      ))}
-    </div>
+    <>
+      <div className="divide-y divide-border">
+        {q.data.map((u) => (
+          <UserRow key={u.id} user={u} relationship={{ following: true, followsYou: true, friends: true, requested: false }} />
+        ))}
+      </div>
+      <Invite className="mt-6" />
+    </>
   );
+}
+
+function Invite({ className }: { className?: string }) {
+  const me = useMe();
+  return <InviteCard username={me.username} className={className} />;
 }
 
 function Requests() {

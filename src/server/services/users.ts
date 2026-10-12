@@ -57,6 +57,7 @@ export async function createUser(input: {
   email: string;
   password?: string;
   googleId?: string;
+  invitedBy?: string;
 }) {
   await assertAvailable(input);
   const [user] = await db
@@ -70,6 +71,7 @@ export async function createUser(input: {
       email: input.email,
       passwordHash: input.password ? await hashPassword(input.password) : null,
       googleId: input.googleId,
+      invitedBy: input.invitedBy,
     })
     .returning();
   return user;
