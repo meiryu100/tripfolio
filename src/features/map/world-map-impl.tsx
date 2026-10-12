@@ -1,6 +1,6 @@
 "use client";
 
-import { geoNaturalEarth1, geoPath } from "d3-geo";
+import { geoPath } from "d3-geo";
 import type { FeatureCollection, Geometry } from "geojson";
 import { memo, useMemo, useRef, useState } from "react";
 import { feature } from "topojson-client";
@@ -8,6 +8,7 @@ import type { GeometryCollection, Topology } from "topojson-specification";
 import usStates from "@/data/us-states-world.json";
 import world from "@/data/world-110m.json";
 import { countryName, getCountry } from "@/lib/countries";
+import { worldProjection } from "@/lib/map-projection";
 import { getRegion } from "@/lib/regions";
 import { useUI } from "@/lib/ui";
 import type { CountryStatus } from "@/lib/types";
@@ -20,7 +21,7 @@ const H = 500;
 
 const topo = world as unknown as Topology<{ countries: GeometryCollection }>;
 const fc = feature(topo, topo.objects.countries) as FeatureCollection<Geometry>;
-const projection = geoNaturalEarth1().fitExtent([[4, 4], [W - 4, H - 4]], fc);
+const projection = worldProjection().fitExtent([[4, 4], [W - 4, H - 4]], fc);
 const pathGen = geoPath(projection);
 // The USA is drawn as its 50 states (+ DC) instead of one shape, in the same projection.
 const SHAPES = fc.features.filter((f) => f.id !== "US").map((f) => ({ code: String(f.id), d: pathGen(f) ?? "" }));

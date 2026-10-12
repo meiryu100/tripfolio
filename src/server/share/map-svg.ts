@@ -1,10 +1,11 @@
 import "server-only";
-import { geoNaturalEarth1, geoPath } from "d3-geo";
+import { geoPath } from "d3-geo";
 import type { FeatureCollection, Geometry } from "geojson";
 import { feature } from "topojson-client";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import usStates from "@/data/us-states-world.json";
 import world from "@/data/world-110m.json";
+import { worldProjection } from "@/lib/map-projection";
 import type { CountryStatus } from "@/lib/types";
 
 /**
@@ -14,7 +15,6 @@ import type { CountryStatus } from "@/lib/types";
  */
 
 export const MAP_W = 960;
-export const MAP_H = 500;
 
 const COLORS = {
   visited: "#10b981",
@@ -28,7 +28,11 @@ const COLORS = {
 
 const topo = world as unknown as Topology<{ countries: GeometryCollection }>;
 const fc = feature(topo, topo.objects.countries) as FeatureCollection<Geometry>;
-const projection = geoNaturalEarth1().fitExtent([[4, 4], [MAP_W - 4, MAP_H - 4]], fc);
+// Size the SVG to the map's own shape (about 2.3 : 1) instead of a fixed frame.
+const fitted = worldProjection().fitWidth(MAP_W - 8, fc);
+const [[, top], [, bottom]] = geoPath(fitted).bounds(fc);
+export const MAP_H = Math.ceil(bottom - top) + 8;
+const projection = fitted.fitExtent([[4, 4], [MAP_W - 4, MAP_H - 4]], fc);
 // One decimal is plenty at share-card size and keeps the SVG small.
 const path = geoPath(projection).digits(1);
 

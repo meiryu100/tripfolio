@@ -16,7 +16,7 @@ const mark = `data:image/png;base64,${readFileSync(join(process.cwd(), "public/b
 
 const WIDTH = 1200;
 const HEIGHT = 630;
-const MAP_WIDTH = 860;
+const MAP_WIDTH = 940;
 
 export async function GET(_req: Request, ctx: { params: Promise<{ username: string }> }) {
   try {
