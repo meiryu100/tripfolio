@@ -50,6 +50,13 @@
       "when": 1791835582538,
       "tag": "0006_direct_messages",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791915246118,
+      "tag": "0007_signup_attribution",
+      "breakpoints": true
     }
   ]
 }

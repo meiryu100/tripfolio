@@ -10,7 +10,7 @@ The map is the hero on Home, Profile and the full-screen Map tab. Everything els
 
 | Table | Purpose |
 | --- | --- |
-| `users` | Profile, `public_id` (immutable `TW-XXXXXXX`), privacy flags, notification + theme prefs, `invited_by` (whose invite link they joined from), `is_test_user` (seeded demo accounts). Usernames/emails unique case-insensitively. |
+| `users` | Profile, `public_id` (immutable `TW-XXXXXXX`), privacy flags, notification + theme prefs, `invited_by` (whose invite link they joined from), `signup_source` / `_medium` / `_campaign` / `_referrer` (first-touch UTM tags or referring host, captured by `src/proxy.ts`, see `src/lib/attribution.ts`), `is_test_user` (seeded demo accounts). Usernames/emails unique case-insensitively. |
 | `sessions` | Server-side sessions. The id is the SHA-256 of the cookie token, so a DB leak doesn't leak live sessions. Enables “active sessions” and “log out everywhere”. |
 | `password_resets` | One-time, 1-hour reset tokens (hashed). |
 | `countries` | Reference data keyed by ISO 3166-1 alpha-2 (`JP`, `IL`…), with continent and `is_sovereign` (UN members + observers = 195, the “% of the world” denominator). |

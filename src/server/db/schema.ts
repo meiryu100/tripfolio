@@ -52,6 +52,12 @@ export const users = pgTable(
     isTestUser: boolean("is_test_user").notNull().default(false),
     /** Who invited this user (they signed up from that person's link). */
     invitedBy: uuid("invited_by").references((): AnyPgColumn => users.id, { onDelete: "set null" }),
+    /** Where the user first came from (first touch, see src/lib/attribution.ts): UTM tags or the referring site. */
+    signupSource: text("signup_source"),
+    signupMedium: text("signup_medium"),
+    signupCampaign: text("signup_campaign"),
+    /** Host of the external page that linked here, e.g. "google.com". */
+    signupReferrer: text("signup_referrer"),
     // Privacy
     isPrivate: boolean("is_private").notNull().default(false),
     showVisited: boolean("show_visited").notNull().default(true),
