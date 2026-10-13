@@ -1,6 +1,7 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
+import { cookies } from "next/headers";
 import { getDummyHash, hashPassword, verifyPassword } from "../auth/password";
 import { revokeAllSessions, sha256 } from "../auth/session";
 import { db, schema } from "../db";
@@ -9,8 +10,17 @@ import { HttpError } from "../http/errors";
 import { mailHtml, sendMail } from "./mailer";
 import { follow } from "./social";
 import { createUser, findByUsername } from "./users";
+import { ATTRIBUTION_COOKIE, decodeAttribution } from "@/lib/attribution";
 
 const RESET_TTL_MS = 60 * 60 * 1000;
+
+/** Where this new user first came from (set by src/proxy.ts); the cookie has done its job after sign-up. */
+async function takeAttribution() {
+  const jar = await cookies();
+  const attribution = decodeAttribution(jar.get(ATTRIBUTION_COOKIE)?.value);
+  jar.delete(ATTRIBUTION_COOKIE);
+  return attribution;
+}
 
 export async function login(email: string, password: string) {
   const user = await db.query.users.findFirst({ where: sql`lower(${schema.users.email}) = ${email.toLowerCase()}` });
@@ -24,10 +34,10 @@ export async function login(email: string, password: string) {
  * Sign up. With `ref` (an invite link's username), the new user is linked to whoever
  * invited them and follows them right away — a request if that profile is private.
  */
-export async function register(input: Omit<Parameters<typeof createUser>[0], "invitedBy"> & { ref?: string }) {
+export async function register(input: Omit<Parameters<typeof createUser>[0], "invitedBy" | "attribution"> & { ref?: string }) {
   const { ref, ...fields } = input;
   const inviter = ref ? await findByUsername(ref) : undefined;
-  const user = await createUser({ ...fields, invitedBy: inviter?.id });
+  const user = await createUser({ ...fields, invitedBy: inviter?.id, attribution: await takeAttribution() });
   if (inviter) await follow(user.id, inviter.username).catch((err) => console.error("Invite follow failed:", err));
   return user;
 }
@@ -122,6 +132,7 @@ export async function upsertGoogleUser(profile: {
     username,
     email: profile.email.toLowerCase(),
     googleId: profile.sub,
+    attribution: await takeAttribution(),
   });
   return { user, created: true };
 }

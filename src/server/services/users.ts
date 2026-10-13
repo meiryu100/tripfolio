@@ -10,6 +10,7 @@ import { processPhoto } from "../storage/images";
 import { toUserSummary } from "./mappers";
 import { messageCounts, messagePhotoObjects, messagingStatus } from "./messages";
 import { getVisibility } from "./privacy";
+import type { Attribution } from "@/lib/attribution";
 import type { Me, Profile } from "@/lib/types";
 import type { z } from "zod";
 import type { profileSchema, settingsSchema } from "@/lib/validation";
@@ -59,6 +60,7 @@ export async function createUser(input: {
   password?: string;
   googleId?: string;
   invitedBy?: string;
+  attribution?: Attribution;
 }) {
   await assertAvailable(input);
   const [user] = await db
@@ -73,6 +75,10 @@ export async function createUser(input: {
       passwordHash: input.password ? await hashPassword(input.password) : null,
       googleId: input.googleId,
       invitedBy: input.invitedBy,
+      signupSource: input.attribution?.source,
+      signupMedium: input.attribution?.medium,
+      signupCampaign: input.attribution?.campaign,
+      signupReferrer: input.attribution?.referrer,
     })
     .returning();
   return user;
