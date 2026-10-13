@@ -1,10 +1,10 @@
 "use client";
 
-import { Check, Rss, UserPlus, Users, X } from "lucide-react";
+import { Check, MessageCircle, Rss, UserPlus, Users, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Page } from "@/components/app-shell";
-import { LoadMore, UserRow, UserRowSkeleton } from "@/components/cards";
+import { FollowButton, LoadMore, UserRow, UserRowSkeleton } from "@/components/cards";
 import { Button, EmptyState, ErrorState, Skeleton, buttonClass } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
 import { InviteCard } from "@/features/share/share";
@@ -91,6 +91,8 @@ function Feed() {
   );
 }
 
+const friendship = { following: true, followsYou: true, friends: true, requested: false };
+
 function FriendsList() {
   const q = useFriends();
   if (q.isPending) return <>{Array.from({ length: 4 }, (_, i) => <UserRowSkeleton key={i} />)}</>;
@@ -106,7 +108,20 @@ function FriendsList() {
     <>
       <div className="divide-y divide-border">
         {q.data.map((u) => (
-          <UserRow key={u.id} user={u} relationship={{ following: true, followsYou: true, friends: true, requested: false }} />
+          <UserRow
+            key={u.id}
+            user={u}
+            relationship={friendship}
+            action={
+              <div className="flex shrink-0 items-center gap-2">
+                <Link href={`/messages/t/${u.username}`} aria-label={`Message ${u.firstName}`} className={buttonClass("secondary", "sm")}>
+                  <MessageCircle className="size-4 sm:mr-1.5" />
+                  <span className="hidden sm:inline">Message</span>
+                </Link>
+                <FollowButton user={u} relationship={friendship} />
+              </div>
+            }
+          />
         ))}
       </div>
       <Invite className="mt-6" />
