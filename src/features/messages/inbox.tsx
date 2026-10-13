@@ -181,7 +181,8 @@ export function ComposeSheet({ open, onClose }: { open: boolean; onClose: () => 
   const friends = useFriends();
   const search = useSearch(query);
   const searching = query.trim().length > 0;
-  const people: UserSummary[] = searching ? (search.data?.users ?? []) : (friends.data ?? []);
+  const me = useMe();
+  const people: UserSummary[] = (searching ? (search.data?.users ?? []) : (friends.data ?? [])).filter((u) => u.id !== me.id);
   const loading = searching ? search.isPending || search.isDebouncing : friends.isPending;
 
   const close = () => {
@@ -212,7 +213,7 @@ export function ComposeSheet({ open, onClose }: { open: boolean; onClose: () => 
         />
       </label>
       <div className="min-h-64 overflow-y-auto py-2">
-        {!searching && (friends.data?.length ?? 0) > 0 && <p className="px-5 pt-1 pb-2 text-sm font-semibold">Friends</p>}
+        {!searching && people.length > 0 &&<p className="px-5 pt-1 pb-2 text-sm font-semibold">Friends</p>}
         {loading ? (
           <div className="flex justify-center py-10">
             <Spinner />
