@@ -1,0 +1,35 @@
+name: CI
+
+# Every pull request (and every push to main) must build and pass the type and lint checks.
+# Deploys are Vercel's job: a preview for each PR, production when main changes.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Build, types and lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Build
+        run: npm run build # first: it generates the route and image types tsc needs
+      - name: Types
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npm run lint
