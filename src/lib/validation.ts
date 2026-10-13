@@ -138,3 +138,22 @@ export const cursorQuerySchema = z.object({
 export const searchQuerySchema = z.object({
   q: z.string().trim().min(1).max(60),
 });
+
+export const MESSAGE_MAX = 2000;
+
+export const sendMessageSchema = z.object({
+  body: z.string().trim().min(1, "Write a message.").max(MESSAGE_MAX, `Messages can be up to ${MESSAGE_MAX} characters.`),
+});
+
+export const REPORT_REASONS = ["spam", "harassment", "inappropriate", "other"] as const;
+
+export const reportSchema = z.object({
+  reason: z.enum(REPORT_REASONS),
+  details: trimmed(1000).default(""),
+  messageId: z.string().uuid().optional(),
+});
+
+export const chatQuerySchema = z.object({
+  /** Load messages older than this message (for "load earlier"). */
+  before: z.string().uuid().optional(),
+});

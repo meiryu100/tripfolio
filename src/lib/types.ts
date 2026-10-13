@@ -51,6 +51,10 @@ export interface Profile extends UserSummary {
   relationship: Relationship;
   /** What the viewer is allowed to see. */
   canView: Visibility;
+  /** The viewer may open a chat with them (see services/messages → canStartChat). */
+  canMessage: boolean;
+  /** The viewer has blocked them. */
+  blocked: boolean;
   counts: {
     followers: number;
     following: number;
@@ -74,6 +78,10 @@ export interface Me extends UserSummary {
   createdAt: string;
   unreadNotifications: number;
   pendingRequests: number;
+  /** Inbox conversations with unread messages. */
+  unreadMessages: number;
+  /** Message requests waiting for an answer. */
+  messageRequests: number;
   settings: {
     isPrivate: boolean;
     showVisited: boolean;
@@ -191,4 +199,51 @@ export interface SessionInfo {
 export interface FollowRequest {
   user: UserSummary;
   createdAt: string;
+}
+
+// ─── Direct messages ─────────────────────────────────────────────────────────
+
+export type MessageFolder = "inbox" | "requests";
+
+export interface MessagePhoto {
+  src: string;
+  thumb: string;
+  width: number | null;
+  height: number | null;
+}
+
+export interface Message {
+  id: string;
+  senderId: string;
+  /** Empty when unsent or photo-only. */
+  body: string;
+  photo: MessagePhoto | null;
+  unsent: boolean;
+  createdAt: string;
+}
+
+export interface ConversationSummary {
+  id: string;
+  other: UserSummary;
+  lastMessage: { body: string; photo: boolean; fromMe: boolean; unsent: boolean; createdAt: string } | null;
+  unread: boolean;
+}
+
+export interface Chat {
+  other: UserSummary;
+  /** null until the first message is sent. */
+  conversationId: string | null;
+  /** The viewer received this as a message request and hasn't accepted it yet. */
+  isRequest: boolean;
+  /** The viewer sent a request that hasn't been accepted yet. */
+  awaitingAccept: boolean;
+  canSend: boolean;
+  /** Why the viewer can't send, shown above the composer. */
+  notice: string | null;
+  /** When the other person last read the chat; only shown once a request is accepted. */
+  seenAt: string | null;
+  blocked: boolean;
+  /** Newest last. */
+  messages: Message[];
+  hasEarlier: boolean;
 }

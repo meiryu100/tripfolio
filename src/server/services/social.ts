@@ -1,8 +1,9 @@
 import "server-only";
 import { and, desc, eq, lt, or } from "drizzle-orm";
 import { db, schema } from "../db";
-import { badRequest, notFound } from "../http/errors";
+import { badRequest, forbidden, notFound } from "../http/errors";
 import { toUserSummary } from "./mappers";
+import { blockState } from "./messages";
 import { deleteFollowNotifications, notify } from "./notifications";
 import { decodeCursor, encodeCursor } from "./pagination";
 import { assertCan, getRelationship, getRelationships } from "./privacy";
@@ -13,6 +14,8 @@ import type { FollowRequest, Page, Relationship, UserSummary } from "@/lib/types
 export async function follow(viewerId: string, username: string): Promise<Relationship> {
   const target = await requireUserByUsername(username);
   if (target.id === viewerId) throw badRequest("You can't follow yourself.");
+  const blocks = await blockState(viewerId, target.id);
+  if (blocks.blockedByMe || blocks.blockedMe) throw forbidden("You can't follow this account.");
   const existing = await db.query.follows.findFirst({
     where: and(eq(schema.follows.followerId, viewerId), eq(schema.follows.followingId, target.id)),
   });
