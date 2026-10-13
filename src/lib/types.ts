@@ -205,11 +205,19 @@ export interface FollowRequest {
 
 export type MessageFolder = "inbox" | "requests";
 
+export interface MessagePhoto {
+  src: string;
+  thumb: string;
+  width: number | null;
+  height: number | null;
+}
+
 export interface Message {
   id: string;
   senderId: string;
-  /** Empty when unsent. */
+  /** Empty when unsent or photo-only. */
   body: string;
+  photo: MessagePhoto | null;
   unsent: boolean;
   createdAt: string;
 }
@@ -217,7 +225,7 @@ export interface Message {
 export interface ConversationSummary {
   id: string;
   other: UserSummary;
-  lastMessage: { body: string; fromMe: boolean; unsent: boolean; createdAt: string } | null;
+  lastMessage: { body: string; photo: boolean; fromMe: boolean; unsent: boolean; createdAt: string } | null;
   unread: boolean;
 }
 

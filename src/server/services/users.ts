@@ -1,5 +1,5 @@
 import "server-only";
-import { and, count, eq, ne, sql } from "drizzle-orm";
+import { and, count, eq, isNotNull, ne, or, sql } from "drizzle-orm";
 import { generatePublicId, hashPassword, verifyPassword } from "../auth/password";
 import { revokeOtherSessions } from "../auth/session";
 import { db, schema } from "../db";
@@ -8,7 +8,7 @@ import { conflict, HttpError, notFound } from "../http/errors";
 import { deleteObjects, putObject } from "../storage";
 import { processPhoto } from "../storage/images";
 import { toUserSummary } from "./mappers";
-import { messageCounts, messagingStatus } from "./messages";
+import { messageCounts, messagePhotoObjects, messagingStatus } from "./messages";
 import { getVisibility } from "./privacy";
 import type { Me, Profile } from "@/lib/types";
 import type { z } from "zod";
@@ -239,8 +239,20 @@ export async function deleteAccount(user: UserRow, password: string, confirm: st
     .select({ key: schema.tripPhotos.storageKey })
     .from(schema.tripPhotos)
     .where(eq(schema.tripPhotos.userId, user.id));
+  // Their chats go too (both sides), so do the photos in them.
+  const chatPhotos = await db
+    .select({ key: schema.messages.photoKey })
+    .from(schema.messages)
+    .innerJoin(schema.conversations, eq(schema.conversations.id, schema.messages.conversationId))
+    .where(
+      and(
+        isNotNull(schema.messages.photoKey),
+        or(eq(schema.conversations.userLowId, user.id), eq(schema.conversations.userHighId, user.id)),
+      ),
+    );
   await db.delete(schema.users).where(eq(schema.users.id, user.id)); // cascades to everything else
   const keys = photos.flatMap((p) => (p.key ? [`${p.key}/full.webp`, `${p.key}/thumb.webp`] : []));
+  keys.push(...chatPhotos.flatMap((p) => (p.key ? messagePhotoObjects(p.key) : [])));
   if (user.avatarKey) keys.push(avatarObjectKey(user.avatarKey));
   await deleteObjects(keys).catch((e) => console.error("[storage] cleanup failed", e));
 }

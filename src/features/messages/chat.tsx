@@ -1,8 +1,9 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Info } from "lucide-react";
+import { ArrowLeft, ImagePlus, Info, X } from "lucide-react";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import { Avatar, Button, ErrorState, NotFound, Spinner, buttonClass } from "@/components/ui";
@@ -12,7 +13,7 @@ import type { Chat, Message, UserSummary } from "@/lib/types";
 import { toast } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 import { MESSAGE_MAX } from "@/lib/validation";
-import { loadEarlier, useChat, useChatAction, useSendMessage, useUnsend } from "./api";
+import { loadEarlier, useChat, useChatAction, useSendMessage, useSendPhoto, useUnsend } from "./api";
 import { ConfirmSheet, ReportSheet, UserActionsSheet } from "./sheets";
 
 const GROUP_GAP = 5 * 60_000; // bubbles closer than this stack together
@@ -80,6 +81,7 @@ function ChatScreen({ username, chat }: { username: string; chat: Chat }) {
   const [menu, setMenu] = useState(false);
   const [reportMessage, setReportMessage] = useState<string | null>(null);
   const [unsendId, setUnsendId] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<Message | null>(null);
   const action = useChatAction(username);
   const unsend = useUnsend(username);
 
@@ -194,7 +196,7 @@ function ChatScreen({ username, chat }: { username: string; chat: Chat }) {
                   last={lastInGroup}
                   pending={pending}
                   selected={selected === m.id}
-                  onSelect={() => setSelected(selected === m.id ? null : m.id)}
+                  onSelect={() => (m.photo && !pending ? setViewing(m) : setSelected(selected === m.id ? null : m.id))}
                   onUnsend={() => setUnsendId(m.id)}
                   onReport={() => setReportMessage(m.id)}
                 />
@@ -223,6 +225,21 @@ function ChatScreen({ username, chat }: { username: string; chat: Chat }) {
         </div>
       )}
 
+      {viewing?.photo && (
+        <PhotoViewer
+          message={viewing}
+          mine={viewing.senderId === me.id}
+          onClose={() => setViewing(null)}
+          onUnsend={() => {
+            setUnsendId(viewing.id);
+            setViewing(null);
+          }}
+          onReport={() => {
+            setReportMessage(viewing.id);
+            setViewing(null);
+          }}
+        />
+      )}
       <UserActionsSheet
         user={chat.other}
         blocked={chat.blocked}
@@ -290,7 +307,30 @@ function Bubble({
   onUnsend: () => void;
   onReport: () => void;
 }) {
-  const big = !m.unsent && isEmojiOnly(m.body);
+  const big = !m.unsent && !m.photo && isEmojiOnly(m.body);
+  if (m.photo && !m.unsent) {
+    const ratio = m.photo.width && m.photo.height ? Math.min(1.6, Math.max(0.6, m.photo.width / m.photo.height)) : 4 / 3;
+    return (
+      <div className={cn("flex items-end gap-2", mine ? "justify-end" : "justify-start", first ? "mt-2.5" : "mt-0.5")}>
+        {!mine && <span className="w-7 shrink-0">{last && <Avatar user={other} size={28} />}</span>}
+        <button
+          type="button"
+          onClick={onSelect}
+          aria-label="Open photo"
+          className={cn("relative block w-[min(260px,65vw)] overflow-hidden rounded-[22px] border border-border bg-surface-2 shadow-soft", pending && "opacity-70")}
+          style={{ aspectRatio: ratio }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={m.photo.src} alt="" loading="lazy" decoding="async" className="size-full object-cover" />
+          {pending && (
+            <span className="absolute inset-0 flex items-center justify-center bg-black/20">
+              <Spinner />
+            </span>
+          )}
+        </button>
+      </div>
+    );
+  }
   return (
     <div className={cn("flex items-end gap-2", mine ? "justify-end" : "justify-start", first ? "mt-2.5" : "mt-0.5")}>
       {!mine && (
@@ -340,6 +380,54 @@ function Bubble({
   );
 }
 
+/** Full-screen photo with its time and Unsend / Report. */
+function PhotoViewer({
+  message: m,
+  mine,
+  onClose,
+  onUnsend,
+  onReport,
+}: {
+  message: Message;
+  mine: boolean;
+  onClose: () => void;
+  onUnsend: () => void;
+  onReport: () => void;
+}) {
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  // Portalled: the desktop chat panel's backdrop blur would otherwise trap a fixed overlay inside it.
+  return createPortal(
+    <div role="dialog" aria-modal="true" aria-label="Photo" className="animate-fade fixed inset-0 z-[70] flex flex-col bg-black/90 backdrop-blur-sm" onClick={onClose}>
+      <div className="flex items-center justify-between px-4 py-3 text-white" onClick={(e) => e.stopPropagation()}>
+        <span className="text-sm text-white/80">{stamp(m.createdAt)}</span>
+        <div className="flex items-center gap-1">
+          {mine ? (
+            <button onClick={onUnsend} className="rounded-full px-3 py-2 text-sm font-semibold text-red-300 hover:bg-white/10">
+              Unsend
+            </button>
+          ) : (
+            <button onClick={onReport} className="rounded-full px-3 py-2 text-sm font-semibold hover:bg-white/10">
+              Report
+            </button>
+          )}
+          <button onClick={onClose} aria-label="Close" className="flex size-10 items-center justify-center rounded-full hover:bg-white/10">
+            <X className="size-6" />
+          </button>
+        </div>
+      </div>
+      <div className="flex min-h-0 flex-1 items-center justify-center p-4 pb-safe">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={m.photo!.src} alt="" className="max-h-full max-w-full rounded-2xl object-contain shadow-float" onClick={(e) => e.stopPropagation()} />
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 function RequestBar({ user, busy, onAnswer }: { user: UserSummary; busy: boolean; onAnswer: (a: "accept" | "delete" | "block") => void }) {
   const [confirmBlock, setConfirmBlock] = useState(false);
   return (
@@ -380,8 +468,24 @@ function RequestBar({ user, busy, onAnswer }: { user: UserSummary; busy: boolean
 function Composer({ username }: { username: string }) {
   const me = useMe();
   const send = useSendMessage(username, me);
+  const sendPhoto = useSendPhoto(username, me);
   const [text, setText] = useState("");
   const field = useRef<HTMLTextAreaElement>(null);
+  const picker = useRef<HTMLInputElement>(null);
+
+  const pickPhotos = async (files: FileList | null) => {
+    for (const file of Array.from(files ?? []).slice(0, 10)) {
+      const preview = URL.createObjectURL(file);
+      const img = new Image();
+      img.src = preview;
+      const size = await img.decode().then(
+        () => ({ width: img.naturalWidth, height: img.naturalHeight }),
+        () => null,
+      );
+      sendPhoto.mutate({ file, preview, size }, { onError: (err) => toast(errorMessage(err), "error") });
+    }
+    if (picker.current) picker.current.value = "";
+  };
 
   const grow = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
@@ -426,11 +530,21 @@ function Composer({ username }: { username: string }) {
           aria-label="Message"
           className="max-h-32 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-[15px] leading-6 outline-none placeholder:text-muted"
         />
-        {text.trim() && (
+        {text.trim() ? (
           <button type="submit" className="animate-fade h-9 shrink-0 rounded-full px-3 font-semibold text-brand transition hover:bg-brand-soft">
             Send
           </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => picker.current?.click()}
+            aria-label="Send a photo"
+            className="animate-fade flex size-9 shrink-0 items-center justify-center rounded-full text-fg transition hover:bg-surface-2"
+          >
+            <ImagePlus className="size-5.5" />
+          </button>
         )}
+        <input ref={picker} type="file" accept="image/*" multiple hidden onChange={(e) => pickPhotos(e.target.files)} />
       </div>
     </form>
   );

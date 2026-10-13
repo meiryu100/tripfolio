@@ -4,6 +4,8 @@ import { db, schema } from "../db";
 import type { UserRow } from "../db/schema";
 import { badRequest, forbidden, HttpError, notFound } from "../http/errors";
 import { rateLimit } from "../http/rate-limit";
+import { deleteObjects, putObject } from "../storage";
+import { processPhoto } from "../storage/images";
 import { toUserSummary } from "./mappers";
 import { notify } from "./notifications";
 import { requireUserByUsername } from "./users";
@@ -85,10 +87,15 @@ export async function messagingStatus(viewerId: string | null, other: UserRow) {
 }
 
 function toMessage(m: typeof schema.messages.$inferSelect): Message {
+  const photo =
+    m.photoKey && !m.deletedAt
+      ? { src: `/api/messages/photo/${m.id}`, thumb: `/api/messages/photo/${m.id}?size=thumb`, width: m.photoWidth, height: m.photoHeight }
+      : null;
   return {
     id: m.id,
     senderId: m.senderId,
     body: m.deletedAt ? "" : m.body,
+    photo,
     unsent: Boolean(m.deletedAt),
     createdAt: m.createdAt.toISOString(),
   };
@@ -179,6 +186,7 @@ interface ConversationRow extends Record<string, unknown> {
   last_name: string;
   avatar_key: string | null;
   lm_body: string | null;
+  lm_photo: string | null;
   lm_sender: string | null;
   lm_deleted: Date | null;
   lm_created: Date | null;
@@ -197,13 +205,13 @@ const requestSql = (viewerId: string) => sql`(c.state = 'REQUEST' AND c.initiato
 export async function listConversations(viewerId: string, folder: MessageFolder): Promise<ConversationSummary[]> {
   const { rows } = await db.execute<ConversationRow>(sql`
     SELECT c.id, u.id AS other_id, u.username, u.first_name, u.last_name, u.avatar_key,
-           lm.body AS lm_body, lm.sender_id AS lm_sender, lm.deleted_at AS lm_deleted, lm.created_at AS lm_created,
+           lm.body AS lm_body, lm.photo_key AS lm_photo, lm.sender_id AS lm_sender, lm.deleted_at AS lm_deleted, lm.created_at AS lm_created,
            ${unreadSql(viewerId)} AS unread
     FROM ${schema.conversationMembers} m
     JOIN ${schema.conversations} c ON c.id = m.conversation_id
     JOIN ${schema.users} u ON u.id = CASE WHEN c.user_low_id = ${viewerId} THEN c.user_high_id ELSE c.user_low_id END
     JOIN LATERAL (
-      SELECT body, sender_id, deleted_at, created_at FROM ${schema.messages}
+      SELECT body, photo_key, sender_id, deleted_at, created_at FROM ${schema.messages}
       WHERE conversation_id = c.id AND (m.cleared_at IS NULL OR created_at > m.cleared_at)
       ORDER BY created_at DESC, id DESC LIMIT 1
     ) lm ON true
@@ -216,6 +224,7 @@ export async function listConversations(viewerId: string, folder: MessageFolder)
     lastMessage: r.lm_created
       ? {
           body: r.lm_deleted ? "" : (r.lm_body ?? ""),
+          photo: Boolean(r.lm_photo) && !r.lm_deleted,
           fromMe: r.lm_sender === viewerId,
           unsent: Boolean(r.lm_deleted),
           createdAt: new Date(r.lm_created).toISOString(),
@@ -240,6 +249,24 @@ export async function messageCounts(viewerId: string) {
 // ─── Writing ─────────────────────────────────────────────────────────────────
 
 export async function sendMessage(viewerId: string, username: string, body: string): Promise<Message> {
+  const conv = await conversationForSending(viewerId, username);
+  return insertMessage(conv.id, viewerId, { body });
+}
+
+/** Send a photo: re-encoded (location data stripped) and stored privately, readable only by the two people. */
+export async function sendPhoto(viewerId: string, username: string, file: Buffer): Promise<Message> {
+  const conv = await conversationForSending(viewerId, username);
+  const img = await processPhoto(file, { full: 1600, thumb: 480 });
+  const key = `messages/${conv.id}/${crypto.randomUUID()}`;
+  await Promise.all([
+    putObject(`${key}/full.webp`, img.full, "image/webp"),
+    putObject(`${key}/thumb.webp`, img.thumb, "image/webp"),
+  ]);
+  return insertMessage(conv.id, viewerId, { photoKey: key, photoWidth: img.width, photoHeight: img.height });
+}
+
+/** Every check before sending (blocks, private accounts, request cap, limits); creates the chat if needed. */
+async function conversationForSending(viewerId: string, username: string) {
   rateLimit(`messages:${viewerId}`, MESSAGES_PER_MINUTE);
   const other = await requireUserByUsername(username);
   if (other.id === viewerId) throw badRequest("You can't message yourself.");
@@ -287,17 +314,41 @@ export async function sendMessage(viewerId: string, username: string, body: stri
     }
   }
 
+  return conv;
+}
+
+async function insertMessage(
+  conversationId: string,
+  senderId: string,
+  content: { body?: string; photoKey?: string; photoWidth?: number; photoHeight?: number },
+) {
   const now = new Date();
-  const [message] = await db.insert(schema.messages).values({ conversationId: conv.id, senderId: viewerId, body, createdAt: now }).returning();
+  const [message] = await db
+    .insert(schema.messages)
+    .values({ conversationId, senderId, ...content, createdAt: now })
+    .returning();
   await Promise.all([
-    db.update(schema.conversations).set({ lastMessageAt: now }).where(eq(schema.conversations.id, conv.id)),
+    db.update(schema.conversations).set({ lastMessageAt: now }).where(eq(schema.conversations.id, conversationId)),
     db
       .update(schema.conversationMembers)
       .set({ lastReadAt: now })
-      .where(and(eq(schema.conversationMembers.conversationId, conv.id), eq(schema.conversationMembers.userId, viewerId))),
+      .where(and(eq(schema.conversationMembers.conversationId, conversationId), eq(schema.conversationMembers.userId, senderId))),
   ]);
   return toMessage(message);
 }
+
+/** A message photo's storage key, if the viewer is one of the two people in the chat. */
+export async function authorizeMessagePhoto(viewerId: string, messageId: string) {
+  const [row] = await db
+    .select({ key: schema.messages.photoKey, deletedAt: schema.messages.deletedAt })
+    .from(schema.messages)
+    .innerJoin(schema.conversationMembers, eq(schema.conversationMembers.conversationId, schema.messages.conversationId))
+    .where(and(eq(schema.messages.id, messageId), eq(schema.conversationMembers.userId, viewerId)));
+  if (!row?.key || row.deletedAt) throw notFound("Photo not found.");
+  return row.key;
+}
+
+export const messagePhotoObjects = (key: string) => [`${key}/full.webp`, `${key}/thumb.webp`];
 
 async function acceptConversation(conversationId: string, requesterId: string, viewerId: string) {
   await db.update(schema.conversations).set({ state: "ACTIVE" }).where(eq(schema.conversations.id, conversationId));
@@ -342,12 +393,15 @@ async function clearFor(conversationId: string, userId: string) {
 
 /** "Unsend": removes one of the viewer's own messages for both people. */
 export async function unsendMessage(viewerId: string, messageId: string) {
-  const [row] = await db
-    .update(schema.messages)
-    .set({ body: "", deletedAt: new Date() })
-    .where(and(eq(schema.messages.id, messageId), eq(schema.messages.senderId, viewerId)))
-    .returning({ id: schema.messages.id });
-  if (!row) throw notFound("Message not found.");
+  const old = await db.query.messages.findFirst({
+    where: and(eq(schema.messages.id, messageId), eq(schema.messages.senderId, viewerId)),
+  });
+  if (!old) throw notFound("Message not found.");
+  await db.update(schema.messages).set({ body: "", deletedAt: new Date() }).where(eq(schema.messages.id, messageId));
+  if (!old.photoKey || old.deletedAt) return;
+  // A reported photo is kept for review; otherwise it's deleted for good.
+  const reported = await db.query.messageReports.findFirst({ columns: { id: true }, where: eq(schema.messageReports.messageId, messageId) });
+  if (!reported) await deleteObjects(messagePhotoObjects(old.photoKey)).catch((e) => console.error("[storage] delete failed", e));
 }
 
 // ─── Block & report ──────────────────────────────────────────────────────────
@@ -405,7 +459,8 @@ export async function report(viewerId: string, username: string, input: z.infer<
     reportedUserId: other.id,
     conversationId: conv?.id,
     messageId: message?.id,
-    messageBodyCopy: message?.body,
+    // Photos: keep the storage key so the image survives an unsend.
+    messageBodyCopy: message ? [message.body, message.photoKey && `[photo ${message.photoKey}]`].filter(Boolean).join(" ") : undefined,
     reason: input.reason,
     details: input.details,
   });

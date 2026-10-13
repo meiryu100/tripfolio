@@ -100,6 +100,7 @@ function preview(c: ConversationSummary) {
   const m = c.lastMessage;
   if (!m) return "";
   if (m.unsent) return m.fromMe ? "You unsent a message" : "Message unsent";
+  if (m.photo && !m.body) return m.fromMe ? "You sent a photo" : "Sent a photo";
   return m.fromMe ? `You: ${m.body}` : m.body;
 }
 

@@ -21,7 +21,7 @@ The map is the hero on Home, Profile and the full-screen Map tab. Everything els
 | `notifications` | `FOLLOW`, `FOLLOW_REQUEST`, `FOLLOW_ACCEPTED`, `UNFOLLOW`, `TRIP`, `MESSAGE_REQUEST`. |
 | `conversations` | One per pair of users (`user_low_id < user_high_id`). `REQUEST` until the recipient accepts, then `ACTIVE`. |
 | `conversation_members` | Per-user chat state: `last_read_at` (unread / "Seen") and `cleared_at` ("Delete chat" for that user only). |
-| `messages` | Text messages; `deleted_at` = unsent (body cleared for both people). |
+| `messages` | Text or a photo (`photo_key` → `messages/<conversation>/<id>/{full,thumb}.webp` in storage); `deleted_at` = unsent (cleared for both people, photo file deleted unless reported). |
 | `blocks` | Who blocked whom. No messages or follows in either direction. |
 | `message_reports` | Reports with a copy of the reported message, reviewed manually. |
 | `activities` | Append-only log behind the Travel Feed. |
@@ -59,7 +59,8 @@ POST|DELETE /api/users/:username/follow   POST|DELETE /api/users/:username/block
 
 GET    /api/messages?folder=inbox|requests
 GET|POST|DELETE /api/messages/with/:username   (chat + mark read | send | delete for me)
-POST   /api/messages/with/:username/accept | report        DELETE /api/messages/m/:id   (unsend)
+POST   /api/messages/with/:username/accept | report | photo   DELETE /api/messages/m/:id   (unsend)
+GET    /api/messages/photo/:id[?size=thumb]   (participants only → signed link)
 
 POST   /api/uploads           DELETE /api/uploads/:id   (pending photos)
 POST   /api/trips             GET|PATCH|DELETE /api/trips/:id

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { meKey } from "@/features/auth/api";
 import { api, qs } from "@/lib/api-client";
 import type { Chat, ConversationSummary, Message, MessageFolder, UserSummary } from "@/lib/types";
+import { resizeImage } from "@/lib/utils";
 
 export const chatKey = (username: string) => ["chat", username.toLowerCase()] as const;
 
@@ -50,12 +51,45 @@ export function useSendMessage(username: string, me: UserSummary) {
     onMutate: async (body) => {
       await qc.cancelQueries({ queryKey: key });
       const prev = qc.getQueryData<Chat>(key);
-      const pending: Message = { id: `pending-${Date.now()}`, senderId: me.id, body, unsent: false, createdAt: new Date().toISOString() };
+      const pending: Message = { id: `pending-${Date.now()}`, senderId: me.id, body, photo: null, unsent: false, createdAt: new Date().toISOString() };
       if (prev) qc.setQueryData<Chat>(key, { ...prev, messages: [...prev.messages, pending] });
       return { prev };
     },
     onError: (_e, _v, ctx) => ctx?.prev && qc.setQueryData(key, ctx.prev),
     onSettled: () => refresh(username),
+  });
+}
+
+/** Send a photo; it shows right away from the local file while uploading. */
+export function useSendPhoto(username: string, me: UserSummary) {
+  const qc = useQueryClient();
+  const refresh = useRefreshMessages();
+  const key = chatKey(username);
+  return useMutation({
+    mutationFn: async ({ file }: { file: File; preview: string; size: { width: number; height: number } | null }) => {
+      const blob = file.size > 1.5 * 1024 * 1024 ? await resizeImage(file, 2048, 0.88).catch(() => file) : file;
+      const r = await api.upload<{ message: Message }>(`/api/messages/with/${encodeURIComponent(username)}/photo`, blob, file.name);
+      return r.message;
+    },
+    onMutate: async ({ preview, size }) => {
+      await qc.cancelQueries({ queryKey: key });
+      const prev = qc.getQueryData<Chat>(key);
+      const pending: Message = {
+        id: `pending-${Date.now()}`,
+        senderId: me.id,
+        body: "",
+        photo: { src: preview, thumb: preview, width: size?.width ?? null, height: size?.height ?? null },
+        unsent: false,
+        createdAt: new Date().toISOString(),
+      };
+      if (prev) qc.setQueryData<Chat>(key, { ...prev, messages: [...prev.messages, pending] });
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => ctx?.prev && qc.setQueryData(key, ctx.prev),
+    onSettled: (_m, _e, { preview }) => {
+      refresh(username);
+      setTimeout(() => URL.revokeObjectURL(preview), 30_000);
+    },
   });
 }
 
@@ -66,7 +100,7 @@ export function useUnsend(username: string) {
     mutationFn: (id: string) => api.delete(`/api/messages/m/${id}`),
     onMutate: (id) =>
       qc.setQueryData<Chat>(chatKey(username), (c) =>
-        c ? { ...c, messages: c.messages.map((m) => (m.id === id ? { ...m, body: "", unsent: true } : m)) } : c,
+        c ? { ...c, messages: c.messages.map((m) => (m.id === id ? { ...m, body: "", photo: null, unsent: true } : m)) } : c,
       ),
     onSettled: () => refresh(username),
   });
