@@ -215,7 +215,7 @@ function ChatScreen({ username, chat }: { username: string; chat: Chat }) {
       ) : chat.canSend ? (
         <Composer username={username} />
       ) : (
-        <div className="border-t border-border px-5 py-4 text-center text-sm text-muted pb-safe">
+        <div className="border-t border-border px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] text-center text-sm text-muted">
           {chat.notice}
           {chat.blocked && (
             <Button variant="secondary" size="sm" className="mt-3 flex mx-auto" loading={action.isPending} onClick={() => action.mutate("unblock")}>
@@ -431,7 +431,7 @@ function PhotoViewer({
 function RequestBar({ user, busy, onAnswer }: { user: UserSummary; busy: boolean; onAnswer: (a: "accept" | "delete" | "block") => void }) {
   const [confirmBlock, setConfirmBlock] = useState(false);
   return (
-    <div className="border-t border-border bg-surface/80 px-5 pt-4 pb-safe text-center backdrop-blur">
+    <div className="border-t border-border bg-surface/80 px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] text-center backdrop-blur">
       <p className="font-semibold">
         {user.firstName} wants to send you a message
       </p>
@@ -514,7 +514,7 @@ function Composer({ username }: { username: string }) {
   };
 
   return (
-    <form onSubmit={submit} className="shrink-0 px-3 pt-2 pb-3 pb-safe md:px-4 md:pb-4">
+    <form onSubmit={submit} className="shrink-0 px-3 pt-2 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:px-4 md:pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
       <div className="flex items-end gap-2 rounded-[26px] border border-border bg-surface py-1.5 pr-2 pl-4 shadow-soft transition duration-200 focus-within:border-brand-bright focus-within:ring-4 focus-within:ring-brand-bright/15">
         <textarea
           ref={field}
