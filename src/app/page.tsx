@@ -147,7 +147,12 @@ export default function LandingPage() {
         </Reveal>
       </section>
 
-      <footer className="pb-10 text-center text-sm text-muted">Tripfolio · Made for people who collect places.</footer>
+      <footer className="pb-10 text-center text-sm text-muted">
+        Tripfolio · Made for people who collect places. ·{" "}
+        <Link href="/countries-visited-map" className="hover:text-fg hover:underline">
+          Countries visited map
+        </Link>
+      </footer>
     </div>
   );
 }

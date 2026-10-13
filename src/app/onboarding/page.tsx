@@ -3,12 +3,13 @@
 import { ArrowRight, PartyPopper, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { CountrySearch } from "@/components/country-search";
 import { Logo } from "@/components/logo";
 import { Button, Spinner } from "@/components/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { meKey, useMeQuery } from "@/features/auth/api";
+import { clearDemoPicks, parseDemoPicks, readDemoPicksRaw } from "@/features/landing/demo-picks";
 import { setStatuses } from "@/features/map/api";
 import { WorldMap } from "@/features/map/world-map";
 import { completeOnboarding } from "@/features/settings/api";
@@ -21,6 +22,8 @@ import mark from "../../../public/brand/tripfolio-mark.png";
 
 type Step = 0 | 1 | 2 | 3;
 
+const noSubscribe = () => () => {};
+
 export default function OnboardingPage() {
   const { data: me, isPending } = useMeQuery();
   const router = useRouter();
@@ -29,6 +32,9 @@ export default function OnboardingPage() {
   const [visited, setVisited] = useState<string[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  // Countries they colored on the landing page's demo map before signing up.
+  const demo = parseDemoPicks(useSyncExternalStore(noSubscribe, readDemoPicksRaw, () => null));
+  const demoCount = demo.visited.length + demo.wishlist.length;
 
   useEffect(() => {
     if (isPending) return;
@@ -69,6 +75,15 @@ export default function OnboardingPage() {
     }
   };
 
+  const start = () => {
+    if (demoCount) {
+      setVisited(demo.visited);
+      setWishlist(demo.wishlist);
+      clearDemoPicks();
+    }
+    next();
+  };
+
   const total = visited.length + wishlist.filter((c) => !visited.includes(c)).length;
 
   return (
@@ -95,9 +110,11 @@ export default function OnboardingPage() {
             <Image src={mark} alt="" priority className="animate-float h-32 w-auto drop-shadow-xl" />
             <h1 className="mt-6 text-4xl font-bold tracking-tight">Welcome to Tripfolio, {me.firstName} 🌎</h1>
             <p className="mt-3 max-w-md text-lg text-muted">
-              Let&apos;s paint your map. It takes about a minute — and you can skip anything.
+              {demoCount
+                ? `We kept the ${demoCount} ${demoCount === 1 ? "country" : "countries"} you colored. Check them and add the rest — it takes about a minute.`
+                : "Let's paint your map. It takes about a minute — and you can skip anything."}
             </p>
-            <Button size="lg" className="mt-8 min-w-48" onClick={next}>
+            <Button size="lg" className="mt-8 min-w-48" onClick={start}>
               Let&apos;s go <ArrowRight className="size-5" />
             </Button>
           </Centered>

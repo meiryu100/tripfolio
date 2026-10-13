@@ -72,6 +72,8 @@ POST   /api/notifications     (mark all read)
 
 **Public profiles.** `/u/<username>` without a session is rewritten by `src/proxy.ts` to `src/app/share/[username]` — a server-rendered page with Open Graph tags whose image is `/share-image`. It shows only what the owner's privacy settings allow everyone to see, and its "Join" button carries `?ref=` for invites. Everything else stays behind sign-in.
 
+**SEO landing page.** `/countries-visited-map` is a server-rendered page (FAQ with JSON-LD, its own Open Graph image) around a try-it map (`src/features/landing/demo-map.tsx`). Countries a visitor colors there are kept in `sessionStorage` and offered at the start of onboarding.
+
 Lists are paginated: keyset cursors on `(created_at, id)` for feeds/notifications/follows, offset cursors for date-ordered trips.
 
 ## Security
