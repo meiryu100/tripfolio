@@ -49,6 +49,23 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isOwnTrip = viewing === null || viewing === me.id;
   const profileActive = isActive(pathname, "/profile") || pathname.startsWith(`/u/${me.username}`);
 
+  // Show the unread count in the tab title, e.g. "(2) Tripfolio". Next.js rewrites <title> on
+  // navigation, so re-apply the prefix whenever the title changes.
+  useEffect(() => {
+    const prefix = unreadMessages > 0 ? `(${unreadMessages}) ` : "";
+    const apply = () => {
+      const base = document.title.replace(/^\(\d+\) /, "");
+      if (document.title !== prefix + base) document.title = prefix + base;
+    };
+    apply();
+    const observer = new MutationObserver(apply);
+    observer.observe(document.head, { childList: true, subtree: true, characterData: true });
+    return () => {
+      observer.disconnect();
+      document.title = document.title.replace(/^\(\d+\) /, "");
+    };
+  }, [unreadMessages]);
+
   // ⌘K / Ctrl+K opens global search.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
