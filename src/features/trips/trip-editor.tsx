@@ -110,7 +110,9 @@ function TripForm({ trip, presetCountry }: { trip?: Trip; presetCountry?: string
     if (files.length > room) toast(`Up to ${MAX_PHOTOS} photos per trip`, "info");
     const queue = files.slice(0, Math.max(0, room)).map((file) => ({ file, key: crypto.randomUUID() }));
     // Reserve slots now so photos keep the order they were picked in, whatever finishes first.
-    setSlots((s) => [...s, ...queue.map(({ key, file }) => ({ key, name: file.name }))]);
+    // Build them before calling setSlots: the updater may run later, after the workers have emptied `queue`.
+    const reserved = queue.map(({ key, file }) => ({ key, name: file.name }));
+    setSlots((s) => [...s, ...reserved]);
 
     const worker = async () => {
       for (let next = queue.shift(); next; next = queue.shift()) {
