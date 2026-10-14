@@ -9,29 +9,58 @@ import { EmptyState, ErrorState, Skeleton, buttonClass } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
 import { useApplyStatus } from "@/features/map/country-sheet";
 import { useUserMap } from "@/features/map/api";
+import { useSetRegionStatus, useUserRegions } from "@/features/map/regions-api";
 import { CONTINENTS } from "@/features/stats/compute";
 import { getCountry } from "@/lib/countries";
+import { getRegion } from "@/lib/regions";
 import type { Country } from "@/lib/types";
-import { openCountry } from "@/lib/ui";
+import { openCountry, openRegion } from "@/lib/ui";
 import { plural } from "@/lib/utils";
+
+/** One card on the page: a country or a US state. */
+interface WishItem {
+  code: string;
+  name: string;
+  flag: string;
+  sub: string;
+  isRegion: boolean;
+  continent: string;
+}
 
 export default function WishlistPage() {
   const me = useMe();
   const map = useUserMap(me.username);
+  const regions = useUserRegions(me.username);
+  const setRegion = useSetRegionStatus(me.username);
   const { apply } = useApplyStatus();
 
   const groups = useMemo(() => {
-    const list = Object.entries(map.data?.statuses ?? {})
+    const items: WishItem[] = Object.entries(map.data?.statuses ?? {})
       .filter(([, s]) => s === "wishlist")
       .map(([code]) => getCountry(code))
       .filter((c): c is Country => Boolean(c))
-      .sort((a, b) => a.name.localeCompare(b.name));
-    return CONTINENTS.map((name) => ({ name, countries: list.filter((c) => c.continent === name) })).filter((g) => g.countries.length);
-  }, [map.data]);
-  const total = groups.reduce((n, g) => n + g.countries.length, 0);
+      .map((c) => ({ code: c.code, name: c.name, flag: c.flag, sub: c.capital || c.subregion, isRegion: false, continent: c.continent }));
+    const states: WishItem[] = Object.entries(regions.data?.statuses ?? {})
+      .filter(([, s]) => s === "wishlist")
+      .map(([code]) => getRegion(code))
+      .filter((r): r is NonNullable<typeof r> => Boolean(r))
+      .map((r) => ({ code: r.code, name: `USA - ${r.name}`, flag: "🇺🇸", sub: "State", isRegion: true, continent: "North America" }));
+    const list = [...items, ...states].sort((a, b) => a.name.localeCompare(b.name));
+    return {
+      states: states.length,
+      groups: CONTINENTS.map((name) => ({ name, items: list.filter((i) => i.continent === name) })).filter((g) => g.items.length),
+    };
+  }, [map.data, regions.data]);
+  const total = groups.groups.reduce((n, g) => n + g.items.length, 0);
+  const countryCount = total - groups.states;
+  const subtitle = !total
+    ? "Where do you want to go next?"
+    : groups.states
+      ? `${countryCount ? `${plural(countryCount, "country", "countries")} and ` : ""}${plural(groups.states, "state")} you want to visit`
+      : `${plural(total, "country", "countries")} you want to visit`;
 
   return (
-    <Page wide title="Wishlist" subtitle={total ? `${plural(total, "country", "countries")} you want to visit` : "Where do you want to go next?"}>
+    <Page wide title="Wishlist" subtitle={subtitle}>
       <CountrySearch
         className="mb-6 max-w-md"
         statuses={map.data?.statuses}
@@ -39,14 +68,20 @@ export default function WishlistPage() {
         placeholder="Add a country to your wishlist…"
       />
 
-      {map.isPending ? (
+      {map.isPending || regions.isPending ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }, (_, i) => (
             <Skeleton key={i} className="h-20" />
           ))}
         </div>
-      ) : map.isError ? (
-        <ErrorState body="We couldn't load your wishlist." onRetry={() => map.refetch()} />
+      ) : map.isError || regions.isError ? (
+        <ErrorState
+          body="We couldn't load your wishlist."
+          onRetry={() => {
+            map.refetch();
+            regions.refetch();
+          }}
+        />
       ) : total === 0 ? (
         <EmptyState
           icon={<Heart />}
@@ -60,25 +95,25 @@ export default function WishlistPage() {
         />
       ) : (
         <div className="grid gap-8">
-          {groups.map((g) => (
+          {groups.groups.map((g) => (
             <section key={g.name} aria-labelledby={`wl-${g.name}`}>
               <h2 id={`wl-${g.name}`} className="mb-3 text-lg font-bold">
-                {g.name} <span className="text-sm font-normal text-muted">· {g.countries.length}</span>
+                {g.name} <span className="text-sm font-normal text-muted">· {g.items.length}</span>
               </h2>
               <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {g.countries.map((c) => (
+                {g.items.map((c) => (
                   <li key={c.code} className="animate-rise flex items-center gap-3 rounded-2xl border border-border bg-surface p-3 shadow-card">
-                    <button onClick={() => openCountry(c.code, me.username)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                    <button onClick={() => (c.isRegion ? openRegion(c.code, me.username) : openCountry(c.code, me.username))} className="flex min-w-0 flex-1 items-center gap-3 text-left">
                       <span className="text-4xl leading-none" aria-hidden>
                         {c.flag}
                       </span>
                       <span className="min-w-0">
                         <span className="block truncate font-semibold">{c.name}</span>
-                        <span className="block truncate text-sm text-muted">{c.capital || c.subregion}</span>
+                        <span className="block truncate text-sm text-muted">{c.sub}</span>
                       </span>
                     </button>
                     <button
-                      onClick={() => apply(c.code, "visited")}
+                      onClick={() => (c.isRegion ? setRegion.mutate({ code: c.code, status: "visited" }) : apply(c.code, "visited"))}
                       aria-label={`Mark ${c.name} as visited`}
                       title="Mark as visited"
                       className="flex size-11 items-center justify-center rounded-xl text-visited transition duration-200 hover:bg-visited-soft"
@@ -86,7 +121,7 @@ export default function WishlistPage() {
                       <Check className="size-5" />
                     </button>
                     <button
-                      onClick={() => apply(c.code, null)}
+                      onClick={() => (c.isRegion ? setRegion.mutate({ code: c.code, status: null }) : apply(c.code, null))}
                       aria-label={`Remove ${c.name} from wishlist`}
                       title="Remove"
                       className="flex size-11 items-center justify-center rounded-xl text-muted transition duration-200 hover:bg-surface-2 hover:text-danger"
