@@ -19,9 +19,8 @@ export const MILESTONES = [
 ] as const;
 
 export interface TravelStats {
-  visited: number;
+  visited: number; // sovereign countries only
   wishlist: number;
-  sovereignVisited: number;
   explored: number; // %
   continents: { name: (typeof CONTINENTS)[number]; visited: number; total: number }[];
   continentsVisited: number;
@@ -32,17 +31,16 @@ export interface TravelStats {
 export function computeStats(statuses: Record<string, CountryStatus>): TravelStats {
   let visited = 0;
   let wishlist = 0;
-  let sovereignVisited = 0;
   const perContinent = new Map<string, number>();
   for (const [code, status] of Object.entries(statuses)) {
     if (status === "wishlist") {
       wishlist++;
       continue;
     }
-    visited++;
     const c = getCountry(code);
-    if (!c) continue;
-    if (c.sovereign) sovereignVisited++;
+    // Only the sovereign countries count (Antarctica still counts toward its continent).
+    if (!c || (!c.sovereign && c.continent !== "Antarctica")) continue;
+    if (c.sovereign) visited++;
     perContinent.set(c.continent, (perContinent.get(c.continent) ?? 0) + 1);
   }
   const continents = CONTINENTS.map((name) => ({ name, visited: perContinent.get(name) ?? 0, total: CONTINENT_TOTALS[name] }));
@@ -51,8 +49,7 @@ export function computeStats(statuses: Record<string, CountryStatus>): TravelSta
   return {
     visited,
     wishlist,
-    sovereignVisited,
-    explored: Math.min(100, (sovereignVisited / WORLD_TOTAL) * 100),
+    explored: Math.min(100, (visited / WORLD_TOTAL) * 100),
     continents,
     continentsVisited: continents.filter((c) => c.visited > 0).length,
     milestones,

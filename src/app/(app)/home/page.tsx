@@ -29,7 +29,7 @@ export default function HomePage() {
   const trips = useUserTrips(me.username, { limit: 4 });
   const stats = useMemo(() => computeStats(map.data?.statuses ?? {}), [map.data]);
   const recent = flatten(trips.data).slice(0, 4);
-  const isEmpty = map.isSuccess && stats.visited === 0 && stats.wishlist === 0;
+  const isEmpty = map.isSuccess && Object.keys(map.data.statuses).length === 0;
 
   return (
     <Page wide>
