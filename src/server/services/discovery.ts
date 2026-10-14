@@ -8,6 +8,7 @@ import { toPhoto, toStatus, toUserSummary } from "./mappers";
 import { decodeCursor, encodeCursor } from "./pagination";
 import { followedIds, getRelationships } from "./privacy";
 import { hydrateTrips } from "./trips";
+import { SOVEREIGN_CODES } from "@/lib/countries";
 import type { Activity, CountryDetail, ExploreData, Page, SearchResults, Traveler, UserSummary } from "@/lib/types";
 
 const u = schema.users;
@@ -29,7 +30,13 @@ async function travelers(viewerId: string | null, users: UserRow[]): Promise<Tra
     db
       .select({ userId: schema.userCountries.userId, n: count() })
       .from(schema.userCountries)
-      .where(and(inArray(schema.userCountries.userId, ids), eq(schema.userCountries.status, "VISITED")))
+      .where(
+        and(
+          inArray(schema.userCountries.userId, ids),
+          eq(schema.userCountries.status, "VISITED"),
+          inArray(schema.userCountries.countryCode, SOVEREIGN_CODES),
+        ),
+      )
       .groupBy(schema.userCountries.userId),
     getRelationships(viewerId, ids),
   ]);
@@ -120,7 +127,7 @@ export async function getExplore(viewerId: string | null): Promise<ExploreData> 
     db
       .select({ user: u, n: count() })
       .from(u)
-      .innerJoin(uc, and(eq(uc.userId, u.id), eq(uc.status, "VISITED")))
+      .innerJoin(uc, and(eq(uc.userId, u.id), eq(uc.status, "VISITED"), inArray(uc.countryCode, SOVEREIGN_CODES)))
       .where(and(eq(u.isPrivate, false), eq(u.showVisited, true)))
       .groupBy(u.id)
       .orderBy(desc(count()))
@@ -129,7 +136,7 @@ export async function getExplore(viewerId: string | null): Promise<ExploreData> 
     db
       .select({ user: u, n: count(uc.id) })
       .from(u)
-      .leftJoin(uc, and(eq(uc.userId, u.id), eq(uc.status, "VISITED")))
+      .leftJoin(uc, and(eq(uc.userId, u.id), eq(uc.status, "VISITED"), inArray(uc.countryCode, SOVEREIGN_CODES)))
       .where(
         and(
           viewerId ? ne(u.id, viewerId) : undefined,

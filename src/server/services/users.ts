@@ -1,5 +1,5 @@
 import "server-only";
-import { and, count, eq, isNotNull, ne, or, sql } from "drizzle-orm";
+import { and, count, eq, inArray, isNotNull, ne, or, sql } from "drizzle-orm";
 import { generatePublicId, hashPassword, verifyPassword } from "../auth/password";
 import { revokeOtherSessions } from "../auth/session";
 import { db, schema } from "../db";
@@ -11,6 +11,7 @@ import { toUserSummary } from "./mappers";
 import { messageCounts, messagePhotoObjects, messagingStatus } from "./messages";
 import { getVisibility } from "./privacy";
 import type { Attribution } from "@/lib/attribution";
+import { SOVEREIGN_CODES } from "@/lib/countries";
 import type { Me, Profile } from "@/lib/types";
 import type { z } from "zod";
 import type { profileSchema, settingsSchema } from "@/lib/validation";
@@ -141,7 +142,13 @@ export async function getProfile(viewerId: string | null, username: string): Pro
     db
       .select({ status: schema.userCountries.status, n: count() })
       .from(schema.userCountries)
-      .where(eq(schema.userCountries.userId, owner.id))
+      .where(
+        and(
+          eq(schema.userCountries.userId, owner.id),
+          // Only sovereign countries count as visited; territories don't.
+          or(eq(schema.userCountries.status, "WANT_TO_VISIT"), inArray(schema.userCountries.countryCode, SOVEREIGN_CODES)),
+        ),
+      )
       .groupBy(schema.userCountries.status),
     db.select({ n: count() }).from(schema.trips).where(eq(schema.trips.userId, owner.id)),
     db

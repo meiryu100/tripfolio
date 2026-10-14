@@ -17,7 +17,7 @@ export function WorldProgress({ stats, className, own = true }: { stats: TravelS
         <div>
           <p className="text-sm font-medium text-muted">{own ? "Your World" : "Their World"}</p>
           <p className="font-heading text-2xl font-bold tracking-tight">
-            {stats.sovereignVisited} <span className="text-muted">/ {WORLD_TOTAL} countries</span>
+            {stats.visited} <span className="text-muted">/ {WORLD_TOTAL} countries</span>
           </p>
         </div>
         <p className="font-heading text-4xl font-bold text-gradient">
