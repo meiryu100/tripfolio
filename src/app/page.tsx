@@ -2,6 +2,7 @@
 
 import { ArrowRight, Camera, Compass, Globe2, MapPinned, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
+import { CookieSettingsButton } from "@/components/cookie-consent";
 import { Logo } from "@/components/logo";
 import { CountUp, Parallax, Reveal } from "@/components/motion";
 import { illustration, Photo } from "@/components/photo";
@@ -151,7 +152,9 @@ export default function LandingPage() {
         Tripfolio · Made for people who collect places. ·{" "}
         <Link href="/countries-visited-map" className="hover:text-fg hover:underline">
           Countries visited map
-        </Link>
+        </Link>{" "}
+        ·{" "}
+        <CookieSettingsButton className="hover:text-fg hover:underline" />
       </footer>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ChevronRight,
+  Cookie,
   Copy,
   KeyRound,
   Laptop,
@@ -20,6 +21,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { Page } from "@/components/app-shell";
+import { openCookieSettings } from "@/components/cookie-consent";
 import { applyTheme } from "@/components/providers";
 import { Avatar, Button, FormError, Input, Sheet, SheetClose, Skeleton, Toggle } from "@/components/ui";
 import { meKey, useLogout, useMe } from "@/features/auth/api";
@@ -155,6 +157,15 @@ export default function SettingsPage() {
               ))}
             </div>
           </Row>
+        </Group>
+
+        <Group title="Cookies">
+          <RowButton
+            icon={<Cookie className="size-5" />}
+            label="Cookie settings"
+            hint="Choose whether we remember which link brought you here."
+            onClick={openCookieSettings}
+          />
         </Group>
 
         <Group title="Security">

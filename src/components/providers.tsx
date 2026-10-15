@@ -3,6 +3,7 @@
 import { AlertTriangle, CheckCircle2, Info } from "lucide-react";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
+import { CookieBanner } from "@/components/cookie-consent";
 import { meKey, useMeQuery } from "@/features/auth/api";
 import { ApiError } from "@/lib/api-client";
 import type { Theme } from "@/lib/types";
@@ -34,6 +35,7 @@ export function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={client}>
       <ThemeSync />
       {children}
+      <CookieBanner />
       <Toaster />
     </QueryClientProvider>
   );
