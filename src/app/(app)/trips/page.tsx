@@ -50,7 +50,7 @@ export default function TripsPage() {
       title="My Trips"
       subtitle={total ? `${plural(total, "trip")} · your travel journal` : "Your travel journal"}
       actions={
-        <Button onClick={() => openTripEditor()}>
+        <Button onClick={() => openTripEditor()} aria-label="Add Trip">
           <Plus className="size-4" /> <span className="hidden sm:inline">Add Trip</span>
         </Button>
       }
