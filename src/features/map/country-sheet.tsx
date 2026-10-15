@@ -135,15 +135,15 @@ function MyCountry({ code, name }: { code: string; name: string }) {
               title={disabled ? "Countries with trips stay visited" : undefined}
               onClick={() => !active && apply(code, value)}
               className={cn(
-                "flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-semibold transition duration-200 disabled:opacity-40",
+                "flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-1.5 text-sm sm:px-2 font-semibold transition duration-200 disabled:opacity-40",
                 active && value === "visited" && "bg-visited text-on-status shadow-soft",
                 active && value === "wishlist" && "bg-wishlist text-on-status shadow-soft",
                 active && value === null && "bg-surface text-fg shadow-soft",
                 !active && "text-muted hover:text-fg",
               )}
             >
-              <Icon className="size-4 shrink-0" aria-hidden />
-              <span className="truncate">{label}</span>
+              <Icon className="hidden size-4 shrink-0 sm:block" aria-hidden />
+              <span className="text-center leading-tight">{label}</span>
             </button>
           );
         })}
