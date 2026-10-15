@@ -528,7 +528,7 @@ function Composer({ username }: { username: string }) {
           onKeyDown={onKeyDown}
           placeholder="Message…"
           aria-label="Message"
-          className="max-h-32 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-[15px] leading-6 outline-none placeholder:text-muted"
+          className="max-h-32 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-[15px] leading-6 outline-none! placeholder:text-muted"
         />
         {text.trim() ? (
           <button type="submit" className="animate-fade h-9 shrink-0 rounded-full px-3 font-semibold text-brand transition hover:bg-brand-soft">
