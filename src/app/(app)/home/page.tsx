@@ -80,7 +80,7 @@ export default function HomePage() {
           className="aspect-[4/3] w-full border border-border shadow-card sm:aspect-[16/9] lg:aspect-[2/1]"
         />
         {isEmpty && (
-          <div className="pointer-events-none absolute inset-x-0 top-4 flex justify-center px-4">
+          <div className="pointer-events-none absolute inset-x-0 top-4 hidden justify-center px-4 sm:flex">
             <p className="glass rounded-full px-4 py-2 text-sm font-medium shadow-card">Tap any country to start building your world</p>
           </div>
         )}
