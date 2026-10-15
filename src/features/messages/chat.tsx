@@ -336,14 +336,14 @@ function Bubble({
       {!mine && (
         <span className="w-7 shrink-0">{last && <Avatar user={other} size={28} />}</span>
       )}
-      <div className={cn("flex max-w-[78%] flex-col sm:max-w-[65%]", mine ? "items-end" : "items-start")}>
+      <div className={cn("flex max-w-[78%] min-w-0 flex-col sm:max-w-[65%]", mine ? "items-end" : "items-start")}>
         <button
           type="button"
           onClick={onSelect}
           disabled={pending}
           aria-expanded={selected}
           className={cn(
-            "text-left text-[15px] leading-snug break-words whitespace-pre-wrap transition duration-200",
+            "max-w-full text-left text-[15px] leading-snug break-words [overflow-wrap:anywhere] whitespace-pre-wrap transition duration-200",
             pending && "opacity-60",
             m.unsent
               ? "rounded-[22px] border border-border px-4 py-2 text-sm text-muted italic"
