@@ -68,7 +68,7 @@ export function useLogout() {
 export function useProviders() {
   return useQuery({
     queryKey: ["providers"],
-    queryFn: () => api.get<{ google: boolean }>("/api/auth/providers"),
+    queryFn: () => api.get<{ google: boolean; facebook: boolean }>("/api/auth/providers"),
     staleTime: Infinity,
   });
 }

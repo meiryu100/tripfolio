@@ -78,7 +78,7 @@ export default function SettingsPage() {
           <RowButton
             icon={<KeyRound className="size-5" />}
             label={me.hasPassword ? "Change Password" : "Set a Password"}
-            hint={me.googleLinked ? "Signed in with Google" : undefined}
+            hint={me.googleLinked ? "Signed in with Google" : me.facebookLinked ? "Signed in with Facebook" : undefined}
             onClick={() => setDialog("password")}
           />
           <RowButton icon={<Trash2 className="size-5" />} label="Delete Account" danger onClick={() => setDialog("delete")} />

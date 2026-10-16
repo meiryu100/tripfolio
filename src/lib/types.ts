@@ -75,6 +75,7 @@ export interface Me extends UserSummary {
   onboarded: boolean;
   hasPassword: boolean;
   googleLinked: boolean;
+  facebookLinked: boolean;
   createdAt: string;
   unreadNotifications: number;
   pendingRequests: number;

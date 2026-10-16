@@ -1,4 +1,4 @@
-import { googleEnabled } from "@/server/env";
+import { facebookEnabled, googleEnabled } from "@/server/env";
 import { route } from "@/server/http/handler";
 
-export const GET = route({ auth: false }, async () => ({ google: googleEnabled }));
+export const GET = route({ auth: false }, async () => ({ google: googleEnabled, facebook: facebookEnabled }));

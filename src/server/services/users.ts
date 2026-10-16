@@ -82,6 +82,7 @@ export async function createUser(input: {
   email: string;
   password?: string;
   googleId?: string;
+  facebookId?: string;
   invitedBy?: string;
   attribution?: Attribution;
 }) {
@@ -97,6 +98,7 @@ export async function createUser(input: {
       email: input.email,
       passwordHash: input.password ? await hashPassword(input.password) : null,
       googleId: input.googleId,
+      facebookId: input.facebookId,
       invitedBy: input.invitedBy,
       signupSource: input.attribution?.source,
       signupMedium: input.attribution?.medium,
@@ -130,6 +132,7 @@ export async function toMe(u: UserRow): Promise<Me> {
     onboarded: u.onboarded,
     hasPassword: Boolean(u.passwordHash),
     googleLinked: Boolean(u.googleId),
+    facebookLinked: Boolean(u.facebookId),
     createdAt: u.createdAt.toISOString(),
     unreadNotifications: unread.n,
     pendingRequests: pending.n,

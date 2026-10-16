@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useSyncExternalStore } from "react";
 import { AuthLayout } from "@/components/auth-layout";
-import { GoogleButton } from "@/components/google-button";
+import { SocialButtons } from "@/components/social-buttons";
 import { Button, FormError, Input } from "@/components/ui";
 import { useRegister } from "@/features/auth/api";
 import { ApiError, errorMessage } from "@/lib/api-client";
@@ -47,7 +47,7 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout title="Create your account" subtitle={ref ? `Join @${ref} and start mapping your world.` : "Start mapping your world."}>
-      <GoogleButton label="Sign up with Google" />
+      <SocialButtons verb="Sign up" invite={ref} />
       <form onSubmit={submit} className="grid gap-4" noValidate>
         <Input label="Email" type="email" autoComplete="email" value={form.email} onChange={set("email")} error={errors.email} />
         <Input label="Password" type="password" autoComplete="new-password" value={form.password} onChange={set("password")} error={errors.password} hint="At least 8 characters" />
