@@ -41,8 +41,9 @@ export const users = pgTable(
     gender: genderEnum("gender").notNull().default("male"),
     username: text("username").notNull(),
     email: text("email").notNull(),
-    passwordHash: text("password_hash"), // null for Google-only accounts
+    passwordHash: text("password_hash"), // null for Google- or Facebook-only accounts
     googleId: text("google_id").unique(),
+    facebookId: text("facebook_id").unique(),
     avatarKey: text("avatar_key"),
     bio: text("bio").notNull().default(""),
     location: text("location").notNull().default(""),
