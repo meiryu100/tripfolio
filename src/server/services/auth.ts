@@ -112,12 +112,15 @@ export async function upsertGoogleUser(profile: {
     where: sql`lower(${schema.users.email}) = ${profile.email.toLowerCase()}`,
   });
   if (byEmail) {
-    // Link Google to the existing account with the same verified email.
+    // Link Google to the existing account with the same verified email. Sign-up doesn't verify
+    // emails, so whoever created this account may not own the address: drop the password and
+    // every session it has, so only the Google owner is left in (they can set a password again).
     const [user] = await db
       .update(schema.users)
-      .set({ googleId: profile.sub })
+      .set({ googleId: profile.sub, passwordHash: null })
       .where(eq(schema.users.id, byEmail.id))
       .returning();
+    await revokeAllSessions(byEmail.id);
     return { user, created: false };
   }
 
