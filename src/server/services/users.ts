@@ -5,9 +5,11 @@ import { generatePublicId, hashPassword, verifyPassword } from "../auth/password
 import { revokeOtherSessions } from "../auth/session";
 import { db, schema } from "../db";
 import type { UserRow } from "../db/schema";
+import { env } from "../env";
 import { conflict, HttpError, notFound } from "../http/errors";
 import { deleteObjects, putObject } from "../storage";
 import { processPhoto } from "../storage/images";
+import { mailHtml, sendMail } from "./mailer";
 import { toUserSummary } from "./mappers";
 import { messageCounts, messagePhotoObjects, messagingStatus } from "./messages";
 import { getVisibility } from "./privacy";
@@ -229,11 +231,28 @@ export async function completeOnboarding(userId: string) {
   await db.update(schema.users).set({ onboarded: true }).where(eq(schema.users.id, userId));
 }
 
+/** Tell the account's (old) address about a sign-in change, so a takeover doesn't go unnoticed. */
+async function sendSecurityNotice(user: UserRow, change: string) {
+  const url = `${env.appUrl}/forgot-password`;
+  await sendMail({
+    to: user.email,
+    subject: `Your Tripfolio ${change} was changed`,
+    text: `Hi ${user.firstName},\n\nThe ${change} on your Tripfolio account was just changed.\n\nIf this was you, there's nothing to do. If it wasn't, reset your password now:\n${url}`,
+    html: mailHtml({
+      greeting: `Hi ${user.firstName},`,
+      lines: [`The ${change} on your Tripfolio account was just changed.`, "If this was you, there's nothing to do."],
+      button: { label: "Wasn't me — reset password", url },
+      footer: "You're getting this because it's a security change on your account.",
+    }),
+  });
+}
+
 export async function changeEmail(user: UserRow, email: string, password: string) {
   if (user.passwordHash && !(await verifyPassword(password, user.passwordHash)))
     throw new HttpError("VALIDATION", "Password is incorrect.", "password");
   await assertAvailable({ email }, user.id);
   await db.update(schema.users).set({ email }).where(eq(schema.users.id, user.id));
+  if (email.toLowerCase() !== user.email.toLowerCase()) await sendSecurityNotice(user, "email address");
 }
 
 export async function changePassword(user: UserRow, sessionId: string, current: string, next: string) {
@@ -246,6 +265,7 @@ export async function changePassword(user: UserRow, sessionId: string, current: 
     .where(eq(schema.users.id, user.id));
   // A password change signs out every other device.
   await revokeOtherSessions(user.id, sessionId);
+  await sendSecurityNotice(user, "password");
 }
 
 export async function setAvatar(user: UserRow, file: Buffer) {

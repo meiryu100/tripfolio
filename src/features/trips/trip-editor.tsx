@@ -338,7 +338,7 @@ function TripForm({ trip, presetCountry }: { trip?: Trip; presetCountry?: string
         )}
       </div>
 
-      <div className="pb-safe flex gap-3 border-t border-border bg-surface px-6 py-4">
+      <div className="flex gap-3 border-t border-border bg-surface px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <Button variant="secondary" size="lg" className="flex-1" onClick={cancel}>
           Cancel
         </Button>

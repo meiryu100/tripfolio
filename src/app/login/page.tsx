@@ -8,16 +8,12 @@ import { GoogleButton } from "@/components/google-button";
 import { Button, FormError, Input } from "@/components/ui";
 import { useLogin } from "@/features/auth/api";
 import { errorMessage } from "@/lib/api-client";
+import { safeNext } from "@/lib/safe-next";
 
 const OAUTH_ERRORS: Record<string, string> = {
   google_failed: "Google sign-in didn't complete. Please try again.",
   google_unavailable: "Google sign-in isn't set up on this server yet.",
 };
-
-/** Only allow redirects back into the app (never to another site). */
-function safeNext(next: string | null) {
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : null;
-}
 
 function LoginForm() {
   const router = useRouter();
@@ -31,7 +27,7 @@ function LoginForm() {
     e.preventDefault();
     login.mutate(
       { email, password },
-      { onSuccess: ({ me }) => router.replace(me.onboarded ? (safeNext(params.get("next")) ?? "/home") : "/onboarding") },
+      { onSuccess: ({ me }) => router.replace(me.onboarded ? (safeNext(params.get("next"), window.location.origin) ?? "/home") : "/onboarding") },
     );
   };
 

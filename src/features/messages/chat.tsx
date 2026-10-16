@@ -419,7 +419,7 @@ function PhotoViewer({
           </button>
         </div>
       </div>
-      <div className="flex min-h-0 flex-1 items-center justify-center p-4 pb-safe">
+      <div className="flex min-h-0 flex-1 items-center justify-center px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={m.photo!.src} alt="" className="max-h-full max-w-full rounded-2xl object-contain shadow-float" onClick={(e) => e.stopPropagation()} />
       </div>

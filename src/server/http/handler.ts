@@ -36,7 +36,13 @@ function checkOrigin(req: NextRequest) {
   const origin = req.headers.get("origin");
   if (!origin) throw new HttpError("FORBIDDEN", "Missing origin.");
   const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
-  if (new URL(origin).host !== host) throw new HttpError("FORBIDDEN", "Cross-site request blocked.");
+  let originHost: string;
+  try {
+    originHost = new URL(origin).host; // "null" or a malformed origin throws
+  } catch {
+    throw new HttpError("FORBIDDEN", "Cross-site request blocked.");
+  }
+  if (originHost !== host) throw new HttpError("FORBIDDEN", "Cross-site request blocked.");
 }
 
 export function errorResponse(err: unknown) {
