@@ -2,6 +2,7 @@ import { Camera, Flag, Globe2, Lock, Medal, Share2, Trophy, Users } from "lucide
 import type { Metadata } from "next";
 import Link from "next/link";
 import { buttonClass } from "@/components/button-class";
+import { CookieSettingsButton } from "@/components/cookie-consent";
 import { Logo } from "@/components/logo";
 import { DemoMap } from "@/features/landing/demo-map";
 
@@ -167,7 +168,9 @@ export default function CountriesVisitedMapPage() {
         </section>
       </main>
 
-      <footer className="pb-10 text-center text-sm text-muted">Tripfolio · Made for people who collect places.</footer>
+      <footer className="pb-10 text-center text-sm text-muted">
+        Tripfolio · Made for people who collect places. · <CookieSettingsButton className="hover:text-fg hover:underline" />
+      </footer>
     </div>
   );
 }

@@ -157,3 +157,10 @@ export const chatQuerySchema = z.object({
   /** Load messages older than this message (for "load earlier"). */
   before: z.string().uuid().optional(),
 });
+
+/** Cookie banner choice. `landing` and `referrer` are the first page the visitor saw, kept in memory by the browser. */
+export const consentSchema = z.object({
+  choice: z.enum(["all", "essential"]),
+  landing: z.string().max(2048).optional(),
+  referrer: z.string().max(2048).optional(),
+});

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ATTRIBUTION_COOKIE, ATTRIBUTION_MAX_AGE, attributionFrom, encodeAttribution } from "@/lib/attribution";
+import { CONSENT_COOKIE } from "@/lib/consent";
 
 /**
  * Route protection: visitors without a session cookie are sent to /login before
@@ -10,14 +11,15 @@ import { ATTRIBUTION_COOKIE, ATTRIBUTION_MAX_AGE, attributionFrom, encodeAttribu
  * previews get the public profile page instead, at the same URL.
  *
  * It also remembers where a signed-out visitor first came from (UTM tags or the
- * referring site), for sign-up attribution — see src/lib/attribution.ts.
+ * referring site), for sign-up attribution — see src/lib/attribution.ts. That cookie is optional, so it
+ * is only set once the visitor chose "Accept all" in the cookie banner (tf_consent=all, src/lib/consent.ts).
  */
 const PROTECTED = ["/home", "/map", "/explore", "/trips", "/wishlist", "/friends", "/notifications", "/messages", "/profile", "/settings", "/u", "/onboarding"];
 
 export function proxy(req: NextRequest) {
   const hasSession = req.cookies.has("tv_session");
   const res = route(req, hasSession);
-  if (!hasSession && !req.cookies.has(ATTRIBUTION_COOKIE)) {
+  if (!hasSession && req.cookies.get(CONSENT_COOKIE)?.value === "all" && !req.cookies.has(ATTRIBUTION_COOKIE)) {
     const a = attributionFrom(req.nextUrl, req.headers.get("referer"));
     if (a) res.cookies.set(ATTRIBUTION_COOKIE, encodeAttribution(a), { maxAge: ATTRIBUTION_MAX_AGE, httpOnly: true, sameSite: "lax", secure: req.nextUrl.protocol === "https:", path: "/" });
   }
