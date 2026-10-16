@@ -6,21 +6,23 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { CountrySearch } from "@/components/country-search";
 import { Logo } from "@/components/logo";
-import { Button, Spinner } from "@/components/ui";
+import { Button, FormError, Input, Spinner } from "@/components/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { meKey, useMeQuery } from "@/features/auth/api";
 import { clearDemoPicks, parseDemoPicks, readDemoPicksRaw } from "@/features/landing/demo-picks";
 import { setStatuses } from "@/features/map/api";
 import { WorldMap } from "@/features/map/world-map";
-import { completeOnboarding } from "@/features/settings/api";
-import { errorMessage } from "@/lib/api-client";
+import { completeOnboarding, useSaveAboutYou } from "@/features/settings/api";
+import { ApiError, errorMessage } from "@/lib/api-client";
 import { getCountry } from "@/lib/countries";
 import type { CountryStatus, Me } from "@/lib/types";
 import { toast } from "@/lib/ui";
 import { cn } from "@/lib/utils";
+import { aboutYouSchema } from "@/lib/validation";
 import mark from "../../../public/brand/tripfolio-mark.png";
 
-type Step = 0 | 1 | 2 | 3;
+type Step = 0 | 1 | 2 | 3 | 4;
+const STEPS = [0, 1, 2, 3, 4];
 
 const noSubscribe = () => () => {};
 
@@ -53,9 +55,9 @@ export default function OnboardingPage() {
   const next = async () => {
     setSaving(true);
     try {
-      if (step === 1 && visited.length) await setStatuses(visited, "visited");
-      if (step === 2 && wishlist.length) await setStatuses(wishlist, "wishlist");
-      setStep((s) => Math.min(3, s + 1) as Step);
+      if (step === 2 && visited.length) await setStatuses(visited, "visited");
+      if (step === 3 && wishlist.length) await setStatuses(wishlist, "wishlist");
+      setStep((s) => Math.min(4, s + 1) as Step);
     } catch (e) {
       toast(errorMessage(e), "error");
     } finally {
@@ -90,12 +92,12 @@ export default function OnboardingPage() {
     <div className="flex min-h-dvh flex-col">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
         <Logo href="#" />
-        <div className="flex items-center gap-1.5" aria-label={`Step ${step + 1} of 4`}>
-          {[0, 1, 2, 3].map((i) => (
+        <div className="flex items-center gap-1.5" aria-label={`Step ${step + 1} of ${STEPS.length}`}>
+          {STEPS.map((i) => (
             <span key={i} className={cn("h-1.5 rounded-full transition-all", i === step ? "w-6 bg-brand" : i < step ? "w-1.5 bg-brand/50" : "w-1.5 bg-border")} />
           ))}
         </div>
-        {step < 3 ? (
+        {step > 0 && step < 4 ? (
           <button onClick={finish} className="text-sm font-medium text-muted hover:text-fg">
             Skip all
           </button>
@@ -105,7 +107,9 @@ export default function OnboardingPage() {
       </header>
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 pb-8 sm:px-6">
-        {step === 0 && (
+        {step === 0 && <AboutYouStep me={me} onDone={() => setStep(1)} />}
+
+        {step === 1 && (
           <Centered>
             <Image src={mark} alt="" priority className="animate-float h-32 w-auto drop-shadow-xl" />
             <h1 className="mt-6 text-4xl font-bold tracking-tight">Welcome to Tripfolio, {me.firstName} 🌎</h1>
@@ -120,7 +124,7 @@ export default function OnboardingPage() {
           </Centered>
         )}
 
-        {step === 1 && (
+        {step === 2 && (
           <PickStep
             title="Tell us where you've been."
             subtitle="Tap every country you've visited."
@@ -130,11 +134,11 @@ export default function OnboardingPage() {
             locked={[]}
             onNext={next}
             saving={saving}
-            onSkip={() => setStep(2)}
+            onSkip={() => setStep(3)}
           />
         )}
 
-        {step === 2 && (
+        {step === 3 && (
           <PickStep
             title="Where do you want to go next?"
             subtitle="Pick the places on your wishlist."
@@ -144,11 +148,11 @@ export default function OnboardingPage() {
             locked={visited}
             onNext={next}
             saving={saving}
-            onSkip={() => setStep(3)}
+            onSkip={() => setStep(4)}
           />
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <Centered>
             <HeroBadge><PartyPopper className="size-10" /></HeroBadge>
             <h1 className="mt-6 text-4xl font-semibold tracking-tight">You&apos;re ready to explore.</h1>
@@ -164,6 +168,65 @@ export default function OnboardingPage() {
         )}
       </main>
     </div>
+  );
+}
+
+function AboutYouStep({ me, onDone }: { me: Me; onDone: () => void }) {
+  const save = useSaveAboutYou();
+  // "Traveler" is the placeholder sign-up gives people who haven't told us their name yet.
+  const [form, setForm] = useState({
+    firstName: me.firstName === "Traveler" && !me.lastName ? "" : me.firstName,
+    lastName: me.lastName,
+    username: me.username,
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const set = (k: "firstName" | "lastName") => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+    const parsed = aboutYouSchema.safeParse(form);
+    if (!parsed.success) {
+      setErrors(Object.fromEntries(parsed.error.issues.map((i) => [String(i.path[0]), i.message])));
+      return;
+    }
+    setErrors({});
+    save.mutate(parsed.data, {
+      onSuccess: onDone,
+      onError: (err) => {
+        if (err instanceof ApiError && err.field) setErrors({ [err.field]: err.message });
+        else setFormError(errorMessage(err));
+      },
+    });
+  };
+
+  return (
+    <Centered>
+      <form onSubmit={submit} className="grid w-full max-w-sm gap-4 text-left" noValidate>
+        <div className="text-center">
+          <h1 className="text-3xl font-semibold tracking-tight">First, about you</h1>
+          <p className="mt-2 text-muted">This is how friends will find you on Tripfolio.</p>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Input label="First name" autoComplete="given-name" value={form.firstName} onChange={set("firstName")} error={errors.firstName} />
+          <Input label="Last name" autoComplete="family-name" value={form.lastName} onChange={set("lastName")} error={errors.lastName} />
+        </div>
+        <Input
+          label="Username"
+          autoComplete="username"
+          autoCapitalize="none"
+          value={form.username}
+          onChange={(e) => setForm((f) => ({ ...f, username: e.target.value.toLowerCase().replace(/\s/g, "") }))}
+          error={errors.username}
+          hint="Lowercase letters, numbers, dots and underscores"
+        />
+        <FormError message={formError} />
+        <Button type="submit" size="lg" loading={save.isPending}>
+          Continue <ArrowRight className="size-5" />
+        </Button>
+      </form>
+    </Centered>
   );
 }
 

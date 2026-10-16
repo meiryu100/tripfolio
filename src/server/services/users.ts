@@ -1,4 +1,5 @@
 import "server-only";
+import { randomBytes } from "node:crypto";
 import { and, count, eq, inArray, isNotNull, ne, or, sql } from "drizzle-orm";
 import { generatePublicId, hashPassword, verifyPassword } from "../auth/password";
 import { revokeOtherSessions } from "../auth/session";
@@ -14,7 +15,7 @@ import type { Attribution } from "@/lib/attribution";
 import { SOVEREIGN_CODES } from "@/lib/countries";
 import type { Me, Profile } from "@/lib/types";
 import type { z } from "zod";
-import type { profileSchema, settingsSchema } from "@/lib/validation";
+import type { aboutYouSchema, profileSchema, settingsSchema } from "@/lib/validation";
 
 export async function findByUsername(username: string) {
   const row = await db.query.users.findFirst({
@@ -27,6 +28,25 @@ export async function requireUserByUsername(username: string) {
   const u = await findByUsername(username);
   if (!u) throw notFound("User not found.");
   return u;
+}
+
+/** A free username built from the email's local part, e.g. for sign-ups that haven't chosen one yet. */
+export async function generateUsername(email: string) {
+  const base = (email.split("@")[0] || "traveler")
+    .toLowerCase()
+    .replace(/[^a-z0-9._]/g, "")
+    .slice(0, 14)
+    .padEnd(3, "0");
+  let username = base;
+  for (let i = 0; i < 20; i++) {
+    const taken = await db.query.users.findFirst({
+      columns: { id: true },
+      where: sql`lower(${schema.users.username}) = ${username}`,
+    });
+    if (!taken) break;
+    username = `${base}${randomBytes(2).toString("hex")}`;
+  }
+  return username;
 }
 
 export async function assertAvailable(fields: { username?: string; email?: string }, selfId?: string) {
@@ -196,6 +216,12 @@ export async function updateSettings(userId: string, input: z.infer<typeof setti
       .set({ status: "ACCEPTED" })
       .where(and(eq(schema.follows.followingId, userId), eq(schema.follows.status, "PENDING")));
   }
+  return u;
+}
+
+export async function saveAboutYou(userId: string, input: z.infer<typeof aboutYouSchema>) {
+  await assertAvailable({ username: input.username }, userId);
+  const [u] = await db.update(schema.users).set(input).where(eq(schema.users.id, userId)).returning();
   return u;
 }
 

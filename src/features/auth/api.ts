@@ -45,7 +45,7 @@ export function useRegister() {
   const setMe = useSetMe();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: { firstName: string; lastName: string; gender: "male" | "female"; username: string; email: string; password: string; ref?: string }) =>
+    mutationFn: (input: { email: string; password: string; confirm: string; ref?: string }) =>
       api.post<{ me: Me }>("/api/auth/register", input),
     onSuccess: ({ me }) => {
       qc.clear();

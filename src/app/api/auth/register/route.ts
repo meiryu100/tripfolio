@@ -6,7 +6,7 @@ import { registerSchema } from "@/lib/validation";
 
 export const POST = route({ auth: false, limit: "auth" }, async ({ req, ip }) => {
   const input = await parseBody(req, registerSchema);
-  const user = await register(input); // gender is required by registerSchema
+  const user = await register(input);
   await createSession(user.id, { userAgent: req.headers.get("user-agent") ?? "", ip });
   return { me: await toMe(user) };
 });

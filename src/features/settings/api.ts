@@ -52,6 +52,8 @@ export const useRemoveAvatar = () => useMeMutation(() => api.delete<{ me: Me }>(
 export const changeEmail = (email: string, password: string) => api.patch("/api/me/email", { email, password });
 export const changePassword = (current: string, next: string) => api.patch("/api/me/password", { current, next });
 export const deleteAccount = (password: string, confirm: string) => api.delete("/api/me", { password, confirm });
+export const useSaveAboutYou = () =>
+  useMeMutation((input: { firstName: string; lastName: string; username: string }) => api.patch<{ me: Me }>("/api/me/onboarding", input));
 export const completeOnboarding = () => api.post("/api/me/onboarding");
 
 export function useSessions() {

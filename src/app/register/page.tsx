@@ -4,15 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useSyncExternalStore } from "react";
 import { AuthLayout } from "@/components/auth-layout";
-import { AvatarPicker } from "@/components/avatar-picker";
-import { GenderPicker } from "@/components/gender-picker";
 import { GoogleButton } from "@/components/google-button";
 import { Button, FormError, Input } from "@/components/ui";
 import { useRegister } from "@/features/auth/api";
-import { useUploadAvatar } from "@/features/settings/api";
 import { ApiError, errorMessage } from "@/lib/api-client";
-import type { Gender } from "@/lib/types";
-import { toast } from "@/lib/ui";
 import { registerSchema } from "@/lib/validation";
 
 const noSubscribe = () => () => {};
@@ -24,9 +19,7 @@ function readRef() {
 export default function RegisterPage() {
   const router = useRouter();
   const register = useRegister();
-  const uploadAvatar = useUploadAvatar();
-  const [form, setForm] = useState({ firstName: "", lastName: "", gender: null as Gender | null, username: "", email: "", password: "", confirm: "" });
-  const [avatar, setAvatar] = useState<{ file: File; url: string } | null>(null);
+  const [form, setForm] = useState({ email: "", password: "", confirm: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   // Invite links send people to /register?ref=<username>.
@@ -37,19 +30,14 @@ export default function RegisterPage() {
     e.preventDefault();
     setFormError(null);
     const parsed = registerSchema.safeParse(form);
-    const next: Record<string, string> = parsed.success
-      ? {}
-      : Object.fromEntries(parsed.error.issues.map((i) => [String(i.path[0]), i.message]));
-    if (form.password !== form.confirm) next.confirm = "Passwords don't match.";
-    setErrors(next);
-    if (!parsed.success || next.confirm) return;
+    if (!parsed.success) {
+      setErrors(Object.fromEntries(parsed.error.issues.map((i) => [String(i.path[0]), i.message])));
+      return;
+    }
+    setErrors({});
 
     register.mutate({ ...parsed.data, ref: ref ?? undefined }, {
-      onSuccess: async () => {
-        // The avatar is optional: upload it after the account exists, never block sign-up on it.
-        if (avatar) await uploadAvatar.mutateAsync(avatar.file).catch(() => toast("Couldn't upload your photo — add it later in Edit Profile.", "error"));
-        router.replace("/onboarding");
-      },
+      onSuccess: () => router.replace("/onboarding"),
       onError: (err) => {
         if (err instanceof ApiError && err.field) setErrors({ [err.field]: err.message });
         else setFormError(errorMessage(err));
@@ -61,41 +49,11 @@ export default function RegisterPage() {
     <AuthLayout title="Create your account" subtitle={ref ? `Join @${ref} and start mapping your world.` : "Start mapping your world."}>
       <GoogleButton label="Sign up with Google" />
       <form onSubmit={submit} className="grid gap-4" noValidate>
-        <AvatarPicker
-          url={avatar?.url ?? null}
-          name={form}
-          onPick={(file) => {
-            if (avatar) URL.revokeObjectURL(avatar.url);
-            setAvatar({ file, url: URL.createObjectURL(file) });
-          }}
-          onRemove={() => setAvatar(null)}
-        />
-        <div className="grid grid-cols-2 gap-3">
-          <Input label="First name" autoComplete="given-name" value={form.firstName} onChange={set("firstName")} error={errors.firstName} />
-          <Input label="Last name" autoComplete="family-name" value={form.lastName} onChange={set("lastName")} error={errors.lastName} />
-        </div>
-        <Input
-          label="Username"
-          autoComplete="username"
-          autoCapitalize="none"
-          value={form.username}
-          onChange={(e) => setForm((f) => ({ ...f, username: e.target.value.toLowerCase().replace(/\s/g, "") }))}
-          error={errors.username}
-          hint="Lowercase letters, numbers, dots and underscores"
-        />
         <Input label="Email" type="email" autoComplete="email" value={form.email} onChange={set("email")} error={errors.email} />
-        <GenderPicker
-          value={form.gender}
-          onChange={(gender) => {
-            setForm((f) => ({ ...f, gender }));
-            setErrors((e) => ({ ...e, gender: "" }));
-          }}
-          error={errors.gender}
-        />
         <Input label="Password" type="password" autoComplete="new-password" value={form.password} onChange={set("password")} error={errors.password} hint="At least 8 characters" />
         <Input label="Confirm password" type="password" autoComplete="new-password" value={form.confirm} onChange={set("confirm")} error={errors.confirm} />
         <FormError message={formError} />
-        <Button type="submit" size="lg" loading={register.isPending || uploadAvatar.isPending}>
+        <Button type="submit" size="lg" loading={register.isPending}>
           Create Account
         </Button>
       </form>

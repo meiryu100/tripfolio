@@ -9,7 +9,7 @@ import { env } from "../env";
 import { HttpError } from "../http/errors";
 import { mailHtml, sendMail } from "./mailer";
 import { follow } from "./social";
-import { createUser, findByUsername } from "./users";
+import { createUser, findByUsername, generateUsername } from "./users";
 import { ATTRIBUTION_COOKIE, decodeAttribution } from "@/lib/attribution";
 
 const RESET_TTL_MS = 60 * 60 * 1000;
@@ -34,10 +34,19 @@ export async function login(email: string, password: string) {
  * Sign up. With `ref` (an invite link's username), the new user is linked to whoever
  * invited them and follows them right away — a request if that profile is private.
  */
-export async function register(input: Omit<Parameters<typeof createUser>[0], "invitedBy" | "attribution"> & { ref?: string }) {
-  const { ref, ...fields } = input;
+export async function register(input: { email: string; password: string; ref?: string }) {
+  const { ref, email, password } = input;
   const inviter = ref ? await findByUsername(ref) : undefined;
-  const user = await createUser({ ...fields, invitedBy: inviter?.id, attribution: await takeAttribution() });
+  // Name and username are asked for in onboarding; until then use placeholders, like Google sign-up.
+  const user = await createUser({
+    firstName: "Traveler",
+    lastName: "",
+    username: await generateUsername(email),
+    email,
+    password,
+    invitedBy: inviter?.id,
+    attribution: await takeAttribution(),
+  });
   if (inviter) await follow(user.id, inviter.username).catch((err) => console.error("Invite follow failed:", err));
   return user;
 }
@@ -112,24 +121,10 @@ export async function upsertGoogleUser(profile: {
     return { user, created: false };
   }
 
-  const base = (profile.email.split("@")[0] || "traveler")
-    .toLowerCase()
-    .replace(/[^a-z0-9._]/g, "")
-    .slice(0, 14)
-    .padEnd(3, "0");
-  let username = base;
-  for (let i = 0; i < 20; i++) {
-    const taken = await db.query.users.findFirst({
-      columns: { id: true },
-      where: sql`lower(${schema.users.username}) = ${username}`,
-    });
-    if (!taken) break;
-    username = `${base}${randomBytes(2).toString("hex")}`;
-  }
   const user = await createUser({
     firstName: profile.givenName || "Traveler",
     lastName: profile.familyName || "",
-    username,
+    username: await generateUsername(profile.email),
     email: profile.email.toLowerCase(),
     googleId: profile.sub,
     attribution: await takeAttribution(),
