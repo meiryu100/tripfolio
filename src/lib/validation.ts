@@ -23,15 +23,21 @@ export const genderSchema = z.enum(GENDERS, { message: "Please choose male or fe
 
 const nameSchema = (label: string) => z.string().trim().min(1, `${label} is required.`).max(50);
 
-export const registerSchema = z.object({
+export const registerSchema = z
+  .object({
+    email: emailSchema,
+    password: passwordSchema,
+    confirm: z.string(),
+    /** Username of the person whose invite link this sign-up came from. */
+    ref: z.string().trim().toLowerCase().max(40).optional(),
+  })
+  .refine((v) => v.password === v.confirm, { message: "Passwords don't match.", path: ["confirm"] });
+
+/** The "About you" onboarding step: the details we no longer ask for at sign-up. */
+export const aboutYouSchema = z.object({
   firstName: nameSchema("First name"),
   lastName: nameSchema("Last name"),
-  gender: genderSchema,
   username: usernameSchema,
-  email: emailSchema,
-  password: passwordSchema,
-  /** Username of the person whose invite link this sign-up came from. */
-  ref: z.string().trim().toLowerCase().max(40).optional(),
 });
 
 export const loginSchema = z.object({
