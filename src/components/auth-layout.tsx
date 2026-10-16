@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { useMeQuery } from "@/features/auth/api";
+import { safeNext } from "@/lib/safe-next";
 import { Logo } from "./logo";
 
 /** Card layout for login/register. Signed-in visitors are sent into the app. */
@@ -13,7 +14,7 @@ export function AuthLayout({ title, subtitle, children }: { title: string; subti
     if (!me) return;
     // Honour ?next= (only same-site paths) so login returns to the page you came from.
     const next = new URLSearchParams(window.location.search).get("next");
-    const safe = next && next.startsWith("/") && !next.startsWith("//") ? next : "/home";
+    const safe = safeNext(next, window.location.origin) ?? "/home";
     router.replace(me.onboarded ? safe : "/onboarding");
   }, [me, router]);
 

@@ -84,12 +84,21 @@ export async function resetPassword(token: string, password: string) {
     ),
   });
   if (!row) throw new HttpError("VALIDATION", "This reset link is invalid or has expired.", "token");
+  const passwordHash = await hashPassword(password);
   await db.transaction(async (tx) => {
-    await tx.update(schema.passwordResets).set({ usedAt: new Date() }).where(eq(schema.passwordResets.tokenHash, row.tokenHash));
+    // Claim the link atomically, so the same link can't be used twice at once.
+    const [claimed] = await tx
+      .update(schema.passwordResets)
+      .set({ usedAt: new Date() })
+      .where(and(eq(schema.passwordResets.tokenHash, row.tokenHash), isNull(schema.passwordResets.usedAt)))
+      .returning({ userId: schema.passwordResets.userId });
+    if (!claimed) throw new HttpError("VALIDATION", "This reset link is invalid or has expired.", "token");
+    // Any other reset links sent to this user stop working too.
     await tx
-      .update(schema.users)
-      .set({ passwordHash: await hashPassword(password) })
-      .where(eq(schema.users.id, row.userId));
+      .update(schema.passwordResets)
+      .set({ usedAt: new Date() })
+      .where(and(eq(schema.passwordResets.userId, row.userId), isNull(schema.passwordResets.usedAt)));
+    await tx.update(schema.users).set({ passwordHash }).where(eq(schema.users.id, row.userId));
   });
   // Anyone holding an old session is signed out.
   await revokeAllSessions(row.userId);
