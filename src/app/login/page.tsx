@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { AuthLayout } from "@/components/auth-layout";
-import { GoogleButton } from "@/components/google-button";
+import { SocialButtons } from "@/components/social-buttons";
 import { Button, FormError, Input } from "@/components/ui";
 import { useLogin } from "@/features/auth/api";
 import { errorMessage } from "@/lib/api-client";
@@ -13,6 +13,9 @@ import { safeNext } from "@/lib/safe-next";
 const OAUTH_ERRORS: Record<string, string> = {
   google_failed: "Google sign-in didn't complete. Please try again.",
   google_unavailable: "Google sign-in isn't set up on this server yet.",
+  facebook_failed: "Facebook sign-in didn't complete. Please try again.",
+  facebook_unavailable: "Facebook sign-in isn't set up on this server yet.",
+  facebook_no_email: "Your Facebook account doesn't share an email address. Please sign up with your email instead.",
 };
 
 function LoginForm() {
@@ -33,7 +36,7 @@ function LoginForm() {
 
   return (
     <AuthLayout title="Welcome back" subtitle="Log in to your world.">
-      <GoogleButton />
+      <SocialButtons />
       <form onSubmit={submit} className="grid gap-4">
         <Input label="Email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         <div>
