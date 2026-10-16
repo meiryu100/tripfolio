@@ -57,6 +57,13 @@
       "when": 1791915246118,
       "tag": "0007_signup_attribution",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792147962736,
+      "tag": "0008_facebook_login",
+      "breakpoints": true
     }
   ]
 }
