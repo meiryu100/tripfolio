@@ -169,7 +169,15 @@ export default function CountriesVisitedMapPage() {
       </main>
 
       <footer className="pb-10 text-center text-sm text-muted">
-        Tripfolio · Made for people who collect places. · <CookieSettingsButton className="hover:text-fg hover:underline" />
+        Tripfolio · Made for people who collect places. ·{" "}
+        <Link href="/privacy" className="hover:text-fg hover:underline">
+          Privacy
+        </Link>{" "}
+        ·{" "}
+        <Link href="/terms" className="hover:text-fg hover:underline">
+          Terms
+        </Link>{" "}
+        · <CookieSettingsButton className="hover:text-fg hover:underline" />
       </footer>
     </div>
   );

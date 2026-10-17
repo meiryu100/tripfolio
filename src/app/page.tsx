@@ -154,6 +154,14 @@ export default function LandingPage() {
           Countries visited map
         </Link>{" "}
         ·{" "}
+        <Link href="/privacy" className="hover:text-fg hover:underline">
+          Privacy
+        </Link>{" "}
+        ·{" "}
+        <Link href="/terms" className="hover:text-fg hover:underline">
+          Terms
+        </Link>{" "}
+        ·{" "}
         <CookieSettingsButton className="hover:text-fg hover:underline" />
       </footer>
     </div>
