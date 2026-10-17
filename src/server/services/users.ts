@@ -13,6 +13,7 @@ import { mailHtml, sendMail } from "./mailer";
 import { toUserSummary } from "./mappers";
 import { messageCounts, messagePhotoObjects, messagingStatus } from "./messages";
 import { getVisibility } from "./privacy";
+import { sendVerification } from "./verification";
 import type { Attribution } from "@/lib/attribution";
 import { SOVEREIGN_CODES } from "@/lib/countries";
 import type { Me, Profile } from "@/lib/types";
@@ -83,6 +84,8 @@ export async function createUser(input: {
   password?: string;
   googleId?: string;
   facebookId?: string;
+  /** Google/Facebook already confirmed the email; email sign-ups confirm it by link. */
+  emailVerified?: boolean;
   invitedBy?: string;
   attribution?: Attribution;
 }) {
@@ -99,6 +102,7 @@ export async function createUser(input: {
       passwordHash: input.password ? await hashPassword(input.password) : null,
       googleId: input.googleId,
       facebookId: input.facebookId,
+      emailVerifiedAt: input.emailVerified ? new Date() : null,
       invitedBy: input.invitedBy,
       signupSource: input.attribution?.source,
       signupMedium: input.attribution?.medium,
@@ -133,6 +137,7 @@ export async function toMe(u: UserRow): Promise<Me> {
     hasPassword: Boolean(u.passwordHash),
     googleLinked: Boolean(u.googleId),
     facebookLinked: Boolean(u.facebookId),
+    emailVerified: Boolean(u.emailVerifiedAt),
     createdAt: u.createdAt.toISOString(),
     unreadNotifications: unread.n,
     pendingRequests: pending.n,
@@ -254,8 +259,14 @@ export async function changeEmail(user: UserRow, email: string, password: string
   if (user.passwordHash && !(await verifyPassword(password, user.passwordHash)))
     throw new HttpError("VALIDATION", "Password is incorrect.", "password");
   await assertAvailable({ email }, user.id);
-  await db.update(schema.users).set({ email }).where(eq(schema.users.id, user.id));
-  if (email.toLowerCase() !== user.email.toLowerCase()) await sendSecurityNotice(user, "email address");
+  if (email.toLowerCase() === user.email.toLowerCase()) {
+    await db.update(schema.users).set({ email }).where(eq(schema.users.id, user.id));
+    return;
+  }
+  // The new address isn't proven yet: confirm it by link, like at sign-up.
+  await db.update(schema.users).set({ email, emailVerifiedAt: null }).where(eq(schema.users.id, user.id));
+  await sendSecurityNotice(user, "email address");
+  await sendVerification(user, email);
 }
 
 export async function changePassword(user: UserRow, sessionId: string, current: string, next: string) {

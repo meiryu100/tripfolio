@@ -41,18 +41,27 @@ export function useLogin() {
   });
 }
 
+/** Sign-up only sends a confirmation link; the user is signed in by `useVerifyEmail`. */
 export function useRegister() {
+  return useMutation({
+    mutationFn: (input: { email: string; password: string; confirm: string; ref?: string }) =>
+      api.post("/api/auth/register", input),
+  });
+}
+
+export function useVerifyEmail() {
   const setMe = useSetMe();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: { email: string; password: string; confirm: string; ref?: string }) =>
-      api.post<{ me: Me }>("/api/auth/register", input),
+    mutationFn: (token: string) => api.post<{ me: Me }>("/api/auth/verify-email", { token }),
     onSuccess: ({ me }) => {
       qc.clear();
       setMe(me);
     },
   });
 }
+
+export const resendVerification = (email: string) => api.post("/api/auth/resend-verification", { email });
 
 export function useLogout() {
   const qc = useQueryClient();

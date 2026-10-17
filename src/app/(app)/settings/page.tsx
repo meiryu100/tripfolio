@@ -74,7 +74,7 @@ export default function SettingsPage() {
             </button>
           </Row>
           <RowLink href="/profile/edit" icon={<UserPen className="size-5" />} label="Edit Profile" />
-          <RowButton icon={<Mail className="size-5" />} label="Change Email" hint={me.email} onClick={() => setDialog("email")} />
+          <RowButton icon={<Mail className="size-5" />} label="Change Email" hint={me.emailVerified ? me.email : `${me.email} · not confirmed — check your inbox`} onClick={() => setDialog("email")} />
           <RowButton
             icon={<KeyRound className="size-5" />}
             label={me.hasPassword ? "Change Password" : "Set a Password"}
@@ -299,7 +299,7 @@ function ChangeEmailForm({ onDone }: { onDone: () => void }) {
     try {
       await changeEmail(email, password);
       await qc.invalidateQueries({ queryKey: meKey });
-      toast("Email updated ✓");
+      toast("Email updated — confirm it with the link we sent ✓");
       onDone();
     } catch (err) {
       setError(err instanceof ApiError ? { message: err.message, field: err.field } : { message: errorMessage(err) });

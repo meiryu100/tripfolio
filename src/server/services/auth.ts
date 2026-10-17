@@ -5,14 +5,23 @@ import { cookies } from "next/headers";
 import { getDummyHash, hashPassword, verifyPassword } from "../auth/password";
 import { revokeAllSessions, sha256 } from "../auth/session";
 import { db, schema } from "../db";
+import type { UserRow } from "../db/schema";
 import { env } from "../env";
 import { HttpError } from "../http/errors";
+import { ACCOUNT_LIMITS, rateLimit } from "../http/rate-limit";
 import { mailHtml, sendMail } from "./mailer";
 import { follow } from "./social";
 import { createUser, findByUsername, generateUsername } from "./users";
+import { sendVerification } from "./verification";
 import { ATTRIBUTION_COOKIE, decodeAttribution } from "@/lib/attribution";
 
 const RESET_TTL_MS = 60 * 60 * 1000;
+
+const findByEmail = (email: string) =>
+  db.query.users.findFirst({ where: sql`lower(${schema.users.email}) = ${email.toLowerCase()}` });
+
+/** Caps emails sent to one address (sign-up, verification, reset), whoever asks for them. */
+const limitEmailsTo = (email: string) => rateLimit(`email:${email.toLowerCase()}`, ACCOUNT_LIMITS.email);
 
 /** Where this new user first came from (set by src/proxy.ts); the cookie has done its job after sign-up. */
 async function takeAttribution() {
@@ -23,24 +32,51 @@ async function takeAttribution() {
 }
 
 export async function login(email: string, password: string) {
-  const user = await db.query.users.findFirst({ where: sql`lower(${schema.users.email}) = ${email.toLowerCase()}` });
+  // Per account as well as per IP, so guesses spread over many IPs still hit a wall.
+  await rateLimit(`login:${email.toLowerCase()}`, ACCOUNT_LIMITS.login);
+  const user = await findByEmail(email);
   // Always run a hash comparison so response time doesn't reveal whether the email exists.
   const ok = await verifyPassword(password, user?.passwordHash ?? (await getDummyHash()));
   if (!user || !ok) throw new HttpError("UNAUTHENTICATED", "Incorrect email or password.");
+  // Only after the right password, so this doesn't reveal which emails have accounts.
+  if (!user.emailVerifiedAt)
+    throw new HttpError("EMAIL_UNVERIFIED", "Please confirm your email first — we sent you a link.", "email");
   return user;
 }
 
-/**
- * Sign up. With `ref` (an invite link's username), the new user is linked to whoever
- * invited them and follows them right away — a request if that profile is private.
- */
 /** Invite links (/register?ref=<username>): the new user is credited to and follows the inviter. */
 async function followInviter(userId: string, inviter: { username: string } | null | undefined) {
   if (inviter) await follow(userId, inviter.username).catch((err) => console.error("Invite follow failed:", err));
 }
 
+/**
+ * Sign up. Nobody is signed in here: we email a link, and the account opens once it's clicked
+ * (`verifyEmail`). The caller answers the same way whether or not the email already has an
+ * account, so sign-up can't be used to check who uses Tripfolio — an existing owner gets an
+ * email instead. With `ref` (an invite link's username), the new user is linked to whoever
+ * invited them and follows them right away — a request if that profile is private.
+ */
 export async function register(input: { email: string; password: string; ref?: string }) {
   const { ref, email, password } = input;
+  await limitEmailsTo(email);
+  const existing = await findByEmail(email);
+
+  if (existing?.emailVerifiedAt) {
+    await hashPassword(password); // same work as a real sign-up, so timing doesn't tell either
+    await sendAlreadyRegistered(existing);
+    return;
+  }
+  if (existing) {
+    // An unconfirmed sign-up for this address: whoever confirms it now uses this password.
+    // Older links stop working, so only the newest email opens the account.
+    await db
+      .update(schema.users)
+      .set({ passwordHash: await hashPassword(password) })
+      .where(eq(schema.users.id, existing.id));
+    await sendVerification(existing, existing.email);
+    return;
+  }
+
   const inviter = ref ? await findByUsername(ref) : undefined;
   // Name and username are asked for in onboarding; until then use placeholders, like Google sign-up.
   const user = await createUser({
@@ -53,12 +89,61 @@ export async function register(input: { email: string; password: string; ref?: s
     attribution: await takeAttribution(),
   });
   await followInviter(user.id, inviter);
-  return user;
+  await sendVerification(user, user.email);
+}
+
+async function sendAlreadyRegistered(user: { email: string; firstName: string }) {
+  const url = `${env.appUrl}/login`;
+  await sendMail({
+    to: user.email,
+    subject: "You already have a Tripfolio account",
+    text: `Hi ${user.firstName},\n\nSomeone (hopefully you) tried to sign up to Tripfolio with this email, but you already have an account. Log in here:\n${url}\n\nForgot your password? Use "Forgot password?" on that page. If it wasn't you, you can ignore this email.`,
+    html: mailHtml({
+      greeting: `Hi ${user.firstName},`,
+      lines: [
+        "Someone (hopefully you) tried to sign up to Tripfolio with this email, but you already have an account.",
+        'Forgot your password? Use "Forgot password?" on the login page.',
+      ],
+      button: { label: "Log in", url },
+      footer: "If it wasn't you, you can ignore this email — nothing has changed.",
+    }),
+  });
+}
+
+/** "Send the link again". Always succeeds from the caller's point of view (no account enumeration). */
+export async function resendVerification(email: string) {
+  await limitEmailsTo(email);
+  const user = await findByEmail(email);
+  if (user && !user.emailVerifiedAt) await sendVerification(user, user.email);
+}
+
+/** The user clicked the link in their email: confirm the address and return them, to sign in. */
+export async function verifyEmail(token: string) {
+  const invalid = () => new HttpError("VALIDATION", "This link is invalid or has expired.", "token");
+  const t = schema.emailVerifications;
+  // Claim the link atomically, so the same link can't be used twice at once.
+  const [row] = await db
+    .update(t)
+    .set({ usedAt: new Date() })
+    .where(and(eq(t.tokenHash, sha256(token)), isNull(t.usedAt), gt(t.expiresAt, new Date())))
+    .returning();
+  if (!row) throw invalid();
+  const user = await db.query.users.findFirst({ where: eq(schema.users.id, row.userId) });
+  // The account's email changed after this link was sent: it doesn't prove the current one.
+  if (!user || user.email.toLowerCase() !== row.email) throw invalid();
+  if (user.emailVerifiedAt) return user;
+  const [verified] = await db
+    .update(schema.users)
+    .set({ emailVerifiedAt: new Date() })
+    .where(eq(schema.users.id, user.id))
+    .returning();
+  return verified;
 }
 
 /** Always succeeds from the caller's point of view (no account enumeration). */
 export async function requestPasswordReset(email: string) {
-  const user = await db.query.users.findFirst({ where: sql`lower(${schema.users.email}) = ${email.toLowerCase()}` });
+  await limitEmailsTo(email);
+  const user = await findByEmail(email);
   if (!user) return;
   const token = randomBytes(32).toString("base64url");
   await db.insert(schema.passwordResets).values({
@@ -103,11 +188,32 @@ export async function resetPassword(token: string, password: string) {
       .update(schema.passwordResets)
       .set({ usedAt: new Date() })
       .where(and(eq(schema.passwordResets.userId, row.userId), isNull(schema.passwordResets.usedAt)));
-    await tx.update(schema.users).set({ passwordHash }).where(eq(schema.users.id, row.userId));
+    // The reset link reached their inbox, so it also confirms the email.
+    await tx
+      .update(schema.users)
+      .set({ passwordHash, emailVerifiedAt: sql`coalesce(${schema.users.emailVerifiedAt}, now())` })
+      .where(eq(schema.users.id, row.userId));
   });
   // Anyone holding an old session is signed out.
   await revokeAllSessions(row.userId);
   return row.userId;
+}
+
+/**
+ * Google/Facebook proved this person owns the email of an existing account: link them to it.
+ * If that account never confirmed its email, whoever created it may not own the address, so its
+ * password and every session go, leaving only the provider's owner signed in (they can set a
+ * password again). A confirmed account is the same person, so it keeps its password.
+ */
+async function linkProvider(user: UserRow, ids: { googleId: string } | { facebookId: string }) {
+  const confirmed = Boolean(user.emailVerifiedAt);
+  const [linked] = await db
+    .update(schema.users)
+    .set({ ...ids, emailVerifiedAt: user.emailVerifiedAt ?? new Date(), ...(confirmed ? {} : { passwordHash: null }) })
+    .where(eq(schema.users.id, user.id))
+    .returning();
+  if (!confirmed) await revokeAllSessions(user.id);
+  return linked;
 }
 
 /** Find or create the user for a verified Google identity. */
@@ -119,21 +225,8 @@ export async function upsertGoogleUser(
   if (byGoogle) return { user: byGoogle, created: false };
 
   if (!profile.emailVerified) throw new HttpError("FORBIDDEN", "Your Google email isn't verified.");
-  const byEmail = await db.query.users.findFirst({
-    where: sql`lower(${schema.users.email}) = ${profile.email.toLowerCase()}`,
-  });
-  if (byEmail) {
-    // Link Google to the existing account with the same verified email. Sign-up doesn't verify
-    // emails, so whoever created this account may not own the address: drop the password and
-    // every session it has, so only the Google owner is left in (they can set a password again).
-    const [user] = await db
-      .update(schema.users)
-      .set({ googleId: profile.sub, passwordHash: null })
-      .where(eq(schema.users.id, byEmail.id))
-      .returning();
-    await revokeAllSessions(byEmail.id);
-    return { user, created: false };
-  }
+  const byEmail = await findByEmail(profile.email);
+  if (byEmail) return { user: await linkProvider(byEmail, { googleId: profile.sub }), created: false };
 
   const inviter = ref ? await findByUsername(ref) : undefined;
   const user = await createUser({
@@ -142,6 +235,7 @@ export async function upsertGoogleUser(
     username: await generateUsername(profile.email),
     email: profile.email.toLowerCase(),
     googleId: profile.sub,
+    emailVerified: true,
     invitedBy: inviter?.id,
     attribution: await takeAttribution(),
   });
@@ -159,20 +253,8 @@ export async function upsertFacebookUser(
 
   // Phone-only Facebook accounts have no email, and every account here needs one.
   if (!profile.email) throw new HttpError("VALIDATION", "Your Facebook account has no email address.", "email");
-  const byEmail = await db.query.users.findFirst({
-    where: sql`lower(${schema.users.email}) = ${profile.email.toLowerCase()}`,
-  });
-  if (byEmail) {
-    // Same as Google: whoever created this account may not own the address, so drop the
-    // password and every session it has, leaving only the Facebook owner signed in.
-    const [user] = await db
-      .update(schema.users)
-      .set({ facebookId: profile.id, passwordHash: null })
-      .where(eq(schema.users.id, byEmail.id))
-      .returning();
-    await revokeAllSessions(byEmail.id);
-    return { user, created: false };
-  }
+  const byEmail = await findByEmail(profile.email);
+  if (byEmail) return { user: await linkProvider(byEmail, { facebookId: profile.id }), created: false };
 
   const inviter = ref ? await findByUsername(ref) : undefined;
   const user = await createUser({
@@ -181,6 +263,7 @@ export async function upsertFacebookUser(
     username: await generateUsername(profile.email),
     email: profile.email.toLowerCase(),
     facebookId: profile.id,
+    emailVerified: true,
     invitedBy: inviter?.id,
     attribution: await takeAttribution(),
   });

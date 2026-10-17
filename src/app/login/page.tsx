@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { AuthLayout } from "@/components/auth-layout";
+import { ResendVerification } from "@/components/resend-verification";
 import { SocialButtons } from "@/components/social-buttons";
 import { Button, FormError, Input } from "@/components/ui";
 import { useLogin } from "@/features/auth/api";
-import { errorMessage } from "@/lib/api-client";
+import { ApiError, errorMessage } from "@/lib/api-client";
 import { safeNext } from "@/lib/safe-next";
 
 const OAUTH_ERRORS: Record<string, string> = {
@@ -25,6 +26,8 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const oauthError = OAUTH_ERRORS[params.get("error") ?? ""];
+  // Right password, but the email was never confirmed: offer a new link.
+  const unconfirmed = login.error instanceof ApiError && login.error.code === "EMAIL_UNVERIFIED";
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +52,7 @@ function LoginForm() {
         <Button type="submit" size="lg" loading={login.isPending}>
           Log In
         </Button>
+        {unconfirmed && <ResendVerification email={email} />}
       </form>
 
       {process.env.NODE_ENV !== "production" && (
