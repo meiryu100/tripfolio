@@ -5,12 +5,14 @@ import {
   ChevronRight,
   Cookie,
   Copy,
+  FileText,
   KeyRound,
   Laptop,
   LogOut,
   Mail,
   Monitor,
   Moon,
+  ScrollText,
   ShieldCheck,
   Smartphone,
   Sun,
@@ -166,6 +168,11 @@ export default function SettingsPage() {
             hint="Choose whether we remember which link brought you here."
             onClick={openCookieSettings}
           />
+        </Group>
+
+        <Group title="Legal">
+          <RowLink href="/privacy" icon={<FileText className="size-5" />} label="Privacy Policy" />
+          <RowLink href="/terms" icon={<ScrollText className="size-5" />} label="Terms of Service" />
         </Group>
 
         <Group title="Security">

@@ -1,6 +1,7 @@
 "use client";
 
 import { Cookie } from "lucide-react";
+import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
 import { buttonClass } from "@/components/button-class";
 import { api, errorMessage } from "@/lib/api-client";
@@ -93,6 +94,15 @@ export function CookieBanner() {
               </li>
             ))}
           </ul>
+        )}
+        {details && (
+          <p className="mt-3 text-sm text-muted">
+            More in our{" "}
+            <Link href="/privacy" className="font-semibold text-brand hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
         )}
 
         <div className="mt-3 grid grid-cols-2 gap-2">
