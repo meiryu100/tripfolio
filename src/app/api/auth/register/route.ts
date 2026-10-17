@@ -1,12 +1,8 @@
-import { createSession } from "@/server/auth/session";
 import { parseBody, route } from "@/server/http/handler";
 import { register } from "@/server/services/auth";
-import { toMe } from "@/server/services/users";
 import { registerSchema } from "@/lib/validation";
 
-export const POST = route({ auth: false, limit: "auth" }, async ({ req, ip }) => {
-  const input = await parseBody(req, registerSchema);
-  const user = await register(input);
-  await createSession(user.id, { userAgent: req.headers.get("user-agent") ?? "", ip });
-  return { me: await toMe(user) };
+/** Always 204: we email a link to confirm the address (or tell an existing owner), nobody is signed in yet. */
+export const POST = route({ auth: false, limit: "auth" }, async ({ req }) => {
+  await register(await parseBody(req, registerSchema));
 });

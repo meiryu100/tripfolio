@@ -64,6 +64,13 @@
       "when": 1792147962736,
       "tag": "0008_facebook_login",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792262978600,
+      "tag": "0009_email_verification",
+      "breakpoints": true
     }
   ]
 }

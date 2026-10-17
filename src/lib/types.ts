@@ -76,6 +76,7 @@ export interface Me extends UserSummary {
   hasPassword: boolean;
   googleLinked: boolean;
   facebookLinked: boolean;
+  emailVerified: boolean;
   createdAt: string;
   unreadNotifications: number;
   pendingRequests: number;

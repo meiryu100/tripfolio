@@ -267,7 +267,7 @@ export async function sendPhoto(viewerId: string, username: string, file: Buffer
 
 /** Every check before sending (blocks, private accounts, request cap, limits); creates the chat if needed. */
 async function conversationForSending(viewerId: string, username: string) {
-  rateLimit(`messages:${viewerId}`, MESSAGES_PER_MINUTE);
+  await rateLimit(`messages:${viewerId}`, MESSAGES_PER_MINUTE);
   const other = await requireUserByUsername(username);
   if (other.id === viewerId) throw badRequest("You can't message yourself.");
   const blocks = await blockState(viewerId, other.id);

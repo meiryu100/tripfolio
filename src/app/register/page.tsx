@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, useSyncExternalStore } from "react";
 import { AuthLayout } from "@/components/auth-layout";
+import { ResendVerification } from "@/components/resend-verification";
 import { SocialButtons } from "@/components/social-buttons";
 import { Button, FormError, Input } from "@/components/ui";
 import { useRegister } from "@/features/auth/api";
@@ -17,11 +17,12 @@ function readRef() {
 }
 
 export default function RegisterPage() {
-  const router = useRouter();
   const register = useRegister();
   const [form, setForm] = useState({ email: "", password: "", confirm: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
+  // Set once the confirmation link is sent: the form gives way to "check your email".
+  const [sentTo, setSentTo] = useState<string | null>(null);
   // Invite links send people to /register?ref=<username>.
   const ref = useSyncExternalStore(noSubscribe, readRef, () => null);
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -37,13 +38,27 @@ export default function RegisterPage() {
     setErrors({});
 
     register.mutate({ ...parsed.data, ref: ref ?? undefined }, {
-      onSuccess: () => router.replace("/onboarding"),
+      onSuccess: () => setSentTo(parsed.data.email),
       onError: (err) => {
         if (err instanceof ApiError && err.field) setErrors({ [err.field]: err.message });
         else setFormError(errorMessage(err));
       },
     });
   };
+
+  if (sentTo) {
+    return (
+      <AuthLayout title="Check your email" subtitle={`We sent a link to ${sentTo}. Click it to open your account.`}>
+        <div className="grid gap-3">
+          <p className="text-sm text-muted">No email after a minute? Check your spam folder, or send it again.</p>
+          <ResendVerification email={sentTo} />
+          <Button variant="ghost" size="lg" onClick={() => setSentTo(null)}>
+            Use a different email
+          </Button>
+        </div>
+      </AuthLayout>
+    );
+  }
 
   return (
     <AuthLayout title="Create your account" subtitle={ref ? `Join @${ref} and start mapping your world.` : "Start mapping your world."}>

@@ -80,7 +80,7 @@ export function route<P>(opts: Options, fn: (ctx: AuthedCtx<P>) => Promise<unkno
       const ip = clientIp(req);
       const limitName = opts.limit ?? (req.method === "GET" ? "read" : "write");
       const limit = typeof limitName === "string" ? LIMITS[limitName] : limitName;
-      rateLimit(`${typeof limitName === "string" ? limitName : "custom"}:${ip}`, limit);
+      await rateLimit(`${typeof limitName === "string" ? limitName : "custom"}:${ip}`, limit);
 
       const session = await getSession();
       if (opts.auth !== false && !session) throw unauthenticated();

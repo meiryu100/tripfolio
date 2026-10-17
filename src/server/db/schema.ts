@@ -44,6 +44,8 @@ export const users = pgTable(
     passwordHash: text("password_hash"), // null for Google- or Facebook-only accounts
     googleId: text("google_id").unique(),
     facebookId: text("facebook_id").unique(),
+    /** When the user proved they own `email` (link in the sign-up email, or Google/Facebook). Null = can't log in yet. */
+    emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
     avatarKey: text("avatar_key"),
     bio: text("bio").notNull().default(""),
     location: text("location").notNull().default(""),
@@ -104,6 +106,34 @@ export const passwordResets = pgTable("password_resets", {
   usedAt: timestamp("used_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+/** One-time links that prove the user owns `email` (sent at sign-up and after an email change). */
+export const emailVerifications = pgTable(
+  "email_verifications",
+  {
+    tokenHash: text("token_hash").primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    /** The address the link was sent to; it only verifies the account while that's still its email. */
+    email: text("email").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("email_verifications_user_idx").on(t.userId)],
+);
+
+/** Fixed-window request counters shared by every server instance (see src/server/http/rate-limit.ts). */
+export const rateLimits = pgTable(
+  "rate_limits",
+  {
+    key: text("key").primaryKey(),
+    count: integer("count").notNull(),
+    resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [index("rate_limits_reset_idx").on(t.resetAt)],
+);
 
 // ─── Countries ───────────────────────────────────────────────────────────────
 
