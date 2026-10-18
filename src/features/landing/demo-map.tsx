@@ -2,11 +2,12 @@
 
 import { RotateCcw } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { buttonClass } from "@/components/button-class";
 import { WorldMap } from "@/features/map/world-map";
 import { computeStats } from "@/features/stats/compute";
 import { getCountry } from "@/lib/countries";
+import { getRegion } from "@/lib/regions";
 import type { CountryStatus } from "@/lib/types";
 import { saveDemoPicks } from "./demo-picks";
 
@@ -17,31 +18,53 @@ const NEXT: Record<string, CountryStatus | undefined> = { none: "visited", visit
  * The picks are kept in this browser so onboarding can offer them after sign-up.
  */
 export function DemoMap() {
-  const [statuses, setStatuses] = useState<Record<string, CountryStatus>>({});
+  const [countries, setCountries] = useState<Record<string, CountryStatus>>({});
+  const [regions, setRegions] = useState<Record<string, CountryStatus>>({});
   const [last, setLast] = useState<string | null>(null);
+  // The USA follows its states, like the server does: any visited state → visited, else any wished state → want to go.
+  const statuses = useMemo(() => {
+    const all = { ...countries };
+    const states = Object.values(regions);
+    if (states.includes("visited")) all.US = "visited";
+    else if (states.length) all.US = "wishlist";
+    return all;
+  }, [countries, regions]);
   const stats = computeStats(statuses);
 
+  const cycle = (code: string) => (s: Record<string, CountryStatus>) => {
+    const next = NEXT[s[code] ?? "none"];
+    const copy = { ...s };
+    if (next) copy[code] = next;
+    else delete copy[code];
+    return copy;
+  };
   const toggle = (code: string) => {
-    setStatuses((s) => {
-      const next = NEXT[s[code] ?? "none"];
-      const copy = { ...s };
-      if (next) copy[code] = next;
-      else delete copy[code];
-      return copy;
-    });
+    setCountries(cycle(code));
+    setLast(code);
+  };
+  const toggleRegion = (code: string) => {
+    setRegions(cycle(code));
     setLast(code);
   };
 
-  const lastCountry = last ? getCountry(last) : null;
-  const lastStatus = last ? statuses[last] : undefined;
+  const lastRegion = last ? getRegion(last) : null;
+  const lastCountry = last && !lastRegion ? getCountry(last) : null;
+  const lastStatus = last ? (lastRegion ? regions[last] : countries[last]) : undefined;
+  const lastLabel = lastRegion ? `🇺🇸 ${lastRegion.name}` : lastCountry ? `${lastCountry.flag} ${lastCountry.name}` : null;
 
   return (
     <div className="rounded-3xl border border-border bg-surface/85 p-3 shadow-card backdrop-blur sm:p-4">
-      <WorldMap statuses={statuses} onSelect={toggle} className="aspect-[4/3] w-full sm:aspect-[16/9]" />
+      <WorldMap
+        statuses={statuses}
+        onSelect={toggle}
+        regionStatuses={regions}
+        onSelectRegion={toggleRegion}
+        className="aspect-[4/3] w-full sm:aspect-[16/9]"
+      />
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3 px-1">
         <p className="min-h-6 text-sm text-muted" aria-live="polite">
-          {lastCountry
-            ? `${lastCountry.flag} ${lastCountry.name}: ${lastStatus === "visited" ? "visited" : lastStatus === "wishlist" ? "want to go" : "cleared"}`
+          {lastLabel
+            ? `${lastLabel}: ${lastStatus === "visited" ? "visited" : lastStatus === "wishlist" ? "want to go" : "cleared"}`
             : "Tap a country: once for visited, twice for want to go, three times to clear."}
         </p>
         <dl className="flex gap-4 text-sm">
@@ -53,13 +76,13 @@ export function DemoMap() {
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2 border-t border-border pt-4">
         <Link
           href="/register"
-          onClick={() => saveDemoPicks(statuses)}
+          onClick={() => saveDemoPicks({ ...statuses, ...regions })}
           className={buttonClass("primary", "lg", "min-w-56 text-base")}
         >
           {stats.visited + stats.wishlist > 0 ? "Save my map — it's free" : "Make my map — it's free"}
         </Link>
         {Object.keys(statuses).length > 0 && (
-          <button onClick={() => (setStatuses({}), setLast(null))} className={buttonClass("ghost", "lg", "text-muted")}>
+          <button onClick={() => (setCountries({}), setRegions({}), setLast(null))} className={buttonClass("ghost", "lg", "text-muted")}>
             <RotateCcw className="size-4" aria-hidden /> Start over
           </button>
         )}
