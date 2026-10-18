@@ -2,6 +2,7 @@
 
 import { Cookie } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState, useSyncExternalStore } from "react";
 import { buttonClass } from "@/components/button-class";
 import { api, errorMessage } from "@/lib/api-client";
@@ -45,8 +46,10 @@ export function CookieBanner() {
   const shown = useSyncExternalStore(subscribe, getShown, () => false);
   const [details, setDetails] = useState(false);
   const [saving, setSaving] = useState(false);
+  // Onboarding's steps keep their buttons in a bottom bar; the banner waits until the user is through.
+  const onboarding = usePathname().startsWith("/onboarding");
 
-  if (!shown) return null;
+  if (!shown || onboarding) return null;
 
   const choose = async (choice: Consent) => {
     setSaving(true);
@@ -62,11 +65,13 @@ export function CookieBanner() {
   };
 
   return (
+    // z-45: above the page and the phone tab bar (z-40), below every dialog and sheet (z-50 and up),
+    // so it never covers their buttons.
     <section
       aria-label="Cookie consent"
-      className="animate-fade fixed inset-x-0 bottom-0 z-[90] p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:p-4 md:pb-4"
+      className="animate-fade fixed inset-x-0 bottom-0 z-[45] p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:p-4 md:pb-4"
     >
-      <div className="glass mx-auto max-w-3xl rounded-2xl border border-border p-4 shadow-float">
+      <div className="mx-auto max-w-3xl rounded-2xl border border-border bg-surface p-4 shadow-float">
         <div className="flex items-start gap-3">
           <Cookie className="mt-0.5 size-5 shrink-0 text-brand" aria-hidden />
           <p className="min-w-0 text-sm">

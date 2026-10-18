@@ -101,16 +101,17 @@ function ProfileHeader({ profile: p }: { profile: Profile }) {
           <span className="rounded-md bg-surface-2 px-1.5 py-0.5 text-xs">Follows you</span>
         )}
       </p>
-      {p.bio && <p className="mt-3 max-w-md text-[17px]">{p.bio}</p>}
-      <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-muted">
+      {p.bio && <p className="mt-3 max-w-md text-[17px] [overflow-wrap:anywhere]">{p.bio}</p>}
+      <div className="mt-2 flex max-w-full flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-muted">
         {p.location && (
-          <span className="flex items-center gap-1">
-            <MapPin className="size-3.5" aria-hidden /> {p.location}
+          <span className="flex min-w-0 max-w-full items-center gap-1">
+            <MapPin className="size-3.5 shrink-0" aria-hidden /> <span className="min-w-0 [overflow-wrap:anywhere]">{p.location}</span>
           </span>
         )}
         {p.website && (
-          <a href={p.website} target="_blank" rel="noopener noreferrer nofollow ugc" className="flex items-center gap-1 text-brand hover:underline">
-            <Link2 className="size-3.5" aria-hidden /> {p.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+          <a href={p.website} target="_blank" rel="noopener noreferrer nofollow ugc" className="flex min-w-0 max-w-full items-center gap-1 text-brand hover:underline">
+            <Link2 className="size-3.5 shrink-0" aria-hidden />{" "}
+            <span className="min-w-0 truncate">{p.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}</span>
           </a>
         )}
         <span className="flex items-center gap-1">

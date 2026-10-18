@@ -78,7 +78,7 @@ export default function TripDetailsPage() {
             </span>{" "}
             {c?.name}
           </Link>
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{trip.title || c?.name}</h1>
+          <h1 className="text-3xl font-bold tracking-tight break-words sm:text-4xl">{trip.title || c?.name}</h1>
           {dates && (
             <p className="mt-2 flex items-center gap-1.5 text-muted">
               <CalendarDays className="size-4" aria-hidden /> {dates}
@@ -86,7 +86,7 @@ export default function TripDetailsPage() {
           )}
           {trip.cities.length > 0 && (
             <p className="mt-1 flex items-center gap-1.5 text-muted">
-              <MapPin className="size-4" aria-hidden /> {trip.cities.join(" → ")}
+              <MapPin className="size-4 shrink-0" aria-hidden /> <span className="min-w-0 break-words">{trip.cities.join(" → ")}</span>
             </p>
           )}
         </div>
@@ -104,7 +104,7 @@ export default function TripDetailsPage() {
       )}
 
       {story && (
-        <blockquote className="context-card mt-6 rounded-r-2xl px-5 py-4 text-lg leading-relaxed whitespace-pre-line">
+        <blockquote className="context-card mt-6 rounded-r-2xl px-5 py-4 text-lg leading-relaxed break-words whitespace-pre-line">
           “{story}”
         </blockquote>
       )}
