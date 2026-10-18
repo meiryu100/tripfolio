@@ -36,7 +36,7 @@ function describe(n: AppNotification) {
       return `added a new trip${c ? ` to ${c.flag} ${c.name}` : ""}.`;
     }
     case "MESSAGE_REQUEST":
-      return "wants to send you a message.";
+      return "sent you a message request.";
   }
 }
 
