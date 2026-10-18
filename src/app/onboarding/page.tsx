@@ -13,7 +13,7 @@ import { clearDemoPicks, parseDemoPicks, readDemoPicksRaw } from "@/features/lan
 import { setStatuses } from "@/features/map/api";
 import { WorldMap } from "@/features/map/world-map";
 import { completeOnboarding, useSaveAboutYou } from "@/features/settings/api";
-import { ApiError, errorMessage } from "@/lib/api-client";
+import { api, ApiError, errorMessage } from "@/lib/api-client";
 import { getCountry } from "@/lib/countries";
 import type { CountryStatus, Me } from "@/lib/types";
 import { toast } from "@/lib/ui";
@@ -37,6 +37,13 @@ export default function OnboardingPage() {
   // Countries they colored on the landing page's demo map before signing up.
   const demo = parseDemoPicks(useSyncExternalStore(noSubscribe, readDemoPicksRaw, () => null));
   const demoCount = demo.visited.length + demo.wishlist.length;
+  const demoStateCount = demo.states.length;
+  const demoSummary = [
+    demoCount && `${demoCount} ${demoCount === 1 ? "country" : "countries"}`,
+    demoStateCount && `${demoStateCount} ${demoStateCount === 1 ? "state" : "states"}`,
+  ]
+    .filter(Boolean)
+    .join(" and ");
 
   useEffect(() => {
     if (isPending) return;
@@ -77,11 +84,20 @@ export default function OnboardingPage() {
     }
   };
 
-  const start = () => {
-    if (demoCount) {
+  const start = async () => {
+    if (demoCount || demo.states.length) {
       setVisited(demo.visited);
       setWishlist(demo.wishlist);
       clearDemoPicks();
+      // States aren't shown in the pick steps, so they're saved right away.
+      setSaving(true);
+      try {
+        for (const { code, status } of demo.states) {
+          await api.post("/api/me/regions", { regionCode: code, status: status === "visited" ? "VISITED" : "WANT_TO_VISIT" });
+        }
+      } catch (e) {
+        toast(errorMessage(e), "error");
+      }
     }
     next();
   };
@@ -114,8 +130,8 @@ export default function OnboardingPage() {
             <Image src={mark} alt="" priority className="animate-float h-32 w-auto drop-shadow-xl" />
             <h1 className="mt-6 text-4xl font-bold tracking-tight">Welcome to Tripfolio, {me.firstName} 🌎</h1>
             <p className="mt-3 max-w-md text-lg text-muted">
-              {demoCount
-                ? `We kept the ${demoCount} ${demoCount === 1 ? "country" : "countries"} you colored. Check them and add the rest — it takes about a minute.`
+              {demoCount || demoStateCount
+                ? `We kept the ${demoSummary} you colored. Check them and add the rest — it takes about a minute.`
                 : "Let's paint your map. It takes about a minute — and you can skip anything."}
             </p>
             <Button size="lg" className="mt-8 min-w-48" onClick={start}>
