@@ -433,7 +433,7 @@ function RequestBar({ user, busy, onAnswer }: { user: UserSummary; busy: boolean
   return (
     <div className="border-t border-border bg-surface/80 px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] text-center backdrop-blur">
       <p className="font-semibold">
-        {user.firstName} wants to send you a message
+        {user.firstName} sent you a message request
       </p>
       <p className="mx-auto mt-1 max-w-sm text-sm text-muted">
         If you accept, you can chat and they&apos;ll see when you&apos;ve read their messages. They won&apos;t know you&apos;ve seen this request until then.
