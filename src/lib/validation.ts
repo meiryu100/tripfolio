@@ -2,6 +2,10 @@ import { z } from "zod";
 
 /** Shared between the API (authoritative) and forms (instant feedback). */
 
+// Don't let zod probe for `new Function` (its faster compiled parsers): our Content-Security-Policy
+// doesn't allow eval, so the probe would be blocked and reported on every page that validates.
+z.config({ jitless: true });
+
 const trimmed = (max: number) => z.string().trim().max(max);
 
 export const usernameSchema = z

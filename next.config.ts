@@ -12,13 +12,10 @@ const storageOrigin = (() => {
   }
 })();
 
-// Enforced now: rules that can't break the site (no framing, no <base>/plugins, forms post only to us).
-const csp = ["frame-ancestors 'none'", "base-uri 'self'", "object-src 'none'", "form-action 'self'"].join("; ");
-
-// Full policy in Report-Only mode first: the browser console lists anything it would block,
-// so it can be checked on production before it's enforced. Next.js and the theme script in
-// layout.tsx use inline scripts, hence 'unsafe-inline' until we move to nonces.
-const cspReportOnly = [
+// Only our own scripts, styles, fonts and API, plus photos from the storage host. Checked in
+// Report-Only mode on production first. Next.js and the theme script in layout.tsx use inline
+// scripts, hence 'unsafe-inline' until we move to nonces; eval only in development (React refresh).
+const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
@@ -33,7 +30,6 @@ const cspReportOnly = [
 
 const securityHeaders = [
   { key: "Content-Security-Policy", value: csp },
-  { key: "Content-Security-Policy-Report-Only", value: cspReportOnly },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
