@@ -8,8 +8,25 @@ import { mailHtml, sendMail } from "./mailer";
 
 const VERIFY_TTL_MS = 24 * 60 * 60 * 1000;
 
-/** Email a one-time link that confirms `email` for this user; earlier links stop working. */
-export async function sendVerification(user: { id: string; firstName: string }, email: string) {
+const COPY = {
+  signup: {
+    subject: "Confirm your email for Tripfolio",
+    line: "Confirm your email to open your Tripfolio account",
+    footer: "If you didn't sign up, you can ignore this email — no account will be opened.",
+  },
+  change: {
+    subject: "Confirm your new email for Tripfolio",
+    line: "Confirm this address to make it the email you log in to Tripfolio with",
+    footer: "If you didn't ask for this, you can ignore this email — your account keeps its current email.",
+  },
+};
+
+/**
+ * Email a one-time link that confirms `email` for this user; earlier links stop working.
+ * `change`: the address is a new one from Settings → Change Email, not the sign-up address.
+ */
+export async function sendVerification(user: { id: string; firstName: string }, email: string, kind: keyof typeof COPY = "signup") {
+  const copy = COPY[kind];
   const token = randomBytes(32).toString("base64url");
   await db.transaction(async (tx) => {
     await tx
@@ -27,13 +44,13 @@ export async function sendVerification(user: { id: string; firstName: string }, 
   const name = user.firstName === "Traveler" ? "there" : user.firstName;
   await sendMail({
     to: email,
-    subject: "Confirm your email for Tripfolio",
-    text: `Hi ${name},\n\nConfirm your email to open your Tripfolio account (the link is valid for 24 hours):\n${url}\n\nIf you didn't sign up, you can ignore this email.`,
+    subject: copy.subject,
+    text: `Hi ${name},\n\n${copy.line} (the link is valid for 24 hours):\n${url}\n\n${copy.footer}`,
     html: mailHtml({
       greeting: `Hi ${name},`,
-      lines: ["Confirm your email to open your Tripfolio account. The link is valid for 24 hours."],
+      lines: [`${copy.line}. The link is valid for 24 hours.`],
       button: { label: "Confirm my email", url },
-      footer: "If you didn't sign up, you can ignore this email — no account will be opened.",
+      footer: copy.footer,
     }),
   });
 }

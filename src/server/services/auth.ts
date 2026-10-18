@@ -11,7 +11,7 @@ import { HttpError } from "../http/errors";
 import { ACCOUNT_LIMITS, rateLimit } from "../http/rate-limit";
 import { mailHtml, sendMail } from "./mailer";
 import { follow } from "./social";
-import { createUser, findByUsername, generateUsername } from "./users";
+import { createUser, findByUsername, generateUsername, sendSecurityNotice } from "./users";
 import { sendVerification } from "./verification";
 import { ATTRIBUTION_COOKIE, decodeAttribution } from "@/lib/attribution";
 
@@ -129,8 +129,24 @@ export async function verifyEmail(token: string) {
     .returning();
   if (!row) throw invalid();
   const user = await db.query.users.findFirst({ where: eq(schema.users.id, row.userId) });
-  // The account's email changed after this link was sent: it doesn't prove the current one.
-  if (!user || user.email.toLowerCase() !== row.email) throw invalid();
+  if (!user) throw invalid();
+
+  // Confirming a change of email (Settings → Change Email): the new address becomes the login.
+  if (user.pendingEmail?.toLowerCase() === row.email) {
+    const taken = await findByEmail(row.email);
+    if (taken && taken.id !== user.id)
+      throw new HttpError("CONFLICT", "Another account is using this email now. Change your email again in Settings.", "token");
+    const [changed] = await db
+      .update(schema.users)
+      .set({ email: user.pendingEmail, pendingEmail: null, emailVerifiedAt: new Date() })
+      .where(eq(schema.users.id, user.id))
+      .returning();
+    await sendSecurityNotice(user, "email address"); // to the old address
+    return changed;
+  }
+
+  // Confirming the sign-up address. A link to any other address (e.g. a change that was replaced since) proves nothing.
+  if (user.email.toLowerCase() !== row.email) throw invalid();
   if (user.emailVerifiedAt) return user;
   const [verified] = await db
     .update(schema.users)

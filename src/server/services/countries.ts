@@ -94,11 +94,15 @@ export async function removeStatus(userId: string, code: string) {
     where: and(eq(schema.trips.userId, userId), eq(schema.trips.countryCode, code)),
   });
   if (hasTrips) throw new HttpError("CONFLICT", "You have trips here — delete them first to unmark this country.");
+  // Like trips, marked states aren't thrown away silently: the user clears them on the states map.
+  const hasRegions = await db.query.userRegions.findFirst({
+    columns: { regionCode: true },
+    where: and(eq(schema.userRegions.userId, userId), eq(schema.userRegions.countryCode, code)),
+  });
+  if (hasRegions) throw new HttpError("CONFLICT", "You've marked states here — clear them on the USA map first.");
   await db
     .delete(schema.userCountries)
     .where(and(eq(schema.userCountries.userId, userId), eq(schema.userCountries.countryCode, code)));
-  // Its states/regions go with it.
-  await db.delete(schema.userRegions).where(and(eq(schema.userRegions.userId, userId), eq(schema.userRegions.countryCode, code)));
 }
 
 /** Onboarding: set many countries at once (never downgrades visited → wishlist). */
