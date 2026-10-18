@@ -77,6 +77,8 @@ export interface Me extends UserSummary {
   googleLinked: boolean;
   facebookLinked: boolean;
   emailVerified: boolean;
+  /** An address the user is changing to, waiting for its confirmation link. */
+  pendingEmail: string | null;
   createdAt: string;
   unreadNotifications: number;
   pendingRequests: number;

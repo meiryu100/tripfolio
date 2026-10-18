@@ -138,6 +138,7 @@ export async function toMe(u: UserRow): Promise<Me> {
     googleLinked: Boolean(u.googleId),
     facebookLinked: Boolean(u.facebookId),
     emailVerified: Boolean(u.emailVerifiedAt),
+    pendingEmail: u.pendingEmail,
     createdAt: u.createdAt.toISOString(),
     unreadNotifications: unread.n,
     pendingRequests: pending.n,
@@ -240,7 +241,7 @@ export async function completeOnboarding(userId: string) {
 }
 
 /** Tell the account's (old) address about a sign-in change, so a takeover doesn't go unnoticed. */
-async function sendSecurityNotice(user: UserRow, change: string) {
+export async function sendSecurityNotice(user: UserRow, change: string) {
   const url = `${env.appUrl}/forgot-password`;
   await sendMail({
     to: user.email,
@@ -255,18 +256,22 @@ async function sendSecurityNotice(user: UserRow, change: string) {
   });
 }
 
+/**
+ * The new address isn't proven yet, so it waits as `pendingEmail` and gets a confirmation link;
+ * the account keeps signing in with its current email until the link is clicked (`verifyEmail`
+ * swaps them). A typo can't lock anyone out — just change it again.
+ */
 export async function changeEmail(user: UserRow, email: string, password: string) {
   if (user.passwordHash && !(await verifyPassword(password, user.passwordHash)))
     throw new HttpError("VALIDATION", "Password is incorrect.", "password");
-  await assertAvailable({ email }, user.id);
   if (email.toLowerCase() === user.email.toLowerCase()) {
-    await db.update(schema.users).set({ email }).where(eq(schema.users.id, user.id));
+    // Back to the current address (or only its capitalization): drop any pending change.
+    await db.update(schema.users).set({ email, pendingEmail: null }).where(eq(schema.users.id, user.id));
     return;
   }
-  // The new address isn't proven yet: confirm it by link, like at sign-up.
-  await db.update(schema.users).set({ email, emailVerifiedAt: null }).where(eq(schema.users.id, user.id));
-  await sendSecurityNotice(user, "email address");
-  await sendVerification(user, email);
+  await assertAvailable({ email }, user.id);
+  await db.update(schema.users).set({ pendingEmail: email }).where(eq(schema.users.id, user.id));
+  await sendVerification(user, email, "change");
 }
 
 export async function changePassword(user: UserRow, sessionId: string, current: string, next: string) {

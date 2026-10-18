@@ -46,6 +46,8 @@ export const users = pgTable(
     facebookId: text("facebook_id").unique(),
     /** When the user proved they own `email` (link in the sign-up email, or Google/Facebook). Null = can't log in yet. */
     emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
+    /** A new address the user asked to change to; `email` (and login) stays as is until it's confirmed by link. */
+    pendingEmail: text("pending_email"),
     avatarKey: text("avatar_key"),
     bio: text("bio").notNull().default(""),
     location: text("location").notNull().default(""),
