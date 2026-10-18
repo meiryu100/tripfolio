@@ -45,12 +45,15 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Enter your password."),
 });
 
+/** The code in an emailed link. A cut-off link gets the same friendly message as a wrong one. */
+const linkTokenSchema = (message: string) => z.string().min(20, message).max(200, message);
+
 export const forgotPasswordSchema = z.object({ email: emailSchema });
 export const resendVerificationSchema = z.object({ email: emailSchema });
-export const verifyEmailSchema = z.object({ token: z.string().min(20).max(200) });
+export const verifyEmailSchema = z.object({ token: linkTokenSchema("This link is invalid or has expired.") });
 
 export const resetPasswordSchema = z.object({
-  token: z.string().min(20).max(200),
+  token: linkTokenSchema("This reset link is invalid or has expired."),
   password: passwordSchema,
 });
 
