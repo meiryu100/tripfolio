@@ -11,6 +11,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { meKey, useMeQuery } from "@/features/auth/api";
 import { clearDemoPicks, parseDemoPicks, readDemoPicksRaw } from "@/features/landing/demo-picks";
 import { setStatuses } from "@/features/map/api";
+import { setRegionStatuses } from "@/features/map/regions-api";
 import { WorldMap } from "@/features/map/world-map";
 import { completeOnboarding, useSaveAboutYou } from "@/features/settings/api";
 import { ApiError, errorMessage } from "@/lib/api-client";
@@ -34,9 +35,10 @@ export default function OnboardingPage() {
   const [visited, setVisited] = useState<string[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  // Countries they colored on the landing page's demo map before signing up.
+  // Countries and states they colored on the landing page's demo map before signing up.
   const demo = parseDemoPicks(useSyncExternalStore(noSubscribe, readDemoPicksRaw, () => null));
   const demoCount = demo.visited.length + demo.wishlist.length;
+  const demoStateCount = demo.visitedStates.length + demo.wishlistStates.length;
 
   useEffect(() => {
     if (isPending) return;
@@ -70,6 +72,7 @@ export default function OnboardingPage() {
       await completeOnboarding();
       qc.setQueryData<Me | null>(meKey, (m) => (m ? { ...m, onboarded: true } : m));
       qc.invalidateQueries({ queryKey: ["map"] });
+      qc.invalidateQueries({ queryKey: ["regions"] });
       router.replace("/home");
     } catch (e) {
       toast(errorMessage(e), "error");
@@ -77,11 +80,17 @@ export default function OnboardingPage() {
     }
   };
 
-  const start = () => {
-    if (demoCount) {
+  const start = async () => {
+    if (demoCount || demoStateCount) {
       setVisited(demo.visited);
       setWishlist(demo.wishlist);
       clearDemoPicks();
+      try {
+        await setRegionStatuses(demo.visitedStates, "visited");
+        await setRegionStatuses(demo.wishlistStates, "wishlist");
+      } catch (e) {
+        toast(errorMessage(e), "error");
+      }
     }
     next();
   };
@@ -114,8 +123,8 @@ export default function OnboardingPage() {
             <Image src={mark} alt="" priority className="animate-float h-32 w-auto drop-shadow-xl" />
             <h1 className="mt-6 text-4xl font-bold tracking-tight">Welcome to Tripfolio, {me.firstName} 🌎</h1>
             <p className="mt-3 max-w-md text-lg text-muted">
-              {demoCount
-                ? `We kept the ${demoCount} ${demoCount === 1 ? "country" : "countries"} you colored. Check them and add the rest — it takes about a minute.`
+              {demoCount || demoStateCount
+                ? `We kept the ${demoKept(demoCount, demoStateCount)} you colored. Check them and add the rest — it takes about a minute.`
                 : "Let's paint your map. It takes about a minute — and you can skip anything."}
             </p>
             <Button size="lg" className="mt-8 min-w-48" onClick={start}>
@@ -169,6 +178,13 @@ export default function OnboardingPage() {
       </main>
     </div>
   );
+}
+
+function demoKept(countries: number, states: number) {
+  const parts = [];
+  if (countries) parts.push(`${countries} ${countries === 1 ? "country" : "countries"}`);
+  if (states) parts.push(`${states} ${states === 1 ? "state" : "states"}`);
+  return parts.join(" and ");
 }
 
 function AboutYouStep({ me, onDone }: { me: Me; onDone: () => void }) {

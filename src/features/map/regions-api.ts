@@ -20,6 +20,14 @@ export function useUserRegions(username: string | undefined, country = "US") {
   });
 }
 
+/** Mark many states at once (onboarding, from the landing page's demo map). */
+export const setRegionStatuses = (codes: string[], status: CountryStatus) =>
+  Promise.all(
+    codes.map((regionCode) =>
+      api.post("/api/me/regions", { regionCode, status: status === "visited" ? "VISITED" : "WANT_TO_VISIT" }),
+    ),
+  );
+
 /** Set or clear a region's status, optimistically. Visiting a state also marks the USA visited. */
 export function useSetRegionStatus(myUsername: string, country = "US") {
   const qc = useQueryClient();

@@ -1,7 +1,7 @@
 import type { CountryStatus } from "@/lib/types";
 
 /**
- * Countries a visitor colored on the landing page's demo map, kept in this browser (sessionStorage)
+ * Countries and US states a visitor colored on the landing page's demo map, kept in this browser (sessionStorage)
  * so onboarding can offer to start from them. Browser storage can be unavailable; then it's a no-op.
  */
 const KEY = "tf_demo_map";
@@ -23,14 +23,28 @@ export function readDemoPicksRaw(): string | null {
   }
 }
 
-export function parseDemoPicks(raw: string | null): { visited: string[]; wishlist: string[] } {
-  if (!raw) return { visited: [], wishlist: [] };
+export interface DemoPicks {
+  visited: string[];
+  wishlist: string[];
+  /** US state codes like "US-CA". */
+  visitedStates: string[];
+  wishlistStates: string[];
+}
+
+export function parseDemoPicks(raw: string | null): DemoPicks {
+  const empty = { visited: [], wishlist: [], visitedStates: [], wishlistStates: [] };
+  if (!raw) return empty;
   try {
     const v = JSON.parse(raw) as Record<string, unknown>;
-    const pick = (s: CountryStatus) => Object.keys(v).filter((k) => /^[A-Z]{2}$/.test(k) && v[k] === s);
-    return { visited: pick("visited"), wishlist: pick("wishlist") };
+    const pick = (re: RegExp, s: CountryStatus) => Object.keys(v).filter((k) => re.test(k) && v[k] === s);
+    return {
+      visited: pick(/^[A-Z]{2}$/, "visited"),
+      wishlist: pick(/^[A-Z]{2}$/, "wishlist"),
+      visitedStates: pick(/^US-[A-Z]{2}$/, "visited"),
+      wishlistStates: pick(/^US-[A-Z]{2}$/, "wishlist"),
+    };
   } catch {
-    return { visited: [], wishlist: [] };
+    return empty;
   }
 }
 
