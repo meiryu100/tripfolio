@@ -5,6 +5,7 @@ import { buttonClass } from "@/components/button-class";
 import { CookieSettingsButton } from "@/components/cookie-consent";
 import { Logo } from "@/components/logo";
 import { DemoMap } from "@/features/landing/demo-map";
+import { PromoVideo } from "@/features/landing/promo-video";
 
 /**
  * SEO landing page for "countries visited map" / "how many countries have I been to".
@@ -113,6 +114,18 @@ export default function CountriesVisitedMapPage() {
               you&apos;ve been and where you&apos;re going next. Add a trip to a country and it stays marked as visited.
             </p>
           </div>
+        </section>
+
+        <section className="mx-auto max-w-5xl px-4 pb-16 sm:px-6" aria-labelledby="in-action">
+          <h2 id="in-action" className="text-center text-3xl font-bold tracking-tight">
+            See it in action
+          </h2>
+          <div className="mt-8">
+            <PromoVideo />
+          </div>
+          <p className="mt-3 text-center text-xs text-muted">
+            Trip photos: Basile Morin (CC BY-SA 4.0), Stjepko Krehula (CC BY 4.0), Martin Falbisoner (CC BY-SA 4.0), via Wikimedia Commons.
+          </p>
         </section>
 
         <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6" aria-labelledby="features">
