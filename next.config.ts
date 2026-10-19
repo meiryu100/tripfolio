@@ -43,6 +43,10 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/users/[username]/share-image": ["./public/brand/tripfolio-mark.png"],
     "/countries-visited-map/opengraph-image": ["./public/brand/tripfolio-mark.png"],
+    // The blog posts are Markdown files read at runtime.
+    "/blog": ["./content/blog/**/*"],
+    "/blog/[slug]": ["./content/blog/**/*"],
+    "/sitemap.xml": ["./content/blog/**/*"],
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
