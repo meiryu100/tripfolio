@@ -3,6 +3,8 @@
 import { Copy, Download, MessageCircle, Share2, UserPlus } from "lucide-react";
 import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { Button, Sheet, SheetClose, buttonClass } from "@/components/ui";
+import { sharedMapPath } from "@/lib/map-share";
+import type { CountryStatus } from "@/lib/types";
 import { toast } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
@@ -111,6 +113,54 @@ export function ShareProfileButton({ username, className }: { username: string; 
               Copy link
             </ActionButton>
             <ActionButton href={image} download={`tripfolio-${username}.png`} icon={<Download className="size-4.5" />}>
+              Download image
+            </ActionButton>
+          </div>
+        </div>
+      </Sheet>
+    </>
+  );
+}
+
+/** "Share my map" for a visitor without an account: the card and link are built from the picks in the URL (see src/lib/map-share.ts). */
+export function ShareDemoMapButton({ statuses, regionStatuses, className }: { statuses: Record<string, CountryStatus>; regionStatuses: Record<string, CountryStatus>; className?: string }) {
+  const [open, setOpen] = useState(false);
+  const origin = useSyncExternalStore(noSubscribe, () => window.location.origin, () => "");
+  const canNativeShare = useSyncExternalStore(noSubscribe, () => "share" in navigator, () => false);
+  const path = sharedMapPath(statuses, regionStatuses);
+  const url = `${origin}${path}`;
+  const image = `/api/map-card${path.slice("/m".length)}`;
+  const text = "My travel map on Tripfolio 🌍";
+
+  return (
+    <>
+      <Button variant="secondary" size="lg" className={className} onClick={() => setOpen(true)}>
+        <Share2 className="size-4" /> Share my map
+      </Button>
+      <Sheet open={open} onClose={() => setOpen(false)} label="Share your map">
+        <div className="flex items-start justify-between gap-4 px-6 pt-5 pb-3">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Share your map</h2>
+            <p className="text-sm text-muted">Friends who open the link see your map and can make their own.</p>
+          </div>
+          <SheetClose onClick={() => setOpen(false)} className="-mt-1 -mr-2" />
+        </div>
+        <div className="grid gap-4 px-6 pb-6">
+          {/* eslint-disable-next-line @next/next/no-img-element -- generated on the fly, not a static asset */}
+          <img src={image} alt="Your share card: your travel stats and world map" width={1200} height={630} className="aspect-[1200/630] w-full rounded-xl border border-border bg-surface-2" />
+          <div className="grid gap-2 sm:grid-cols-2">
+            {canNativeShare && (
+              <ActionButton onClick={() => nativeShare({ text, url, image, filename: "tripfolio-map.png" })} icon={<Share2 className="size-4.5" />}>
+                Share…
+              </ActionButton>
+            )}
+            <ActionButton href={whatsappHref(text, url)} icon={<MessageCircle className="size-4.5" />}>
+              WhatsApp
+            </ActionButton>
+            <ActionButton onClick={() => copyLink(url)} icon={<Copy className="size-4.5" />}>
+              Copy link
+            </ActionButton>
+            <ActionButton href={image} download="tripfolio-map.png" icon={<Download className="size-4.5" />}>
               Download image
             </ActionButton>
           </div>

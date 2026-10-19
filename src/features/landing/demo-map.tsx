@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { buttonClass } from "@/components/button-class";
 import { WorldMap } from "@/features/map/world-map";
+import { ShareDemoMapButton } from "@/features/share/share";
 import { computeStats } from "@/features/stats/compute";
 import { getCountry } from "@/lib/countries";
 import { getRegion } from "@/lib/regions";
@@ -81,6 +82,7 @@ export function DemoMap() {
         >
           {stats.visited + stats.wishlist > 0 ? "Save my map — it's free" : "Make my map — it's free"}
         </Link>
+        {Object.keys(statuses).length > 0 && <ShareDemoMapButton statuses={statuses} regionStatuses={regions} />}
         {Object.keys(statuses).length > 0 && (
           <button onClick={() => (setCountries({}), setRegions({}), setLast(null))} className={buttonClass("ghost", "lg", "text-muted")}>
             <RotateCcw className="size-4" aria-hidden /> Start over
