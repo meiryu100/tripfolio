@@ -3,7 +3,7 @@
 import { Cookie } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { buttonClass } from "@/components/button-class";
 import { api, errorMessage } from "@/lib/api-client";
 import { CONSENT_COOKIE, COOKIE_DETAILS, isConsent, type Consent } from "@/lib/consent";
@@ -49,7 +49,26 @@ export function CookieBanner() {
   // Onboarding's steps keep their buttons in a bottom bar; the banner waits until the user is through.
   const onboarding = usePathname().startsWith("/onboarding");
 
-  if (!shown || onboarding) return null;
+  const bannerRef = useRef<HTMLElement>(null);
+  const visible = shown && !onboarding;
+
+  // The banner is fixed, so tell the page how tall it is (see `body` in globals.css) and the content
+  // underneath can still be scrolled into view.
+  useEffect(() => {
+    const el = bannerRef.current;
+    if (!visible || !el) return;
+    const root = document.body.style;
+    const update = () => root.setProperty("--cookie-banner-height", `${el.offsetHeight}px`);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      root.removeProperty("--cookie-banner-height");
+    };
+  }, [visible]);
+
+  if (!visible) return null;
 
   const choose = async (choice: Consent) => {
     setSaving(true);
@@ -68,6 +87,7 @@ export function CookieBanner() {
     // z-45: above the page and the phone tab bar (z-40), below every dialog and sheet (z-50 and up),
     // so it never covers their buttons.
     <section
+      ref={bannerRef}
       aria-label="Cookie consent"
       className="animate-fade fixed inset-x-0 bottom-0 z-[45] p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:p-4 md:pb-4"
     >

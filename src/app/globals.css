@@ -152,6 +152,8 @@ body {
   font-size: 16px;
   line-height: 1.55;
   -webkit-tap-highlight-color: transparent;
+  /* Room for the fixed cookie banner (its height is set by CookieBanner) so the page's last rows stay reachable. */
+  padding-bottom: var(--cookie-banner-height, 0px);
 }
 
 h1, h2, h3 {
