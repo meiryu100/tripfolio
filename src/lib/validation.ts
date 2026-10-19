@@ -14,6 +14,25 @@ export const usernameSchema = z
   .toLowerCase()
   .regex(/^[a-z0-9._]{3,20}$/, "3–20 characters: lowercase letters, numbers, dots or underscores.");
 
+/**
+ * Names nobody can pick: site routes and words that would look official (`admin`, `support`, `tripfolio`).
+ * Checked on the server when a username is set (users.ts → assertAvailable), so an account that
+ * already has one of them keeps it.
+ */
+const RESERVED_USERNAMES = new Set([
+  "about", "account", "admin", "administrator", "api", "app", "auth", "blog", "contact", "email", "explore",
+  "friends", "help", "home", "login", "logout", "mail", "map", "messages", "mod", "moderator", "notifications",
+  "null", "official", "onboarding", "privacy", "profile", "register", "root", "security", "settings", "share",
+  "signin", "signup", "staff", "support", "system", "team", "terms", "trip", "tripfolio", "trips", "undefined",
+  "wishlist", "www",
+]);
+
+/** A reserved name, or one with two dots in a row (`a..b`). */
+export function isReservedUsername(username: string) {
+  const name = username.toLowerCase();
+  return RESERVED_USERNAMES.has(name) || name.includes("..");
+}
+
 export const emailSchema = z.string().trim().toLowerCase().email("Enter a valid email address.").max(254);
 
 export const passwordSchema = z
