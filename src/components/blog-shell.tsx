@@ -30,6 +30,14 @@ export function BlogShell({ children }: { children: ReactNode }) {
           Blog
         </Link>{" "}
         ·{" "}
+        <Link href="/countries-visited-map" className="hover:text-fg hover:underline">
+          Countries visited map
+        </Link>{" "}
+        ·{" "}
+        <Link href="/countries" className="hover:text-fg hover:underline">
+          Countries
+        </Link>{" "}
+        ·{" "}
         <Link href="/privacy" className="hover:text-fg hover:underline">
           Privacy
         </Link>{" "}

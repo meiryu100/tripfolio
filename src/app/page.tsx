@@ -154,6 +154,14 @@ export default function LandingPage() {
           Countries visited map
         </Link>{" "}
         ·{" "}
+        <Link href="/countries" className="hover:text-fg hover:underline">
+          Countries
+        </Link>{" "}
+        ·{" "}
+        <Link href="/blog" className="hover:text-fg hover:underline">
+          Blog
+        </Link>{" "}
+        ·{" "}
         <Link href="/privacy" className="hover:text-fg hover:underline">
           Privacy
         </Link>{" "}
