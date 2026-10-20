@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Outfit, Work_Sans } from "next/font/google";
+import { SiteAnalytics } from "@/components/analytics";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <span />
         </div>
         <Providers>{children}</Providers>
+        <SiteAnalytics />
       </body>
     </html>
   );

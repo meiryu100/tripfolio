@@ -84,7 +84,11 @@ const SECTIONS: LegalSection[] = [
             changed email or password), and, only if you turn them on in Settings, notification emails.
           </li>
         </ul>
-        <p>We do not use advertising or tracking tools, and we don&apos;t run analytics cookies.</p>
+        <p>
+          We count page visits with Vercel Web Analytics, which uses no cookies and stores nothing in your browser: it records the page
+          (without its query, except campaign tags), the referring site, and your country and device type, and it doesn&apos;t identify
+          you. We do not use advertising or tracking tools, and we don&apos;t run analytics cookies.
+        </p>
       </>
     ),
   },
