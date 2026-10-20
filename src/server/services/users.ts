@@ -18,7 +18,7 @@ import type { Attribution } from "@/lib/attribution";
 import { SOVEREIGN_CODES } from "@/lib/countries";
 import type { Me, Profile } from "@/lib/types";
 import type { z } from "zod";
-import type { aboutYouSchema, profileSchema, settingsSchema } from "@/lib/validation";
+import { isReservedUsername, type aboutYouSchema, type profileSchema, type settingsSchema } from "@/lib/validation";
 
 export async function findByUsername(username: string) {
   const row = await db.query.users.findFirst({
@@ -38,9 +38,10 @@ export async function generateUsername(email: string) {
   const base = (email.split("@")[0] || "traveler")
     .toLowerCase()
     .replace(/[^a-z0-9._]/g, "")
+    .replace(/\.{2,}/g, ".")
     .slice(0, 14)
     .padEnd(3, "0");
-  let username = base;
+  let username = isReservedUsername(base) ? `${base}${randomBytes(2).toString("hex")}` : base;
   for (let i = 0; i < 20; i++) {
     const taken = await db.query.users.findFirst({
       columns: { id: true },
@@ -54,6 +55,12 @@ export async function generateUsername(email: string) {
 
 export async function assertAvailable(fields: { username?: string; email?: string }, selfId?: string) {
   if (fields.username) {
+    if (isReservedUsername(fields.username)) {
+      // Someone who already has the name keeps it (e.g. saving their profile unchanged).
+      const own = selfId && (await db.query.users.findFirst({ columns: { username: true }, where: eq(schema.users.id, selfId) }));
+      if (!own || own.username.toLowerCase() !== fields.username.toLowerCase())
+        throw conflict("That username isn't available. Try another one.", "username");
+    }
     const taken = await db.query.users.findFirst({
       columns: { id: true },
       where: and(
