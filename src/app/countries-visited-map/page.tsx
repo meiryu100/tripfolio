@@ -183,6 +183,14 @@ export default function CountriesVisitedMapPage() {
 
       <footer className="pb-10 text-center text-sm text-muted">
         Tripfolio · Made for people who collect places. ·{" "}
+        <Link href="/countries" className="hover:text-fg hover:underline">
+          Countries
+        </Link>{" "}
+        ·{" "}
+        <Link href="/blog" className="hover:text-fg hover:underline">
+          Blog
+        </Link>{" "}
+        ·{" "}
         <Link href="/privacy" className="hover:text-fg hover:underline">
           Privacy
         </Link>{" "}

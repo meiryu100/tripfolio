@@ -8,6 +8,8 @@ export interface BlogPost {
   description: string;
   /** ISO date, YYYY-MM-DD. */
   date: string;
+  /** Last real update (optional `updated:` in the header), YYYY-MM-DD; defaults to `date`. */
+  updated: string;
   /** Markdown body, without the header. */
   body: string;
 }
@@ -25,7 +27,7 @@ function parsePost(slug: string, raw: string): BlogPost | null {
     if (i > 0) meta[line.slice(0, i).trim()] = line.slice(i + 1).trim();
   }
   if (!meta.title || !meta.description || !meta.date) return null;
-  return { slug, title: meta.title, description: meta.description, date: meta.date, body: match[2].trim() };
+  return { slug, title: meta.title, description: meta.description, date: meta.date, updated: meta.updated || meta.date, body: match[2].trim() };
 }
 
 /** "2026-10-19" → "October 19, 2026". */

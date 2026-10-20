@@ -9,7 +9,7 @@ const DESCRIPTION = "Guides for travelers: how to count the countries and US sta
 export const metadata: Metadata = {
   title: `${TITLE} | Tripfolio`,
   description: DESCRIPTION,
-  alternates: { canonical: "/blog" },
+  alternates: { canonical: "/blog", types: { "application/rss+xml": "/blog/rss.xml" } },
   openGraph: { type: "website", url: "/blog", title: TITLE, description: DESCRIPTION },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };

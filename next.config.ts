@@ -50,6 +50,9 @@ const nextConfig: NextConfig = {
     "/blog": ["./content/blog/**/*"],
     "/blog/[slug]": ["./content/blog/**/*"],
     "/sitemap.xml": ["./content/blog/**/*"],
+    "/blog/rss.xml": ["./content/blog/**/*"],
+    "/llms.txt": ["./content/blog/**/*"],
+    "/blog/[slug]/opengraph-image": ["./content/blog/**/*", "./public/brand/tripfolio-mark.png"],
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
