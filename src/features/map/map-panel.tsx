@@ -3,34 +3,33 @@
 import { Globe2 } from "lucide-react";
 import { useMemo } from "react";
 import { ErrorState } from "@/components/ui";
-import { REGION_COUNTRIES, US_STATES } from "@/lib/regions";
+import { countVisitedRegions, REGION_COUNTRIES, REGION_COUNTRY_CODES, type RegionCountry, regionsOf } from "@/lib/regions";
 import { openCountry, openRegion, setMapView, useUI } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 import { useUserMap } from "./api";
 import { useUserRegions } from "./regions-api";
-import { MapSkeleton, UsMap, WorldMap } from "./world-map";
+import { MapSkeleton, RegionMap, WorldMap } from "./world-map";
 
-/** World ↔ USA switch. Can sit on the map (default) or anywhere else on the page. */
+/** World ↔ USA / Canada / Australia switch. Can sit on the map (default) or anywhere else on the page. */
 export function MapViewTabs({ username, className }: { username: string; className?: string }) {
   const view = useUI((s) => s.mapView);
   const regions = useUserRegions(username);
-  const visitedStates = useMemo(
-    () => Object.entries(regions.data?.statuses ?? {}).filter(([code, s]) => s === "visited" && code !== "US-DC").length,
+  const tabs = useMemo(
+    () => [
+      { id: "world" as const, label: "World", icon: <Globe2 className="size-4" aria-hidden />, meta: undefined },
+      ...REGION_COUNTRY_CODES.map((c) => ({
+        id: c,
+        label: REGION_COUNTRIES[c].label,
+        icon: (
+          <span aria-hidden className="text-base leading-none">
+            {REGION_COUNTRIES[c].flag}
+          </span>
+        ),
+        meta: regions.data ? `${countVisitedRegions(regions.data.statuses, c)}/${REGION_COUNTRIES[c].total}` : undefined,
+      })),
+    ],
     [regions.data],
   );
-  const tabs = [
-    { id: "world" as const, label: "World", icon: <Globe2 className="size-4" aria-hidden /> },
-    {
-      id: "US" as const,
-      label: "USA only",
-      icon: (
-        <span aria-hidden className="text-base leading-none">
-          🇺🇸
-        </span>
-      ),
-      meta: regions.data ? `${visitedStates}/${REGION_COUNTRIES.US.total}` : undefined,
-    },
-  ];
   return (
     <div role="tablist" aria-label="Map" className={cn("glass inline-flex gap-1 rounded-2xl border border-border p-1 shadow-card", className)}>
       {tabs.map((t) => {
@@ -40,6 +39,7 @@ export function MapViewTabs({ username, className }: { username: string; classNa
             key={t.id}
             role="tab"
             aria-selected={active}
+            aria-label={t.meta ? `${t.label}, ${t.meta} visited` : t.label}
             onClick={() => setMapView(t.id)}
             className={cn(
               "flex min-h-10 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold transition-all duration-300",
@@ -47,9 +47,17 @@ export function MapViewTabs({ username, className }: { username: string; classNa
             )}
           >
             {t.icon}
-            {t.label}
+            {/* On phones only the open tab spells out its name and count, so four tabs fit. */}
+            <span className={cn(!active && "sr-only sm:not-sr-only")}>{t.label}</span>
             {t.meta && (
-              <span className={cn("rounded-md px-1.5 py-0.5 text-[11px] tabular-nums", active ? "bg-white/20" : "bg-surface-2")}>{t.meta}</span>
+              <span
+                className={cn(
+                  "rounded-md px-1.5 py-0.5 text-[11px] tabular-nums",
+                  active ? "bg-white/20" : "hidden bg-surface-2 sm:inline",
+                )}
+              >
+                {t.meta}
+              </span>
             )}
           </button>
         );
@@ -59,8 +67,8 @@ export function MapViewTabs({ username, className }: { username: string; classNa
 }
 
 /**
- * A user's map with the World / USA switch. In USA mode it shows the 50 states;
- * marking a state visited also marks the USA visited on the world map.
+ * A user's map with the World / USA / Canada / Australia switch. In a country's mode it shows
+ * its regions; marking a region visited also marks its country visited on the world map.
  */
 export function MapPanel({
   username,
@@ -69,12 +77,12 @@ export function MapPanel({
 }: {
   username: string;
   className?: string;
-  /** Render the World/USA switch on the map (set false to place <MapViewTabs> elsewhere). */
+  /** Render the World/country switch on the map (set false to place <MapViewTabs> elsewhere). */
   tabs?: boolean;
 }) {
   const view = useUI((s) => s.mapView);
   const map = useUserMap(username);
-  // States are shown in both views: inside the world map too.
+  // Regions are shown in every view: inside the world map too.
   const regions = useUserRegions(username);
   const selectedCountry = useUI((s) => (s.countrySheet?.username === username ? s.countrySheet.code : null));
   const selectedRegion = useUI((s) => (s.regionSheet?.username === username ? s.regionSheet.code : null));
@@ -100,7 +108,9 @@ export function MapPanel({
           className={className}
         />
       ) : (
-        <UsMap
+        <RegionMap
+          key={view}
+          country={view}
           statuses={regions.data!.statuses}
           selected={selectedRegion}
           onSelect={(code) => openRegion(code, username)}
@@ -117,11 +127,13 @@ export function MapPanel({
 }
 
 
-/** Jump straight to a state (keyboard-friendly way into the USA map). */
-export function StatePicker({ username, className }: { username: string; className?: string }) {
+/** Jump straight to a region (keyboard-friendly way into a country's regions map). */
+export function RegionPicker({ country, username, className }: { country: RegionCountry; username: string; className?: string }) {
+  const { shortNoun: noun } = REGION_COUNTRIES[country];
   return (
     <select
-      aria-label="Jump to a state"
+      key={country}
+      aria-label={`Jump to a ${noun}`}
       defaultValue=""
       onChange={(e) => {
         if (e.target.value) openRegion(e.target.value, username);
@@ -132,8 +144,8 @@ export function StatePicker({ username, className }: { username: string; classNa
         className,
       )}
     >
-      <option value="">Jump to a state…</option>
-      {US_STATES.map((s) => (
+      <option value="">Jump to a {noun}…</option>
+      {regionsOf(country).map((s) => (
         <option key={s.code} value={s.code}>
           {s.name}
         </option>

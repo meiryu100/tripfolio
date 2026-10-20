@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import type { RegionCountry } from "./regions";
 import { uid } from "./utils";
 
 export interface Toast {
@@ -15,7 +16,7 @@ interface UIState {
   /** Trip editor: edit an existing trip, or create one (optionally for a preset country). */
   tripEditor: { tripId?: string; country?: string } | null;
   /** Which map is showing: the world, or the USA states map. */
-  mapView: "world" | "US";
+  mapView: "world" | RegionCountry;
   /** Region (e.g. US state) sheet: which region, on whose map. */
   regionSheet: { code: string; username: string } | null;
   /** Owner of the trip currently open on /trips/[id] (for nav highlighting). */
@@ -40,7 +41,7 @@ export const closeCountry = () => useUI.setState({ countrySheet: null });
 export const openTripEditor = (opts: { tripId?: string; country?: string } = {}) => useUI.setState({ tripEditor: opts });
 export const closeTripEditor = () => useUI.setState({ tripEditor: null });
 export const pulseCountry = (code: string) => useUI.setState({ pulse: { code, at: Date.now() } });
-export const setMapView = (mapView: "world" | "US") => useUI.setState({ mapView });
+export const setMapView = (mapView: "world" | RegionCountry) => useUI.setState({ mapView });
 export const openRegion = (code: string, username: string) => useUI.setState({ regionSheet: { code, username } });
 export const closeRegion = () => useUI.setState({ regionSheet: null });
 

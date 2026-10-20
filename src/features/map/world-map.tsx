@@ -26,8 +26,8 @@ export function MapSkeleton({ className }: { className?: string }) {
 
 export { MapLegend } from "./legend";
 
-/** The USA states map, code-split like the world map. */
-export const UsMap = dynamic(() => import("./us-map-impl").then((m) => m.UsMap), {
+/** One country's regions map (US states, Canadian provinces, ...), code-split like the world map. */
+export const RegionMap = dynamic(() => import("./region-map-impl").then((m) => m.RegionMap), {
   ssr: false,
   loading: () => <MapSkeleton />,
 });

@@ -13,7 +13,8 @@
     "db:seed": "tsx --env-file-if-exists=.env.local --conditions=react-server scripts/db-seed.ts",
     "db:setup": "npm run db:migrate && npm run db:seed",
     "db:studio": "drizzle-kit studio",
-    "us-states": "node scripts/build-us-states.mjs"
+    "us-states": "node scripts/build-us-states.mjs",
+    "world-regions": "node scripts/build-world-regions.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1148.0",
@@ -55,6 +56,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",
+    "topojson-server": "^3.0.1",
     "tsx": "^4.23.15",
     "typescript": "^5",
     "world-atlas": "^2.0.2",

@@ -11,6 +11,7 @@ import { flatten, useProfile } from "@/features/social/api";
 import { useUserTrips } from "@/features/trips/api";
 import { errorMessage } from "@/lib/api-client";
 import { getCountry } from "@/lib/countries";
+import { isRegionCountry, REGION_COUNTRIES, type RegionCountry } from "@/lib/regions";
 import type { CountryStatus, Trip, UserSummary } from "@/lib/types";
 import { closeCountry, openTripEditor, pulseCountry, setMapView, toast, useUI } from "@/lib/ui";
 import { cn, formatDateRange, plural } from "@/lib/utils";
@@ -73,7 +74,7 @@ function CountrySheetBody({ code, username }: { code: string; username: string }
 
       <div className="overflow-y-auto px-6 pb-6">
         {isMine ? <MyCountry code={code} name={country.name} /> : <TheirCountry code={code} username={username} />}
-        {code === "US" && <OpenStatesMap />}
+        {isRegionCountry(code) && <OpenRegionsMap country={code} />}
         <PeopleYouFollow code={code} exclude={isMine ? undefined : username} />
         <Link
           href={`/explore/${code.toLowerCase()}`}
@@ -239,12 +240,13 @@ function TheirCountry({ code, username }: { code: string; username: string }) {
   );
 }
 
-/** The USA has its own states map: jump to it from the country sheet. */
-function OpenStatesMap() {
+/** Countries with regions (USA, Canada, Australia) have their own map: jump to it from the country sheet. */
+function OpenRegionsMap({ country }: { country: RegionCountry }) {
   const router = useRouter();
+  const info = REGION_COUNTRIES[country];
   const open = () => {
     closeCountry();
-    setMapView("US");
+    setMapView(country);
     const tabs = document.querySelector('[role="tablist"][aria-label="Map"]');
     if (tabs) tabs.scrollIntoView({ behavior: "smooth", block: "center" });
     else router.push("/map");
@@ -255,11 +257,11 @@ function OpenStatesMap() {
       className="lift mt-5 flex w-full items-center gap-3 rounded-2xl border border-border bg-surface p-3 text-left shadow-soft"
     >
       <span className="bg-aurora flex size-11 shrink-0 items-center justify-center rounded-xl text-xl shadow-glow" aria-hidden>
-        🇺🇸
+        {info.flag}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block font-semibold">Open the 50 states map</span>
-        <span className="block text-sm text-muted">Mark the states you&apos;ve visited</span>
+        <span className="block font-semibold">Open the {info.mapName} map</span>
+        <span className="block text-sm text-muted">Mark the {info.plural} you&apos;ve visited</span>
       </span>
       <ChevronRight className="size-5 text-muted" aria-hidden />
     </button>

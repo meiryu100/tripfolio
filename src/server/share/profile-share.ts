@@ -7,7 +7,7 @@ import { getProfile } from "../services/users";
 /** Everything a public profile page or share card shows, as `viewerId` is allowed to see it. */
 export async function getProfileShare(viewerId: string | null, username: string) {
   const profile = await getProfile(viewerId, username);
-  const [map, regions] = await Promise.all([getMap(viewerId, username), getRegions(viewerId, username, "US")]);
+  const [map, regions] = await Promise.all([getMap(viewerId, username), getRegions(viewerId, username)]);
   return { profile, map, regionStatuses: regions.statuses, stats: computeStats(map.statuses) };
 }
 

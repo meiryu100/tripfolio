@@ -2,7 +2,7 @@ import { getRegion } from "@/lib/regions";
 import type { CountryStatus } from "@/lib/types";
 
 /**
- * Countries and US states a visitor colored on the landing page's demo map, kept in this browser (sessionStorage)
+ * Countries and regions (US states, Canadian provinces, ...) a visitor colored on the landing page's demo map, kept in this browser (sessionStorage)
  * so onboarding can offer to start from them. Browser storage can be unavailable; then it's a no-op.
  */
 const KEY = "tf_demo_map";
@@ -27,7 +27,7 @@ export function readDemoPicksRaw(): string | null {
 export interface DemoPicks {
   visited: string[];
   wishlist: string[];
-  /** US states, e.g. `US-CA`. The USA itself is already in visited / wishlist. */
+  /** Regions, e.g. `US-CA` or `AU-NSW`. Their countries are already in visited / wishlist. */
   states: { code: string; status: CountryStatus }[];
 }
 
