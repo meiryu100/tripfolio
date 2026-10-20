@@ -1,7 +1,6 @@
 "use client";
 
 import { Globe2 } from "lucide-react";
-import { useMemo } from "react";
 import { ErrorState } from "@/components/ui";
 import { countVisitedRegions, REGION_COUNTRIES, REGION_COUNTRY_CODES, type RegionCountry, regionsOf } from "@/lib/regions";
 import { openCountry, openRegion, setMapView, useUI } from "@/lib/ui";
@@ -14,22 +13,19 @@ import { MapSkeleton, RegionMap, WorldMap } from "./world-map";
 export function MapViewTabs({ username, className }: { username: string; className?: string }) {
   const view = useUI((s) => s.mapView);
   const regions = useUserRegions(username);
-  const tabs = useMemo(
-    () => [
-      { id: "world" as const, label: "World", icon: <Globe2 className="size-4" aria-hidden />, meta: undefined },
-      ...REGION_COUNTRY_CODES.map((c) => ({
-        id: c,
-        label: REGION_COUNTRIES[c].label,
-        icon: (
-          <span aria-hidden className="text-base leading-none">
-            {REGION_COUNTRIES[c].flag}
-          </span>
-        ),
-        meta: regions.data ? `${countVisitedRegions(regions.data.statuses, c)}/${REGION_COUNTRIES[c].total}` : undefined,
-      })),
-    ],
-    [regions.data],
-  );
+  const tabs = [
+    { id: "world" as const, label: "World", icon: <Globe2 className="size-4" aria-hidden />, meta: undefined },
+    ...REGION_COUNTRY_CODES.map((c) => ({
+      id: c,
+      label: REGION_COUNTRIES[c].label,
+      icon: (
+        <span aria-hidden className="text-base leading-none">
+          {REGION_COUNTRIES[c].flag}
+        </span>
+      ),
+      meta: regions.data ? `${countVisitedRegions(regions.data.statuses, c)}/${REGION_COUNTRIES[c].total}` : undefined,
+    })),
+  ];
   return (
     <div role="tablist" aria-label="Map" className={cn("glass inline-flex gap-1 rounded-2xl border border-border p-1 shadow-card", className)}>
       {tabs.map((t) => {

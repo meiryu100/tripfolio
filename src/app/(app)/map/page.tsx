@@ -15,7 +15,7 @@ export default function MapPage() {
   const me = useMe();
   const map = useUserMap(me.username);
   const view = useUI((s) => s.mapView);
-  const stats = useMemo(() => computeStats(map.data?.statuses ?? {}), [map.data]);
+  const stats = computeStats(map.data?.statuses ?? {});
   const regions = useUserRegions(view !== "world" ? me.username : undefined);
   // In a country's mode the card summarises its regions instead of countries.
   const summary = useMemo(() => {
