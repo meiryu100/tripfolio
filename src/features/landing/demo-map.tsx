@@ -2,7 +2,7 @@
 
 import { RotateCcw } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { buttonClass } from "@/components/button-class";
 import { WorldMap } from "@/features/map/world-map";
 import { ShareDemoMapButton } from "@/features/share/share";
@@ -24,7 +24,7 @@ export function DemoMap() {
   const [last, setLast] = useState<string | null>(null);
   // A country follows its regions (US states, Canadian provinces, ...), like the server does:
   // any visited region → visited, else any wished region → want to go.
-  const statuses = useMemo(() => withRegionCountries(countries, regions), [countries, regions]);
+  const statuses = withRegionCountries(countries, regions);
   const stats = computeStats(statuses);
 
   const cycle = (code: string) => (s: Record<string, CountryStatus>) => {

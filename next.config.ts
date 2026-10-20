@@ -39,6 +39,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Auto-memoizes components and hooks (babel-plugin-react-compiler), so manual
+  // useMemo/useCallback is rarely needed. Opt a component out with "use no memo".
+  reactCompiler: true,
   // The share cards read the logo from disk; make sure it ships with those functions.
   outputFileTracingIncludes: {
     "/api/users/[username]/share-image": ["./public/brand/tripfolio-mark.png"],

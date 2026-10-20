@@ -2,7 +2,7 @@
 
 import { CalendarDays, Camera, Globe2, Link2, Lock, MapPin, MoreHorizontal, Settings, UserCheck } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { FollowButton, LoadMore, TripGrid, TripGridSkeleton } from "@/components/cards";
 import { Photo } from "@/components/photo";
 import { Avatar, Button, EmptyState, ErrorState, Skeleton, buttonClass } from "@/components/ui";
@@ -193,7 +193,7 @@ function Count({ value, label, href, tone }: { value: number | null; label: stri
 function WorldTab({ profile }: { profile: Profile }) {
   const map = useUserMap(profile.username);
   const trips = useUserTrips(profile.canView.trips ? profile.username : undefined, { limit: 5 });
-  const stats = useMemo(() => computeStats(map.data?.statuses ?? {}), [map.data]);
+  const stats = computeStats(map.data?.statuses ?? {});
   const recent = flatten(trips.data).slice(0, 5);
 
   return (
