@@ -1,10 +1,10 @@
 import { getCountry } from "@/lib/countries";
-import { getRegion } from "@/lib/regions";
+import { getRegion, withRegionCountries } from "@/lib/regions";
 import type { CountryStatus } from "@/lib/types";
 
 /**
  * A map made without an account, carried in a URL: `/m?v=<visited>&w=<want to go>`, each a comma-separated
- * list of country codes and US state codes (`US-CA`). Nothing is stored on the server. Shared by the
+ * list of country codes and region codes (`US-CA`, `CA-BC`, `AU-NSW`). Nothing is stored on the server. Shared by the
  * /m page, the share image and the "Share my map" button on the try-it map.
  */
 
@@ -15,7 +15,7 @@ export interface SharedMap {
   regionStatuses: Record<string, CountryStatus>;
 }
 
-/** The `v` and `w` query values for a try-it map's picks (countries and states together). */
+/** The `v` and `w` query values for a try-it map's picks (countries and regions together). */
 export function encodeSharedMap(statuses: Record<string, CountryStatus>, regionStatuses: Record<string, CountryStatus>) {
   const all = { ...statuses, ...regionStatuses };
   const list = (s: CountryStatus) =>
@@ -40,9 +40,8 @@ export function parseSharedMap(v: string | null | undefined, w: string | null | 
   // Visited first so a code listed in both stays visited.
   add(w, "wishlist");
   add(v, "visited");
-  // The USA follows its states, as on the try-it map: any visited state → visited, else any wished state → want to go.
-  const states = Object.values(map.regionStatuses);
-  if (!map.statuses.US && states.length) map.statuses.US = states.includes("visited") ? "visited" : "wishlist";
+  // A country follows its regions, as on the try-it map: any visited region → visited, else any wished region → want to go.
+  map.statuses = withRegionCountries(map.statuses, map.regionStatuses);
   return map;
 }
 

@@ -5,11 +5,12 @@ import type { FeatureCollection, Geometry } from "geojson";
 import { memo, useMemo, useRef, useState } from "react";
 import { feature } from "topojson-client";
 import type { GeometryCollection, Topology } from "topojson-specification";
+import worldRegions from "@/data/regions-world.json";
 import usStates from "@/data/us-states-world.json";
 import world from "@/data/world-110m.json";
 import { countryName, getCountry } from "@/lib/countries";
 import { worldProjection } from "@/lib/map-projection";
-import { getRegion } from "@/lib/regions";
+import { getRegion, isRegionCountry } from "@/lib/regions";
 import { useUI } from "@/lib/ui";
 import type { CountryStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -23,15 +24,16 @@ const topo = world as unknown as Topology<{ countries: GeometryCollection }>;
 const fc = feature(topo, topo.objects.countries) as FeatureCollection<Geometry>;
 const projection = worldProjection().fitExtent([[4, 4], [W - 4, H - 4]], fc);
 const pathGen = geoPath(projection);
-// The USA is drawn as its 50 states (+ DC) instead of one shape, in the same projection.
-const SHAPES = fc.features.filter((f) => f.id !== "US").map((f) => ({ code: String(f.id), d: pathGen(f) ?? "" }));
+// Countries with a regions map (USA, Canada, Australia) are drawn as their regions instead of one shape, in the same projection.
+const SHAPES = fc.features.filter((f) => !isRegionCountry(String(f.id))).map((f) => ({ code: String(f.id), d: pathGen(f) ?? "" }));
 const usTopo = usStates as unknown as Topology<{ states: GeometryCollection }>;
-const STATE_SHAPES = (feature(usTopo, usTopo.objects.states) as FeatureCollection<Geometry>).features.map((f) => ({
-  code: String(f.id),
-  d: pathGen(f) ?? "",
-}));
+const regionsTopo = worldRegions as unknown as Topology<{ regions: GeometryCollection }>;
+const REGION_SHAPES = [
+  ...(feature(usTopo, usTopo.objects.states) as FeatureCollection<Geometry>).features,
+  ...(feature(regionsTopo, regionsTopo.objects.regions) as FeatureCollection<Geometry>).features,
+].map((f) => ({ code: String(f.id), country: String(f.id).slice(0, 2), d: pathGen(f) ?? "" }));
 
-const isState = (code: string) => code.startsWith("US-");
+const isRegion = (code: string) => code.includes("-");
 
 const FILL: Record<CountryStatus | "none", string> = {
   visited: "var(--visited-fill)",
@@ -39,7 +41,7 @@ const FILL: Record<CountryStatus | "none", string> = {
   none: "var(--land)",
 };
 
-/** A state with no status of its own, inside a USA that's marked: a lighter tint of the country's color. */
+/** A region with no status of its own, inside a country that's marked: a lighter tint of the country's color. */
 const TINT: Record<CountryStatus, string> = {
   visited: "color-mix(in oklab, var(--visited-fill) 45%, var(--land))",
   wishlist: "color-mix(in oklab, var(--wishlist-fill) 45%, var(--land))",
@@ -61,11 +63,9 @@ const Shapes = memo(function Shapes({
   interactive: boolean;
   photos: Set<string> | null;
   pulse: { code: string; at: number } | null;
-  /** State statuses; when given, US states are individually clickable. */
+  /** Region statuses; when given, regions (US states, ...) are individually clickable. */
   regionStatuses?: Record<string, CountryStatus>;
 }) {
-  const usStatus = statuses.US;
-  const usSelected = selected === "US";
   return (
     <>
       {SHAPES.map(({ code, d }, i) => {
@@ -87,13 +87,14 @@ const Shapes = memo(function Shapes({
           />
         );
       })}
-      {STATE_SHAPES.map(({ code, d }) => {
+      {REGION_SHAPES.map(({ code, country, d }) => {
         const own = regionStatuses?.[code];
-        // Without state data (e.g. onboarding), every state just stands for the USA.
-        const dataCode = regionStatuses ? code : "US";
-        const fill = own ? FILL[own] : regionStatuses && usStatus ? TINT[usStatus] : FILL[usStatus ?? "none"];
-        const isSelected = selected === code || usSelected;
-        const pulsing = pulse?.code === code || pulse?.code === "US";
+        const countryStatus = statuses[country];
+        // Without region data (e.g. onboarding), every region just stands for its country.
+        const dataCode = regionStatuses ? code : country;
+        const fill = own ? FILL[own] : regionStatuses && countryStatus ? TINT[countryStatus] : FILL[countryStatus ?? "none"];
+        const isSelected = selected === code || selected === country;
+        const pulsing = pulse?.code === code || pulse?.code === country;
         return (
           <path
             key={code + (pulsing ? pulse!.at : "")}
@@ -101,7 +102,7 @@ const Shapes = memo(function Shapes({
             data-code={dataCode}
             className={cn("country-path", pulsing && "country-pulse", interactive && hoverClass)}
             style={{ fill }}
-            stroke={isSelected ? "var(--fg)" : photos?.has("US") ? "var(--photo-stroke)" : "var(--surface)"}
+            stroke={isSelected ? "var(--fg)" : photos?.has(country) ? "var(--photo-stroke)" : "var(--surface)"}
             strokeWidth={isSelected ? 1.2 : 0.35}
           />
         );
@@ -123,7 +124,7 @@ export function WorldMap({
 }: {
   statuses: Record<string, CountryStatus>;
   onSelect?: (code: string) => void;
-  /** US state statuses. With `onSelectRegion`, clicking a state opens the state instead of the USA. */
+  /** Region statuses (US states, Canadian provinces, ...). With `onSelectRegion`, clicking a region opens it instead of its country. */
   regionStatuses?: Record<string, CountryStatus>;
   onSelectRegion?: (code: string) => void;
   selected?: string | null;
@@ -158,8 +159,8 @@ export function WorldMap({
         onClick={(e) => {
           const code = codeFrom(e.target);
           if (!code) return;
-          if (isState(code) && onSelectRegion) onSelectRegion(code);
-          else if (onSelect) onSelect(isState(code) ? "US" : code);
+          if (isRegion(code) && onSelectRegion) onSelectRegion(code);
+          else if (onSelect) onSelect(isRegion(code) ? code.slice(0, 2) : code);
         }}
         onPointerMove={(e) => {
           if (e.pointerType !== "mouse") return;
@@ -187,9 +188,9 @@ export function WorldMap({
           className="glass pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[calc(100%+10px)] rounded-lg border border-border px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-fg shadow-float"
           style={{ left: hover.x, top: hover.y }}
         >
-          {isState(hover.code) ? (
+          {isRegion(hover.code) ? (
             <>
-              <span className="mr-1">🇺🇸</span>
+              <span className="mr-1">{getCountry(hover.code.slice(0, 2))?.flag}</span>
               {getRegion(hover.code)?.name}
               <span className="ml-1.5 font-medium text-muted">· {statusLabel(regionStatuses?.[hover.code])}</span>
             </>

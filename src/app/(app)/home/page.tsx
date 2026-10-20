@@ -19,6 +19,7 @@ import { computeStats, type TravelStats } from "@/features/stats/compute";
 import { ByContinent, ContinentChecklist, Milestones, WorldProgress } from "@/features/stats/stats-panel";
 import { useUserTrips } from "@/features/trips/api";
 import { getCountry } from "@/lib/countries";
+import { countVisitedRegions } from "@/lib/regions";
 import type { CountryStatus } from "@/lib/types";
 import { openCountry, openTripEditor } from "@/lib/ui";
 import { greeting, plural } from "@/lib/utils";
@@ -150,7 +151,7 @@ export default function HomePage() {
 
 function TravelStatsSection({ stats, photos, username }: { stats: TravelStats; photos: number | null; username: string }) {
   const regions = useUserRegions(username);
-  const usStates = Object.entries(regions.data?.statuses ?? {}).filter(([code, st]) => st === "visited" && code !== "US-DC").length;
+  const usStates = countVisitedRegions(regions.data?.statuses ?? {}, "US");
   return (
     <Reveal as="section" className="mt-10" aria-labelledby="travel-stats">
       <h2 id="travel-stats" className="mb-3 text-xl font-bold">

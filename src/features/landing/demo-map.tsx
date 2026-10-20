@@ -8,7 +8,7 @@ import { WorldMap } from "@/features/map/world-map";
 import { ShareDemoMapButton } from "@/features/share/share";
 import { computeStats } from "@/features/stats/compute";
 import { getCountry } from "@/lib/countries";
-import { getRegion } from "@/lib/regions";
+import { getRegion, REGION_COUNTRIES, withRegionCountries } from "@/lib/regions";
 import type { CountryStatus } from "@/lib/types";
 import { saveDemoPicks } from "./demo-picks";
 
@@ -22,14 +22,9 @@ export function DemoMap() {
   const [countries, setCountries] = useState<Record<string, CountryStatus>>({});
   const [regions, setRegions] = useState<Record<string, CountryStatus>>({});
   const [last, setLast] = useState<string | null>(null);
-  // The USA follows its states, like the server does: any visited state → visited, else any wished state → want to go.
-  const statuses = useMemo(() => {
-    const all = { ...countries };
-    const states = Object.values(regions);
-    if (states.includes("visited")) all.US = "visited";
-    else if (states.length) all.US = "wishlist";
-    return all;
-  }, [countries, regions]);
+  // A country follows its regions (US states, Canadian provinces, ...), like the server does:
+  // any visited region → visited, else any wished region → want to go.
+  const statuses = useMemo(() => withRegionCountries(countries, regions), [countries, regions]);
   const stats = computeStats(statuses);
 
   const cycle = (code: string) => (s: Record<string, CountryStatus>) => {
@@ -51,7 +46,7 @@ export function DemoMap() {
   const lastRegion = last ? getRegion(last) : null;
   const lastCountry = last && !lastRegion ? getCountry(last) : null;
   const lastStatus = last ? (lastRegion ? regions[last] : countries[last]) : undefined;
-  const lastLabel = lastRegion ? `🇺🇸 ${lastRegion.name}` : lastCountry ? `${lastCountry.flag} ${lastCountry.name}` : null;
+  const lastLabel = lastRegion ? `${REGION_COUNTRIES[lastRegion.country].flag} ${lastRegion.name}` : lastCountry ? `${lastCountry.flag} ${lastCountry.name}` : null;
 
   return (
     <div className="rounded-3xl border border-border bg-surface/85 p-3 shadow-card backdrop-blur sm:p-4">

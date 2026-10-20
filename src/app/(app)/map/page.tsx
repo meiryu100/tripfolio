@@ -4,9 +4,10 @@ import { useMemo } from "react";
 import { CountrySearch } from "@/components/country-search";
 import { useMe } from "@/features/auth/api";
 import { useUserMap } from "@/features/map/api";
-import { MapPanel, MapViewTabs, StatePicker } from "@/features/map/map-panel";
+import { MapPanel, MapViewTabs, RegionPicker } from "@/features/map/map-panel";
 import { useUserRegions } from "@/features/map/regions-api";
 import { computeStats } from "@/features/stats/compute";
+import { countVisitedRegions, getRegion, REGION_COUNTRIES } from "@/lib/regions";
 import { openCountry, useUI } from "@/lib/ui";
 
 /** Full-bleed map: on phones the map takes the whole screen between the bars. */
@@ -15,13 +16,15 @@ export default function MapPage() {
   const map = useUserMap(me.username);
   const view = useUI((s) => s.mapView);
   const stats = useMemo(() => computeStats(map.data?.statuses ?? {}), [map.data]);
-  const regions = useUserRegions(view === "US" ? me.username : undefined);
-  // In USA mode the card summarises states instead of countries.
+  const regions = useUserRegions(view !== "world" ? me.username : undefined);
+  // In a country's mode the card summarises its regions instead of countries.
   const summary = useMemo(() => {
-    if (view !== "US") return { visited: stats.visited, wishlist: stats.wishlist, caption: `${stats.explored.toFixed(1)}% of the world` };
-    const entries = Object.entries(regions.data?.statuses ?? {}).filter(([code]) => code !== "US-DC");
-    const visited = entries.filter(([, s]) => s === "visited").length;
-    return { visited, wishlist: entries.filter(([, s]) => s === "wishlist").length, caption: `${visited} of 50 US states` };
+    if (view === "world") return { visited: stats.visited, wishlist: stats.wishlist, caption: `${stats.explored.toFixed(1)}% of the world` };
+    const statuses = regions.data?.statuses ?? {};
+    const visited = countVisitedRegions(statuses, view);
+    const wishlist = Object.entries(statuses).filter(([code, s]) => s === "wishlist" && getRegion(code)?.country === view && getRegion(code)?.counts).length;
+    const { total, unit } = REGION_COUNTRIES[view];
+    return { visited, wishlist, caption: `${visited} of ${total} ${unit}` };
   }, [view, stats, regions.data]);
   const fill = "h-[calc(100dvh-7.5rem)] md:h-[calc(100dvh-1.5rem)] w-full rounded-none md:rounded-3xl border-0 md:border";
 
@@ -39,8 +42,8 @@ export default function MapPage() {
           <p className="text-xs text-muted">{summary.caption}</p>
         </div>
         </div>
-{view === "US" ? (
-          <StatePicker username={me.username} className="pointer-events-auto w-full sm:w-72" />
+{view !== "world" ? (
+          <RegionPicker country={view} username={me.username} className="pointer-events-auto w-full sm:w-72" />
         ) : (
                   <CountrySearch
             className="pointer-events-auto w-full sm:w-72"

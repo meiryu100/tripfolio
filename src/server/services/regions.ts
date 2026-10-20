@@ -6,18 +6,18 @@ import { ensureVisited } from "./countries";
 import { toStatus } from "./mappers";
 import { getVisibility } from "./privacy";
 import { requireUserByUsername } from "./users";
-import { getRegion, isRegionOf, REGION_COUNTRIES } from "@/lib/regions";
+import { getRegion, isRegionCountry } from "@/lib/regions";
 import type { CountryStatus } from "@/lib/types";
 
 function assertRegionCountry(country: string) {
   const c = country.toUpperCase();
-  if (!(c in REGION_COUNTRIES)) throw new HttpError("VALIDATION", "That country doesn't have a regions map yet.", "country");
+  if (!isRegionCountry(c)) throw new HttpError("VALIDATION", "That country doesn't have a regions map yet.", "country");
   return c;
 }
 
-/** A user's regions in one country, as the viewer is allowed to see them. */
-export async function getRegions(viewerId: string | null, username: string, country: string) {
-  const c = assertRegionCountry(country);
+/** A user's regions (in one country, or in every country with a regions map), as the viewer is allowed to see them. */
+export async function getRegions(viewerId: string | null, username: string, country?: string) {
+  const c = country ? assertRegionCountry(country) : null;
   const owner = await requireUserByUsername(username);
   const { vis } = await getVisibility(owner, viewerId);
   const statuses: Record<string, CountryStatus> = {};
@@ -25,7 +25,7 @@ export async function getRegions(viewerId: string | null, username: string, coun
     const rows = await db
       .select({ code: schema.userRegions.regionCode, status: schema.userRegions.status })
       .from(schema.userRegions)
-      .where(and(eq(schema.userRegions.userId, owner.id), eq(schema.userRegions.countryCode, c)));
+      .where(and(eq(schema.userRegions.userId, owner.id), c ? eq(schema.userRegions.countryCode, c) : undefined));
     for (const r of rows) if (r.status === "VISITED" ? vis.visited : vis.wishlist) statuses[r.code] = toStatus(r.status);
   }
   return { country: c, statuses };
@@ -37,9 +37,8 @@ export async function getRegions(viewerId: string | null, username: string, coun
  */
 export async function setRegionStatus(userId: string, regionCode: string, status: "VISITED" | "WANT_TO_VISIT") {
   const region = getRegion(regionCode);
-  const country = regionCode.slice(0, 2).toUpperCase();
-  if (!region || !isRegionOf(country, regionCode)) throw new HttpError("VALIDATION", "Unknown region.", "regionCode");
-  assertRegionCountry(country);
+  if (!region) throw new HttpError("VALIDATION", "Unknown region.", "regionCode");
+  const country = region.country;
 
   await db
     .insert(schema.userRegions)

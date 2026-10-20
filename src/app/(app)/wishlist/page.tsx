@@ -12,12 +12,12 @@ import { useUserMap } from "@/features/map/api";
 import { useSetRegionStatus, useUserRegions } from "@/features/map/regions-api";
 import { CONTINENTS } from "@/features/stats/compute";
 import { getCountry } from "@/lib/countries";
-import { getRegion } from "@/lib/regions";
+import { getRegion, REGION_COUNTRIES, regionCountLabel } from "@/lib/regions";
 import type { Country } from "@/lib/types";
 import { openCountry, openRegion } from "@/lib/ui";
 import { plural } from "@/lib/utils";
 
-/** One card on the page: a country or a US state. */
+/** One card on the page: a country or a region (US state, Canadian province, ...). */
 interface WishItem {
   code: string;
   name: string;
@@ -40,23 +40,30 @@ export default function WishlistPage() {
       .map(([code]) => getCountry(code))
       .filter((c): c is Country => Boolean(c))
       .map((c) => ({ code: c.code, name: c.name, flag: c.flag, sub: c.capital || c.subregion, isRegion: false, continent: c.continent }));
-    const states: WishItem[] = Object.entries(regions.data?.statuses ?? {})
+    const regionItems: WishItem[] = Object.entries(regions.data?.statuses ?? {})
       .filter(([, s]) => s === "wishlist")
       .map(([code]) => getRegion(code))
       .filter((r): r is NonNullable<typeof r> => Boolean(r))
-      .map((r) => ({ code: r.code, name: `USA - ${r.name}`, flag: "🇺🇸", sub: "State", isRegion: true, continent: "North America" }));
-    const list = [...items, ...states].sort((a, b) => a.name.localeCompare(b.name));
+      .map((r) => ({
+        code: r.code,
+        name: `${REGION_COUNTRIES[r.country].label} - ${r.name}`,
+        flag: REGION_COUNTRIES[r.country].flag,
+        sub: r.kind,
+        isRegion: true,
+        continent: getCountry(r.country)?.continent ?? "",
+      }));
+    const list = [...items, ...regionItems].sort((a, b) => a.name.localeCompare(b.name));
     return {
-      states: states.length,
+      regionCodes: regionItems.map((r) => r.code),
       groups: CONTINENTS.map((name) => ({ name, items: list.filter((i) => i.continent === name) })).filter((g) => g.items.length),
     };
   }, [map.data, regions.data]);
   const total = groups.groups.reduce((n, g) => n + g.items.length, 0);
-  const countryCount = total - groups.states;
+  const countryCount = total - groups.regionCodes.length;
   const subtitle = !total
     ? "Where do you want to go next?"
-    : groups.states
-      ? `${countryCount ? `${plural(countryCount, "country", "countries")} and ` : ""}${plural(groups.states, "state")} you want to visit`
+    : groups.regionCodes.length
+      ? `${countryCount ? `${plural(countryCount, "country", "countries")} and ` : ""}${regionCountLabel(groups.regionCodes)} you want to visit`
       : `${plural(total, "country", "countries")} you want to visit`;
 
   return (

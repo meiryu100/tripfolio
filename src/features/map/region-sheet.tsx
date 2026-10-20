@@ -5,17 +5,18 @@ import { Button, Sheet, SheetClose, Skeleton } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
 import { useProfile } from "@/features/social/api";
 import { errorMessage } from "@/lib/api-client";
-import { getRegion } from "@/lib/regions";
+import { getRegion, REGION_COUNTRIES } from "@/lib/regions";
 import type { CountryStatus } from "@/lib/types";
 import { closeRegion, openCountry, pulseCountry, toast, useUI } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 import { useSetRegionStatus, useUserRegions } from "./regions-api";
 
-/** Details for one US state, opened from the USA map. */
+/** Details for one region (a US state, Canadian province, ...), opened from a map. */
 export function RegionSheet() {
   const sheet = useUI((s) => s.regionSheet);
+  const region = sheet ? getRegion(sheet.code) : undefined;
   return (
-    <Sheet open={Boolean(sheet)} onClose={closeRegion} label="State details">
+    <Sheet open={Boolean(sheet)} onClose={closeRegion} label={`${region?.kind ?? "Region"} details`}>
       {sheet && <RegionBody key={sheet.code + sheet.username} code={sheet.code} username={sheet.username} />}
     </Sheet>
   );
@@ -31,14 +32,16 @@ function useApplyRegion() {
   const me = useMe();
   const mutation = useSetRegionStatus(me.username);
   return (code: string, next: CountryStatus | null) => {
-    const name = getRegion(code)?.name ?? code;
+    const region = getRegion(code);
+    const name = region?.name ?? code;
+    const label = REGION_COUNTRIES[region?.country ?? "US"].label;
     pulseCountry(code);
     mutation.mutate(
       { code, status: next },
       {
         onSuccess: () =>
           toast(
-            next === "visited" ? `${name} added to your USA map ✓` : next === "wishlist" ? `${name} added to your wishlist ♡` : `${name} removed`,
+            next === "visited" ? `${name} added to your ${label} map ✓` : next === "wishlist" ? `${name} added to your wishlist ♡` : `${name} removed`,
             next ? "success" : "info",
           ),
         onError: (e) => toast(errorMessage(e), "error"),
@@ -59,6 +62,7 @@ function RegionBody({ code, username }: { code: string; username: string }) {
   const myStatus = myRegions.data?.statuses[code] ?? null;
 
   if (!region) return null;
+  const country = REGION_COUNTRIES[region.country];
   return (
     <>
       <div className="flex items-start gap-4 px-6 pt-5 pb-4">
@@ -67,7 +71,10 @@ function RegionBody({ code, username }: { code: string; username: string }) {
         </span>
         <div className="min-w-0 flex-1 pt-1">
           <h2 className="text-2xl font-bold tracking-tight">{region.name}</h2>
-          <p className="text-sm text-muted">🇺🇸 United States{region.counts ? "" : " · federal district"}</p>
+          <p className="text-sm text-muted">
+            {country.flag} {country.name}
+            {region.kind === "State" ? "" : ` · ${region.kind.toLowerCase()}`}
+          </p>
         </div>
         <SheetClose onClick={closeRegion} className="-mt-1 -mr-2" />
       </div>
@@ -75,11 +82,11 @@ function RegionBody({ code, username }: { code: string; username: string }) {
         <button
           onClick={() => {
             closeRegion();
-            openCountry("US", username);
+            openCountry(region.country, username);
           }}
           className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-surface-2 px-3 text-sm font-semibold transition duration-200 hover:bg-brand-soft hover:text-brand"
         >
-          <span aria-hidden>🇺🇸</span> United States — trips & more <ChevronRight className="size-4" aria-hidden />
+          <span aria-hidden>{country.flag}</span> {country.name} — trips & more <ChevronRight className="size-4" aria-hidden />
         </button>
       </div>
 
@@ -111,7 +118,7 @@ function RegionBody({ code, username }: { code: string; username: string }) {
                 );
               })}
             </div>
-            <p className="mt-3 text-xs text-muted">Marking a state visited also marks the USA visited on your world map.</p>
+            <p className="mt-3 text-xs text-muted">Marking a {country.noun} visited also marks {country.inSentence} visited on your world map.</p>
           </>
         ) : (
           <>
@@ -137,7 +144,7 @@ function RegionBody({ code, username }: { code: string; username: string }) {
             </div>
             <div className="mt-5 flex min-h-14 items-center justify-between gap-3 rounded-2xl bg-surface-2 px-4 py-2">
               <span className="text-sm">
-                {myStatus === "visited" ? "You've been here too ✓" : myStatus === "wishlist" ? "On your wishlist ♡" : "Your USA map"}
+                {myStatus === "visited" ? "You've been here too ✓" : myStatus === "wishlist" ? "On your wishlist ♡" : `Your ${country.label} map`}
               </span>
               {!myStatus && (
                 <Button size="sm" variant="secondary" onClick={() => apply(code, "wishlist")}>

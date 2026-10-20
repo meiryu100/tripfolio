@@ -15,6 +15,7 @@ import { WorldMap } from "@/features/map/world-map";
 import { completeOnboarding, useSaveAboutYou } from "@/features/settings/api";
 import { api, ApiError, errorMessage } from "@/lib/api-client";
 import { getCountry } from "@/lib/countries";
+import { regionCountLabel } from "@/lib/regions";
 import type { CountryStatus, Me } from "@/lib/types";
 import { toast } from "@/lib/ui";
 import { cn } from "@/lib/utils";
@@ -40,7 +41,7 @@ export default function OnboardingPage() {
   const demoStateCount = demo.states.length;
   const demoSummary = [
     demoCount && `${demoCount} ${demoCount === 1 ? "country" : "countries"}`,
-    demoStateCount && `${demoStateCount} ${demoStateCount === 1 ? "state" : "states"}`,
+    demoStateCount && regionCountLabel(demo.states.map((s) => s.code)),
   ]
     .filter(Boolean)
     .join(" and ");
