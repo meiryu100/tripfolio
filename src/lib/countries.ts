@@ -29,3 +29,18 @@ export function searchCountries(query: string, limit = 8): Country[] {
   }
   return [...starts, ...contains].slice(0, limit);
 }
+
+/** URL slug for the public country pages: "Côte d'Ivoire" → "cote-d-ivoire", "Türkiye" → "turkiye". */
+export function countrySlug(c: Country) {
+  return c.name
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+export function getCountryBySlug(slug: string): Country | undefined {
+  return COUNTRIES.find((c) => countrySlug(c) === slug);
+}
