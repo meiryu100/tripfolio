@@ -4,7 +4,8 @@ import { headingId } from "@/lib/blog-text";
 
 /**
  * Renders the small Markdown subset the blog posts use: `##` / `###` headings (with anchor ids),
- * paragraphs, `-` and `1.` lists, **bold** and [links](url). No raw HTML is ever passed through.
+ * paragraphs, `-` and `1.` lists, `| a | b |` tables (first row is the header), **bold** and
+ * [links](url). No raw HTML is ever passed through.
  */
 
 const INLINE = /\*\*([^*]+)\*\*|\[([^\]]+)\]\(([^)\s]+)\)/g;
@@ -38,6 +39,10 @@ function inline(text: string): ReactNode[] {
 }
 
 const ORDERED = /^\d+\.\s/;
+// A table row ("| a | b |") and the "|---|---|" line under the header.
+const ROW = /^\|.*\|$/;
+const DIVIDER = /^\|(\s*:?-+:?\s*\|)+$/;
+const cells = (row: string) => row.slice(1, -1).split("|").map((c) => c.trim());
 
 export function Markdown({ source }: { source: string }) {
   const blocks = source.split(/\r?\n\s*\r?\n/);
@@ -67,6 +72,34 @@ export function Markdown({ source }: { source: string }) {
                 <li key={j}>{inline(l.slice(2))}</li>
               ))}
             </ul>
+          );
+        }
+        if (lines.length >= 3 && lines.every((l) => ROW.test(l)) && DIVIDER.test(lines[1])) {
+          return (
+            <div key={i} className="overflow-x-auto rounded-2xl border border-border">
+              <table className="w-full text-left text-[15px]">
+                <thead className="bg-surface-2 text-fg">
+                  <tr>
+                    {cells(lines[0]).map((c, j) => (
+                      <th key={j} scope="col" className="px-4 py-2 font-semibold">
+                        {inline(c)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {lines.slice(2).map((row, j) => (
+                    <tr key={j}>
+                      {cells(row).map((c, k) => (
+                        <td key={k} className="px-4 py-2">
+                          {inline(c)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           );
         }
         if (lines.every((l) => ORDERED.test(l))) {

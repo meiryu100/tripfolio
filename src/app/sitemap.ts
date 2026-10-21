@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/site-url";
-import { COUNTRIES, countrySlug } from "@/lib/countries";
+import { COUNTRIES, countrySlug, UNINHABITED } from "@/lib/countries";
 import { getAllPosts } from "@/server/blog";
 
 /**
@@ -17,6 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages = [
     { url: siteUrl },
     { url: `${siteUrl}/countries-visited-map` },
+    { url: `${siteUrl}/us-states-visited-map` },
     { url: `${siteUrl}/blog`, ...(latestPost && { lastModified: new Date(latestPost) }) },
     { url: `${siteUrl}/countries` },
     { url: `${siteUrl}/about` },
@@ -24,6 +25,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/privacy` },
     { url: `${siteUrl}/terms` },
   ];
-  const countries = COUNTRIES.map((c) => ({ url: `${siteUrl}/countries/${countrySlug(c)}` }));
+  const countries = COUNTRIES.filter((c) => !UNINHABITED.has(c.code)).map((c) => ({ url: `${siteUrl}/countries/${countrySlug(c)}` }));
   return [...pages, ...posts, ...countries];
 }

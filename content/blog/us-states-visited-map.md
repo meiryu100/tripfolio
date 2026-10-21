@@ -2,9 +2,12 @@
 title: How Many US States Have You Visited? Make Your Map
 description: Count the US states you've visited, settle the layover debate, and turn your road trips into a 50 states map you can share. Free, no app needed.
 date: 2026-10-19
+updated: 2026-10-21
 ---
 
-Thanksgiving is on Thursday, November 26 this year, and for a lot of Americans that means a long drive. AAA's forecast for last year's holiday period projected a record 81.8 million travelers, with about 73.3 million of them going by car ([Washington Times, Nov 2025](https://www.washingtontimes.com/news/2025/nov/17/aaa-predicts-record-high-818-million-people-travel-thanksgiving/)). If you're one of them, it's a good moment to ask a simple question: how many of the 50 states have you actually been to?
+Americans travel by car more than any other way: for the 2025 Thanksgiving period alone, AAA projected a record 81.8 million travelers, about 73.3 million of them on the road ([Washington Times, Nov 2025](https://www.washingtontimes.com/news/2025/nov/17/aaa-predicts-record-high-818-million-people-travel-thanksgiving/)). All those drives add up, which raises a simple question: how many of the 50 states have you actually been to?
+
+Want to skip ahead? Color them in on the [US states visited map](/us-states-visited-map). It works without signing up and counts them out of 50 as you tap.
 
 Here's how to count honestly, settle the arguments, and end up with a map you can keep.
 
@@ -60,6 +63,24 @@ If you like numbers, the same counter works at the world level: countries visite
 
 ## Your turn
 
-Count your states this week, before the long drive. Then make the map, and see how it looks with your orange states showing where you're headed next.
+Count your states before your next long drive. Then make the map, and see how it looks with your orange states showing where you're headed next.
 
-[Map your 50 states on Tripfolio →](/)
+[Map your 50 states →](/us-states-visited-map)
+
+## FAQ
+
+### How many US states have I visited?
+
+List the states you've lived in, then family trips, then road trips, and check your camera roll for the ones you forgot. Then mark them on a states map, which counts them out of 50 for you.
+
+### Does driving through a state count as visiting?
+
+There's no official rule. A common one is that you need to have stopped, for fuel, food or a night's sleep. Passing straight through is a gray area, so pick a rule and keep it consistent.
+
+### Does Washington, D.C. count as a state?
+
+No. Washington, D.C. is a federal district, not a state, so it isn't part of the 50. Puerto Rico, Guam and the other territories aren't states either.
+
+### What's the average number of states people have visited?
+
+There's no reliable official figure, and surveys vary a lot. What matters more is your own map: the gray states next to your green ones are usually the easiest next trips.

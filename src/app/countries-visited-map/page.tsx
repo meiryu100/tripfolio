@@ -132,6 +132,17 @@ export default function CountriesVisitedMapPage() {
               On Tripfolio, visited countries turn green and the places you dream about turn orange, so your map shows both where
               you&apos;ve been and where you&apos;re going next. Add a trip to a country and it stays marked as visited.
             </p>
+            <p>
+              Prefer a checklist? Go through{" "}
+              <Link href="/countries" className="font-medium text-brand hover:underline">
+                every country A to Z
+              </Link>
+              . Counting the USA too? Try the{" "}
+              <Link href="/us-states-visited-map" className="font-medium text-brand hover:underline">
+                US states visited map
+              </Link>
+              .
+            </p>
           </div>
         </section>
 

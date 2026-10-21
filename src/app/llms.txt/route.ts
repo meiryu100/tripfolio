@@ -16,6 +16,7 @@ Tripfolio is made by Meir Yoshvayev, an independent developer in Israel. It is n
 ## Main pages
 
 - [Countries visited map](${siteUrl}/countries-visited-map): try the map without signing up, plus an FAQ on how countries are counted
+- [US states visited map](${siteUrl}/us-states-visited-map): color the 50 states you've been to, with an x / 50 counter, no sign-up needed
 - [Every country](${siteUrl}/countries): all 195 countries and 55 territories by continent, one page each
 - [Blog](${siteUrl}/blog): guides on counting and mapping the places you've been
 - [About](${siteUrl}/about): who makes Tripfolio and how it counts countries

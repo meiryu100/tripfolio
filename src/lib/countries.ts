@@ -41,6 +41,23 @@ export function countrySlug(c: Country) {
     .replace(/^-|-$/g, "");
 }
 
+// Names that read "the ..." in a sentence: "Been to the United States?", not "Been to United States?".
+const WITH_THE = new Set(
+  "AE AX BQ BS CC CD CF CG CK DO FK FO GB GM HM IM IO KM KY MH MP MV NL PH PN SB SC TC TF UM US VG VI".split(" "),
+);
+
+/** The country's name as it reads mid-sentence ("the Netherlands"); `start` capitalizes it. */
+export function nameInSentence(c: Country, start = false) {
+  if (!WITH_THE.has(c.code)) return c.name;
+  return `${start ? "The" : "the"} ${c.name}`;
+}
+
+/** Self-declared states many countries don't recognize: on the map, but not among the 195. */
+export const LIMITED_RECOGNITION = new Set(["XK", "TW", "EH"]);
+
+/** Places with no permanent population, so there's little a traveler page can say about them. */
+export const UNINHABITED = new Set(["AQ", "BV", "HM", "UM", "GS", "TF"]);
+
 export function getCountryBySlug(slug: string): Country | undefined {
   return COUNTRIES.find((c) => countrySlug(c) === slug);
 }
