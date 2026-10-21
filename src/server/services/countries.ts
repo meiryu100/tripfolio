@@ -6,6 +6,7 @@ import { HttpError } from "../http/errors";
 import { toStatus } from "./mappers";
 import { getVisibility } from "./privacy";
 import { requireUserByUsername } from "./users";
+import { isRegionCountry, REGION_COUNTRIES } from "@/lib/regions";
 import type { Country, MapData } from "@/lib/types";
 
 export const COUNTRIES = countryData as Country[];
@@ -50,6 +51,18 @@ export async function getMap(viewerId: string | null, username: string): Promise
   return { statuses, photoCountries, visibility: vis };
 }
 
+/** "states" / "provinces and territories" for a country that has a regions map. */
+function regionWords(code: string) {
+  const c = code.toUpperCase();
+  return isRegionCountry(c) ? REGION_COUNTRIES[c].plural : "regions";
+}
+
+/** The map's name in messages, e.g. "USA" or "Canada". */
+function regionMapName(code: string) {
+  const c = code.toUpperCase();
+  return isRegionCountry(c) ? REGION_COUNTRIES[c].label : "country";
+}
+
 async function logActivity(userId: string, type: "COUNTRY_VISITED" | "COUNTRY_WISHLISTED", countryCode: string) {
   await db.insert(schema.activities).values({ userId, type, countryCode });
 }
@@ -71,7 +84,7 @@ export async function setStatus(userId: string, code: string, status: "VISITED" 
         eq(schema.userRegions.status, "VISITED"),
       ),
     });
-    if (visitedRegion) throw new HttpError("CONFLICT", "You've visited states here — clear them on the USA map first.");
+    if (visitedRegion) throw new HttpError("CONFLICT", `You've visited ${regionWords(code)} here — clear them on the ${regionMapName(code)} map first.`);
   }
   const prev = await db.query.userCountries.findFirst({
     where: and(eq(schema.userCountries.userId, userId), eq(schema.userCountries.countryCode, code)),
@@ -94,12 +107,12 @@ export async function removeStatus(userId: string, code: string) {
     where: and(eq(schema.trips.userId, userId), eq(schema.trips.countryCode, code)),
   });
   if (hasTrips) throw new HttpError("CONFLICT", "You have trips here — delete them first to unmark this country.");
-  // Like trips, marked states aren't thrown away silently: the user clears them on the states map.
+  // Like trips, marked regions aren't thrown away silently: the user clears them on the country's regions map.
   const hasRegions = await db.query.userRegions.findFirst({
     columns: { regionCode: true },
     where: and(eq(schema.userRegions.userId, userId), eq(schema.userRegions.countryCode, code)),
   });
-  if (hasRegions) throw new HttpError("CONFLICT", "You've marked states here — clear them on the USA map first.");
+  if (hasRegions) throw new HttpError("CONFLICT", `You've marked ${regionWords(code)} here — clear them on the ${regionMapName(code)} map first.`);
   await db
     .delete(schema.userCountries)
     .where(and(eq(schema.userCountries.userId, userId), eq(schema.userCountries.countryCode, code)));
