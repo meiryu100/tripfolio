@@ -9,6 +9,7 @@ import { illustration, Photo } from "@/components/photo";
 import { Avatar, buttonClass } from "@/components/ui";
 import { useMeQuery } from "@/features/auth/api";
 import { useExplore } from "@/features/explore/api";
+import { TryItSection } from "@/features/landing/try-it-section";
 import { WorldMap } from "@/features/map/world-map";
 import { getCountry } from "@/lib/countries";
 import type { CountryStatus } from "@/lib/types";
@@ -116,6 +117,9 @@ export default function LandingPage() {
           </Parallax>
         </div>
       </section>
+
+      {/* ── Try it: color your own map without signing up, plus the promo video ── */}
+      <TryItSection />
 
       {/* ── Story: three steps, alternating, revealed on scroll ── */}
       <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-20 sm:px-6 md:grid-cols-3">
