@@ -6,7 +6,8 @@ import { z } from "zod";
 // doesn't allow eval, so the probe would be blocked and reported on every page that validates.
 z.config({ jitless: true });
 
-const trimmed = (max: number) => z.string().trim().max(max);
+const trimmed = (max: number, label: string) =>
+  z.string().trim().max(max, `${label} can be up to ${max} characters.`);
 
 export const usernameSchema = z
   .string()
@@ -44,7 +45,7 @@ export const GENDERS = ["male", "female"] as const;
 /** Required: there is no default, the user must pick one. */
 export const genderSchema = z.enum(GENDERS, { message: "Please choose male or female." });
 
-const nameSchema = (label: string) => z.string().trim().min(1, `${label} is required.`).max(50);
+const nameSchema = (label: string) => z.string().trim().min(1, `${label} is required.`).max(50, `${label} can be up to 50 characters.`);
 
 export const registerSchema = z
   .object({
@@ -83,7 +84,7 @@ export const resetPasswordSchema = z.object({
 const websiteSchema = z
   .string()
   .trim()
-  .max(200)
+  .max(200, "Website can be up to 200 characters.")
   .refine((v) => v === "" || /^https?:\/\/[^\s]+\.[^\s]+$/i.test(v), "Enter a full URL starting with https://")
   .transform((v) => v);
 
@@ -92,8 +93,8 @@ export const profileSchema = z.object({
   lastName: nameSchema("Last name"),
   gender: genderSchema,
   username: usernameSchema,
-  bio: trimmed(160),
-  location: trimmed(80),
+  bio: trimmed(160, "Bio"),
+  location: trimmed(80, "Location"),
   website: websiteSchema,
 });
 
@@ -151,9 +152,9 @@ const dateSchema = z
 export const tripSchema = z
   .object({
     countryCode: countryCodeSchema,
-    title: trimmed(80).default(""),
-    description: trimmed(4000).default(""),
-    cities: z.array(trimmed(60)).max(20).default([]),
+    title: trimmed(80, "Title").default(""),
+    description: trimmed(4000, "The story").default(""),
+    cities: z.array(trimmed(60, "City names")).max(20, "Add up to 20 cities.").default([]),
     startDate: dateSchema,
     endDate: dateSchema,
     /** Uploaded photo IDs in display order; the first is the cover. */
@@ -183,7 +184,7 @@ export const REPORT_REASONS = ["spam", "harassment", "inappropriate", "other"] a
 
 export const reportSchema = z.object({
   reason: z.enum(REPORT_REASONS),
-  details: trimmed(1000).default(""),
+  details: trimmed(1000, "Details").default(""),
   messageId: z.string().uuid().optional(),
 });
 
