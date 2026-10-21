@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import { env } from "../env";
 
-type Provider = "google" | "facebook";
+type Provider = "google";
 
 const STATE_COOKIE = "tv_oauth_state";
 const REF_COOKIE = "tv_oauth_ref";

@@ -14,9 +14,6 @@ import { safeNext } from "@/lib/safe-next";
 const OAUTH_ERRORS: Record<string, string> = {
   google_failed: "Google sign-in didn't complete. Please try again.",
   google_unavailable: "Google sign-in isn't set up on this server yet.",
-  facebook_failed: "Facebook sign-in didn't complete. Please try again.",
-  facebook_unavailable: "Facebook sign-in isn't set up on this server yet.",
-  facebook_no_email: "Your Facebook account doesn't share an email address. Please sign up with your email instead.",
 };
 
 function LoginForm() {

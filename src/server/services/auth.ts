@@ -216,12 +216,12 @@ export async function resetPassword(token: string, password: string) {
 }
 
 /**
- * Google/Facebook proved this person owns the email of an existing account: link them to it.
+ * Google proved this person owns the email of an existing account: link them to it.
  * If that account never confirmed its email, whoever created it may not own the address, so its
  * password and every session go, leaving only the provider's owner signed in (they can set a
  * password again). A confirmed account is the same person, so it keeps its password.
  */
-async function linkProvider(user: UserRow, ids: { googleId: string } | { facebookId: string }) {
+async function linkProvider(user: UserRow, ids: { googleId: string }) {
   const confirmed = Boolean(user.emailVerifiedAt);
   const [linked] = await db
     .update(schema.users)
@@ -251,34 +251,6 @@ export async function upsertGoogleUser(
     username: await generateUsername(profile.email),
     email: profile.email.toLowerCase(),
     googleId: profile.sub,
-    emailVerified: true,
-    invitedBy: inviter?.id,
-    attribution: await takeAttribution(),
-  });
-  await followInviter(user.id, inviter);
-  return { user, created: true };
-}
-
-/** Find or create the user for a Facebook identity. Facebook only returns confirmed emails. */
-export async function upsertFacebookUser(
-  profile: { id: string; email: string | null; firstName: string; lastName: string },
-  ref?: string,
-) {
-  const byFacebook = await db.query.users.findFirst({ where: eq(schema.users.facebookId, profile.id) });
-  if (byFacebook) return { user: byFacebook, created: false };
-
-  // Phone-only Facebook accounts have no email, and every account here needs one.
-  if (!profile.email) throw new HttpError("VALIDATION", "Your Facebook account has no email address.", "email");
-  const byEmail = await findByEmail(profile.email);
-  if (byEmail) return { user: await linkProvider(byEmail, { facebookId: profile.id }), created: false };
-
-  const inviter = ref ? await findByUsername(ref) : undefined;
-  const user = await createUser({
-    firstName: profile.firstName || "Traveler",
-    lastName: profile.lastName || "",
-    username: await generateUsername(profile.email),
-    email: profile.email.toLowerCase(),
-    facebookId: profile.id,
     emailVerified: true,
     invitedBy: inviter?.id,
     attribution: await takeAttribution(),

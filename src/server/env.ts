@@ -27,11 +27,6 @@ export const env = {
     clientId: optional("GOOGLE_CLIENT_ID"),
     clientSecret: optional("GOOGLE_CLIENT_SECRET"),
   },
-  facebook: {
-    appId: optional("FACEBOOK_APP_ID"),
-    appSecret: optional("FACEBOOK_APP_SECRET"),
-  },
 };
 
 export const googleEnabled = Boolean(env.google.clientId && env.google.clientSecret);
-export const facebookEnabled = Boolean(env.facebook.appId && env.facebook.appSecret);
