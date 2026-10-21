@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { BlogShell } from "@/components/blog-shell";
 import { buttonClass } from "@/components/button-class";
 import { COUNTRIES, countrySlug, getCountryBySlug } from "@/lib/countries";
+import { shareImage } from "@/lib/seo";
 
 /**
  * Public, statically generated page per country, for searches like "trips to Japan" or "Japan
@@ -24,8 +25,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: `${title} | Tripfolio`,
     description,
     alternates: { canonical: url },
-    openGraph: { type: "website", url, title, description },
-    twitter: { card: "summary_large_image", title, description },
+    openGraph: { type: "website", url, title, description, images: [shareImage] },
+    twitter: { card: "summary_large_image", title, description, images: [shareImage] },
   };
 }
 

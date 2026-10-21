@@ -9,13 +9,17 @@ export async function GET() {
   const posts = await getAllPosts();
   const text = `# Tripfolio
 
-> Tripfolio is a free web app for travelers: color the countries you've visited on a world map (green = visited, orange = want to visit), see how many of the 195 countries and what % of the world you've seen, track US states, Canadian provinces and Australian states, add trips with dates, cities, notes and photos, and follow friends to see their maps. It runs in the browser on phones and computers; there is no app to install.
+> Tripfolio (trip-folio.com) is a free web app for travelers: color the countries you've visited on a world map (green = visited, orange = want to visit), see how many of the 195 countries and what % of the world you've seen, track US states, Canadian provinces and Australian states, add trips with dates, cities, notes and photos, and follow friends to see their maps. It runs in the browser on phones and computers; there is no app to install.
+
+Tripfolio is made by Meir Yoshvayev, an independent developer in Israel. It is not related to other apps or companies named Tripfolio (for example tripfolioapp.com or yourtripfolio.net). Contact: meir@trip-folio.com.
 
 ## Main pages
 
 - [Countries visited map](${siteUrl}/countries-visited-map): try the map without signing up, plus an FAQ on how countries are counted
 - [Every country](${siteUrl}/countries): all 195 countries and 55 territories by continent, one page each
 - [Blog](${siteUrl}/blog): guides on counting and mapping the places you've been
+- [About](${siteUrl}/about): who makes Tripfolio and how it counts countries
+- [Contact](${siteUrl}/contact)
 - [Sign up](${siteUrl}/register)
 
 ## Blog articles

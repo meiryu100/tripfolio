@@ -296,6 +296,11 @@ h1, h2, h3 {
   from { transform: translateY(14px); opacity: 0; filter: blur(4px); }
   to { transform: none; opacity: 1; filter: none; }
 }
+/* Movement only: hero text is visible from the first paint, so it never delays the LCP. */
+@keyframes rise-in-soft {
+  from { transform: translateY(14px); }
+  to { transform: none; }
+}
 @keyframes toast-in {
   from { transform: translateY(16px) scale(0.96); opacity: 0; }
   to { transform: none; opacity: 1; }
@@ -313,6 +318,7 @@ h1, h2, h3 {
 .animate-fade { animation: fade-in 0.25s ease-out; }
 /* Page entrance: every screen slides up out of a soft blur. */
 .animate-rise { animation: rise-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-rise-soft { animation: rise-in-soft 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .animate-toast { animation: toast-in 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
 .animate-float { animation: float 6s ease-in-out infinite; }
 

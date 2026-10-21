@@ -1,5 +1,5 @@
 ---
-title: How Many Countries Have I Visited? How to Count, Map and Remember Them
+title: How Many Countries Have I Visited? Count and Map Them
 description: Not sure how many countries you've visited? Learn what counts, how to tally your list in four steps, and how to turn it into a map you can share.
 date: 2026-10-19
 ---
@@ -26,7 +26,7 @@ Your phone remembers what you forgot. Search your photo library by year, or use 
 
 A list tells you a number. A map tells you a story. Seeing the countries filled in shows the gaps right away: the continent you've barely touched, the neighbor you somehow skipped.
 
-On Tripfolio you tap each country you've been to and it turns green; places you dream about turn orange. As you go, the page adds up countries visited, the percent of the world, and how many of the seven continents you've reached. It's free, runs in your browser, and works on your phone, so there's nothing to install. You can even try the map without signing up: [Countries visited map](/countries-visited-map?utm_source=blog&utm_medium=social&utm_campaign=how-many-countries).
+On Tripfolio you tap each country you've been to and it turns green; places you dream about turn orange. As you go, the page adds up countries visited, the percent of the world, and how many of the seven continents you've reached. It's free, runs in your browser, and works on your phone, so there's nothing to install. You can even try the map without signing up: [Countries visited map](/countries-visited-map).
 
 ## Step 4: Count the states, too
 
@@ -51,4 +51,4 @@ A count is only a number; the memories are the point. When you add a country, ad
 
 ## Ready to find your number?
 
-Open the map, tap the countries you've been to, and see how much of the world you've explored. It takes about five minutes and it's free. [Start your map](/register?utm_source=blog&utm_medium=social&utm_campaign=how-many-countries).
+Open the map, tap the countries you've been to, and see how much of the world you've explored. It takes about five minutes and it's free. [Start your map](/register).

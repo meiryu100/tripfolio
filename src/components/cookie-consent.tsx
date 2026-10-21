@@ -89,14 +89,13 @@ export function CookieBanner() {
     <section
       ref={bannerRef}
       aria-label="Cookie consent"
-      className="animate-fade fixed inset-x-0 bottom-0 z-[45] p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:p-4 md:pb-4"
+      className="animate-fade fixed inset-x-0 bottom-0 z-[45] p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] md:p-4 md:pb-4"
     >
-      <div className="mx-auto max-w-3xl rounded-2xl border border-border bg-surface p-4 shadow-float">
+      <div className="mx-auto max-w-3xl rounded-2xl border border-border bg-surface p-3 shadow-float sm:p-4">
         <div className="flex items-start gap-3">
-          <Cookie className="mt-0.5 size-5 shrink-0 text-brand" aria-hidden />
+          <Cookie className="mt-0.5 hidden size-5 shrink-0 text-brand sm:block" aria-hidden />
           <p className="min-w-0 text-sm">
-            We use essential cookies to keep you signed in. With your OK, we also remember which link brought you here — no ads, no third
-            parties.{" "}
+            Essential cookies keep you signed in. With your OK we also note which link brought you here. No ads, no third parties.{" "}
             <button
               type="button"
               onClick={() => setDetails((d) => !d)}
@@ -130,7 +129,7 @@ export function CookieBanner() {
           </p>
         )}
 
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="mt-2 grid grid-cols-2 gap-2 sm:mt-3">
           <button type="button" disabled={saving} onClick={() => choose("all")} className={buttonClass("secondary", "md", "w-full")}>
             Accept all
           </button>

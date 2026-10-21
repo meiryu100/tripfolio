@@ -5,6 +5,7 @@ import { BlogShell } from "@/components/blog-shell";
 import { buttonClass } from "@/components/button-class";
 import { Markdown } from "@/components/markdown";
 import { extractFaq, readingMinutes, wordCount } from "@/lib/blog-text";
+import { breadcrumbs, FOUNDER_ID, founder, jsonLd, ORGANIZATION_ID, organization } from "@/lib/seo";
 import { siteUrl } from "@/lib/site-url";
 import { formatPostDate, getAllPosts, getPost } from "@/server/blog";
 
@@ -17,7 +18,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!post) return {};
   const url = `/blog/${post.slug}`;
   return {
-    title: `${post.title} | Tripfolio`,
+    // Long titles get cut off in search results, so only short ones get the brand suffix.
+    title: { absolute: post.title.length > 50 ? post.title : `${post.title} | Tripfolio` },
     description: post.description,
     alternates: { canonical: url, types: { "application/rss+xml": "/blog/rss.xml" } },
     openGraph: { type: "article", url, title: post.title, description: post.description, publishedTime: post.date, modifiedTime: post.updated },
@@ -31,42 +33,34 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const related = (await getAllPosts()).filter((p) => p.slug !== post.slug).slice(0, 3);
 
   const url = `${siteUrl}/blog/${post.slug}`;
-  const organization = { "@type": "Organization", name: "Tripfolio", url: siteUrl, logo: `${siteUrl}/brand/tripfolio-mark.png` };
   const faq = extractFaq(post.body);
-  // One graph: the article, where it sits on the site, and its FAQ (if it has one).
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "BlogPosting",
-        headline: post.title,
-        description: post.description,
-        image: `${url}/opengraph-image`,
-        datePublished: post.date,
-        dateModified: post.updated,
-        wordCount: wordCount(post.body),
-        inLanguage: "en",
-        mainEntityOfPage: url,
-        author: organization,
-        publisher: organization,
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Tripfolio", item: siteUrl },
-          { "@type": "ListItem", position: 2, name: "Blog", item: `${siteUrl}/blog` },
-          { "@type": "ListItem", position: 3, name: post.title, item: url },
-        ],
-      },
-      ...(faq.length
-        ? [{ "@type": "FAQPage", mainEntity: faq.map((qa) => ({ "@type": "Question", name: qa.question, acceptedAnswer: { "@type": "Answer", text: qa.answer } })) }]
-        : []),
-    ],
-  };
+  // One graph: the article (written by Meir, published by Tripfolio), where it sits on the site,
+  // and its FAQ (if it has one).
+  const graph = [
+    {
+      "@type": "BlogPosting",
+      headline: post.title,
+      description: post.description,
+      image: `${url}/opengraph-image`,
+      datePublished: post.date,
+      dateModified: post.updated,
+      wordCount: wordCount(post.body),
+      inLanguage: "en",
+      mainEntityOfPage: url,
+      author: { "@id": FOUNDER_ID },
+      publisher: { "@id": ORGANIZATION_ID },
+    },
+    founder,
+    organization,
+    breadcrumbs(["Blog", "/blog"], [post.title, `/blog/${post.slug}`]),
+    ...(faq.length
+      ? [{ "@type": "FAQPage", mainEntity: faq.map((qa) => ({ "@type": "Question", name: qa.question, acceptedAnswer: { "@type": "Answer", text: qa.answer } })) }]
+      : []),
+  ];
 
   return (
     <BlogShell>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(...graph) }} />
       <nav aria-label="Breadcrumb" className="text-sm font-medium">
         <Link href="/blog" className="text-brand hover:underline">
           ← All articles
@@ -75,7 +69,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <article>
         <h1 className="mt-4 text-4xl leading-[1.05] font-bold tracking-tight [overflow-wrap:anywhere] sm:text-5xl">{post.title}</h1>
         <p className="mt-3 text-sm text-muted">
-          <time dateTime={post.date}>{formatPostDate(post.date)}</time>
+          By{" "}
+          <Link href="/about" className="font-medium text-fg hover:underline">
+            Meir Yoshvayev
+          </Link>{" "}
+          · <time dateTime={post.date}>{formatPostDate(post.date)}</time>
           {post.updated !== post.date && (
             <>
               {" "}
@@ -93,10 +91,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <h2 className="text-2xl font-bold tracking-tight">See your own map</h2>
         <p className="mx-auto mt-2 max-w-md text-muted">Tap the countries you&apos;ve been to and watch your % of the world add up. Free, no app to install.</p>
         <div className="mt-5 flex flex-wrap justify-center gap-2">
-          <Link href={`/countries-visited-map?utm_source=blog&utm_medium=organic&utm_campaign=${post.slug}`} className={buttonClass("primary")}>
+          <Link href="/countries-visited-map" className={buttonClass("primary")}>
             Try the map
           </Link>
-          <Link href={`/register?utm_source=blog&utm_medium=organic&utm_campaign=${post.slug}`} className={buttonClass("secondary")}>
+          <Link href="/register" className={buttonClass("secondary")}>
             Create my map
           </Link>
         </div>

@@ -1,5 +1,5 @@
 ---
-title: How Many US States Have You Visited? Make Your 50 States Map in 5 Minutes
+title: How Many US States Have You Visited? Make Your Map
 description: Count the US states you've visited, settle the layover debate, and turn your road trips into a 50 states map you can share. Free, no app needed.
 date: 2026-10-19
 ---
@@ -35,7 +35,7 @@ One more detail that trips people up: Washington, D.C. is not a state. It's a fe
 
 You could do this in a spreadsheet, but a map is more fun, and you'll want the picture anyway. Here's the five-minute version with Tripfolio:
 
-- **Sign up** at [trip-folio.com](/?utm_source=blog&utm_medium=social&utm_campaign=how-many-of-50). It's free and runs in your browser, so there's no app to install, and it works on a phone.
+- **Sign up** at [trip-folio.com](/). It's free and runs in your browser, so there's no app to install, and it works on a phone.
 - **Open the world map.** The USA is split into its 50 states right inside the world map, so you can mark a state without leaving the page.
 - **Switch to the "USA only" tab.** You get a full-screen states map and an "x / 50 states" counter.
 - **Tap the states you've been to.** They turn green. Mark the ones you're dreaming about as "want to visit", and they turn orange.
@@ -62,4 +62,4 @@ If you like numbers, the same counter works at the world level: countries visite
 
 Count your states this week, before the long drive. Then make the map, and see how it looks with your orange states showing where you're headed next.
 
-[Map your 50 states on Tripfolio →](/?utm_source=blog&utm_medium=social&utm_campaign=how-many-of-50)
+[Map your 50 states on Tripfolio →](/)

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CONTACT_EMAIL, LegalPage, type LegalSection } from "@/components/legal";
 import { COOKIE_DETAILS } from "@/lib/consent";
+import { shareImage } from "@/lib/seo";
 
 const TITLE = "Privacy Policy";
 const DESCRIPTION = "What Tripfolio collects, why, who sees it, how long we keep it, and how to delete your account and data.";
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
   title: `${TITLE} | Tripfolio`,
   description: DESCRIPTION,
   alternates: { canonical: "/privacy" },
-  openGraph: { type: "website", url: "/privacy", title: TITLE, description: DESCRIPTION },
+  openGraph: { type: "website", url: "/privacy", title: TITLE, description: DESCRIPTION, images: [shareImage] },
 };
 
 const mail = <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>;

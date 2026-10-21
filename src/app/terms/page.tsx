@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CONTACT_EMAIL, LegalPage, type LegalSection } from "@/components/legal";
+import { shareImage } from "@/lib/seo";
 
 const TITLE = "Terms of Service";
 const DESCRIPTION = "The rules for using Tripfolio: your account, your content, acceptable use and how to end your account.";
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
   title: `${TITLE} | Tripfolio`,
   description: DESCRIPTION,
   alternates: { canonical: "/terms" },
-  openGraph: { type: "website", url: "/terms", title: TITLE, description: DESCRIPTION },
+  openGraph: { type: "website", url: "/terms", title: TITLE, description: DESCRIPTION, images: [shareImage] },
 };
 
 const mail = <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>;

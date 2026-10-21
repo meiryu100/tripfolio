@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BlogShell } from "@/components/blog-shell";
 import { COUNTRIES, countrySlug } from "@/lib/countries";
+import { breadcrumbs, jsonLd, WEBSITE_ID, shareImage } from "@/lib/seo";
+import { siteUrl } from "@/lib/site-url";
 
 /** Public index of every country page, grouped by continent — the entry point for search engines. */
 
@@ -12,15 +14,30 @@ export const metadata: Metadata = {
   title: `${TITLE} | Tripfolio`,
   description: DESCRIPTION,
   alternates: { canonical: "/countries" },
-  openGraph: { type: "website", url: "/countries", title: TITLE, description: DESCRIPTION },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  openGraph: { type: "website", url: "/countries", title: TITLE, description: DESCRIPTION, images: [shareImage] },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: [shareImage] },
 };
 
 const CONTINENTS = ["Africa", "Asia", "Europe", "North America", "South America", "Oceania", "Antarctica"];
 
+const collection = {
+  "@type": "CollectionPage",
+  "@id": `${siteUrl}/countries`,
+  url: `${siteUrl}/countries`,
+  name: TITLE,
+  description: DESCRIPTION,
+  isPartOf: { "@id": WEBSITE_ID },
+  mainEntity: {
+    "@type": "ItemList",
+    numberOfItems: COUNTRIES.length,
+    itemListElement: COUNTRIES.map((c, i) => ({ "@type": "ListItem", position: i + 1, name: c.name, url: `${siteUrl}/countries/${countrySlug(c)}` })),
+  },
+};
+
 export default function CountriesIndexPage() {
   return (
     <BlogShell>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(collection, breadcrumbs(["Countries", "/countries"])) }} />
       <h1 className="text-4xl leading-[1.05] font-bold tracking-tight sm:text-5xl">Every country in the world</h1>
       <p className="mt-3 text-[17px] leading-relaxed text-muted">
         Tripfolio counts 195 countries — the 193 UN member states plus the Vatican and Palestine — and shows 55 territories on
