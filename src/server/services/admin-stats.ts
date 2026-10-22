@@ -44,11 +44,21 @@ export interface AdminStats {
   sources30d: { source: string; signups: number }[];
   topVisited: { name: string; code: string; users: number }[];
   topWishlisted: { name: string; code: string; users: number }[];
-  recentSignups: { username: string; name: string; createdAt: string; source: string; verified: boolean }[];
+  /** Every UTM combination real users signed up with (first touch, src/lib/attribution.ts). */
+  utm: { source: string; medium: string; campaign: string; referrer: string; total: number; last30d: number }[];
+  recentSignups: {
+    username: string;
+    name: string;
+    createdAt: string;
+    source: string;
+    medium: string | null;
+    campaign: string | null;
+    verified: boolean;
+  }[];
 }
 
 export async function getAdminStats(): Promise<AdminStats> {
-  const [users, active, content, funnel30d, byDay, sources, topVisited, topWishlisted, recent] = await Promise.all([
+  const [users, active, content, funnel30d, byDay, sources, utm, topVisited, topWishlisted, recent] = await Promise.all([
     one<AdminStats["users"]>(sql`
       select
         count(*) filter (where not is_test_user)                                                as real,
@@ -98,10 +108,27 @@ export async function getAdminStats(): Promise<AdminStats> {
              count(*)::int as signups
       from users where not is_test_user and created_at > now() - interval '30 days'
       group by 1 order by signups desc, source`),
+    db.execute<AdminStats["utm"][number]>(sql`
+      select coalesce(signup_source, '') as source, coalesce(signup_medium, '') as medium,
+             coalesce(signup_campaign, '') as campaign, coalesce(signup_referrer, '') as referrer,
+             count(*)::int as total,
+             (count(*) filter (where created_at > now() - interval '30 days'))::int as "last30d"
+      from users
+      where not is_test_user and (signup_source is not null or signup_medium is not null
+                                  or signup_campaign is not null or signup_referrer is not null)
+      group by 1, 2, 3, 4 order by total desc, source, medium, campaign`),
     topCountries("VISITED"),
     topCountries("WANT_TO_VISIT"),
-    db.execute<{ username: string; name: string; created_at: Date; source: string; verified: boolean }>(sql`
-      select username, first_name || ' ' || last_name as name, created_at,
+    db.execute<{
+      username: string;
+      name: string;
+      created_at: Date;
+      source: string;
+      medium: string | null;
+      campaign: string | null;
+      verified: boolean;
+    }>(sql`
+      select username, first_name || ' ' || last_name as name, created_at, signup_medium as medium, signup_campaign as campaign,
              coalesce(signup_source, case when invited_by is not null then 'invite' end, signup_referrer, 'direct') as source,
              email_verified_at is not null as verified
       from users where not is_test_user
@@ -115,6 +142,7 @@ export async function getAdminStats(): Promise<AdminStats> {
     funnel30d,
     signupsByDay: byDay.rows,
     sources30d: sources.rows,
+    utm: utm.rows,
     topVisited,
     topWishlisted,
     recentSignups: recent.rows.map((r) => ({
@@ -122,6 +150,8 @@ export async function getAdminStats(): Promise<AdminStats> {
       name: r.name,
       createdAt: new Date(r.created_at).toISOString(),
       source: r.source,
+      medium: r.medium,
+      campaign: r.campaign,
       verified: r.verified,
     })),
   };

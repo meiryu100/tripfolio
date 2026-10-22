@@ -137,6 +137,39 @@ export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; gene
         </Panel>
       </div>
 
+      <Panel title="UTM" note="כל צירופי ה-UTM שמשתמשים אמיתיים נרשמו איתם (הנגיעה הראשונה), לפי כמות">
+        {stats.utm.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-xs text-muted">
+                <tr>
+                  <th className="pb-2 pe-4 text-start font-medium">utm_source</th>
+                  <th className="pb-2 pe-4 text-start font-medium">utm_medium</th>
+                  <th className="pb-2 pe-4 text-start font-medium">utm_campaign</th>
+                  <th className="pb-2 pe-4 text-start font-medium">אתר מפנה</th>
+                  <th className="pb-2 pe-4 text-end font-medium">סה״כ</th>
+                  <th className="pb-2 text-end font-medium">30 יום</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.utm.map((u) => (
+                  <tr key={`${u.source}|${u.medium}|${u.campaign}|${u.referrer}`} className="border-t border-border">
+                    <td className="py-2 pe-4"><bdi dir="ltr">{u.source || "—"}</bdi></td>
+                    <td className="py-2 pe-4 text-muted"><bdi dir="ltr">{u.medium || "—"}</bdi></td>
+                    <td className="py-2 pe-4 text-muted"><bdi dir="ltr">{u.campaign || "—"}</bdi></td>
+                    <td className="py-2 pe-4 text-muted"><bdi dir="ltr">{u.referrer || "—"}</bdi></td>
+                    <td className="py-2 pe-4 text-end tabular-nums">{fmt.format(u.total)}</td>
+                    <td className="py-2 text-end tabular-nums text-muted">{fmt.format(u.last30d)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-sm text-muted">עדיין אף משתמש אמיתי לא נרשם עם UTM או מאתר מפנה (כולם direct)</p>
+        )}
+      </Panel>
+
       <Panel title="נרשמו לאחרונה" note="10 המשתמשים האמיתיים האחרונים">
         {stats.recentSignups.length ? (
           <div className="overflow-x-auto">
@@ -147,6 +180,7 @@ export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; gene
                   <th className="pb-2 text-start font-medium">משתמש</th>
                   <th className="pb-2 text-start font-medium">נרשם</th>
                   <th className="pb-2 text-start font-medium">מקור</th>
+                  <th className="pb-2 text-start font-medium">medium / campaign</th>
                   <th className="pb-2 text-start font-medium">מייל מאומת</th>
                 </tr>
               </thead>
@@ -160,7 +194,8 @@ export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; gene
                       </a>
                     </td>
                     <td className="py-2 pe-4 whitespace-nowrap text-muted">{dateTime.format(new Date(u.createdAt))}</td>
-                    <td className="py-2 text-muted">{u.source}</td>
+                    <td className="py-2 pe-4 text-muted">{u.source}</td>
+                    <td className="py-2 pe-4 text-muted"><bdi dir="ltr">{[u.medium, u.campaign].filter(Boolean).join(" / ") || "—"}</bdi></td>
                     <td className="py-2">{u.verified ? "מאומת" : "לא מאומת"}</td>
                   </tr>
                 ))}
