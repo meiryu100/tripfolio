@@ -26,12 +26,17 @@ declare global {
   }
 }
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+// Measurement IDs are public (they're in every page's HTML anyway). NEXT_PUBLIC_GA_MEASUREMENT_ID
+// overrides it, e.g. to test locally with another property.
+const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-H4YSTR6P3C";
+// Only the live site counts: local runs and Vercel previews would muddy the numbers.
+const GA_HOSTS = ["www.trip-folio.com", "trip-folio.com"];
 // Pages opened from an email link carry a one-time token in the URL: never load Google there.
 const TOKEN_PAGES = ["/reset-password", "/verify-email"];
 // GA's own default is 2 years; 13 months is the usual limit for analytics cookies in the EU.
 const COOKIE_EXPIRES = 60 * 60 * 24 * 395;
 
+const noSubscribe = () => () => {};
 const subscribeConsent = (cb: () => void) => {
   window.addEventListener(CONSENT_EVENT, cb);
   return () => window.removeEventListener(CONSENT_EVENT, cb);
@@ -55,7 +60,8 @@ function deleteGaCookies() {
 function GoogleAnalytics({ id }: { id: string }) {
   const consent = useSyncExternalStore(subscribeConsent, savedConsent, () => undefined);
   const pathname = usePathname();
-  const allowed = consent === "all";
+  const liveSite = useSyncExternalStore(noSubscribe, () => GA_HOSTS.includes(location.hostname) || Boolean(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID), () => false);
+  const allowed = consent === "all" && liveSite;
   const tokenPage = TOKEN_PAGES.includes(pathname);
 
   useEffect(() => {
@@ -96,7 +102,7 @@ export function SiteAnalytics() {
   return (
     <>
       <Analytics beforeSend={beforeSend} />
-      {GA_ID && <GoogleAnalytics id={GA_ID} />}
+      <GoogleAnalytics id={GA_ID} />
     </>
   );
 }
