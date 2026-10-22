@@ -28,6 +28,7 @@ const timestamps = {
 
 export const themeEnum = pgEnum("theme", ["light", "dark", "system"]);
 export const genderEnum = pgEnum("gender", ["male", "female"]);
+export const userRoleEnum = pgEnum("user_role", ["user", "admin"]);
 
 export const users = pgTable(
   "users",
@@ -55,6 +56,8 @@ export const users = pgTable(
     onboarded: boolean("onboarded").notNull().default(false),
     /** Demo/sample account created by the seed script, not a real sign-up. */
     isTestUser: boolean("is_test_user").notNull().default(false),
+    /** Every sign-up is a "user"; "admin" is set by hand in the database (only the owner's account). */
+    role: userRoleEnum("role").notNull().default("user"),
     /** Who invited this user (they signed up from that person's link). */
     invitedBy: uuid("invited_by").references((): AnyPgColumn => users.id, { onDelete: "set null" }),
     /** Where the user first came from (first touch, see src/lib/attribution.ts): UTM tags or the referring site. */
