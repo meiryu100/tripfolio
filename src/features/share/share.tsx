@@ -3,6 +3,7 @@
 import { Copy, Download, MessageCircle, Share2, UserPlus } from "lucide-react";
 import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { Button, Sheet, SheetClose, buttonClass } from "@/components/ui";
+import { trackClick } from "@/components/analytics";
 import { sharedMapPath } from "@/lib/map-share";
 import type { CountryStatus } from "@/lib/types";
 import { toast } from "@/lib/ui";
@@ -134,7 +135,15 @@ export function ShareDemoMapButton({ statuses, regionStatuses, className }: { st
 
   return (
     <>
-      <Button variant="secondary" size="lg" className={className} onClick={() => setOpen(true)}>
+      <Button
+        variant="secondary"
+        size="lg"
+        className={className}
+        onClick={() => {
+          setOpen(true);
+          trackClick("share_map");
+        }}
+      >
         <Share2 className="size-4" /> Share my map
       </Button>
       <Sheet open={open} onClose={() => setOpen(false)} label="Share your map">

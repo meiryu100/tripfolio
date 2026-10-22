@@ -2,6 +2,7 @@
 
 import { ArrowRight, Camera, Compass, Globe2, MapPinned, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
+import { trackClick } from "@/components/analytics";
 import { Logo } from "@/components/logo";
 import { SiteFooter } from "@/components/site-footer";
 import { CountUp, Parallax, Reveal } from "@/components/motion";
@@ -54,10 +55,10 @@ export function LandingPage() {
             </Link>
           ) : (
             <div className="flex items-center gap-1">
-              <Link href="/login" className={buttonClass("ghost", "md")}>
+              <Link href="/login" onClick={() => trackClick("login_header")} className={buttonClass("ghost", "md")}>
                 Log In
               </Link>
-              <Link href="/register" className={buttonClass("primary", "md", "hidden sm:inline-flex")}>
+              <Link href="/register" onClick={() => trackClick("get_started_header")} className={buttonClass("primary", "md", "hidden sm:inline-flex")}>
                 Get Started
               </Link>
             </div>
@@ -82,11 +83,15 @@ export function LandingPage() {
             Tripfolio is a free travel map app: map every country you&apos;ve been to, keep the stories behind them, and explore the world through other travelers.
           </p>
           <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href={me ? "/home" : "/register"} className={buttonClass("primary", "lg", "min-w-48 text-base")}>
+            <Link
+              href={me ? "/home" : "/register"}
+              onClick={() => trackClick("start_map_hero", { signed_in: me ? "yes" : "no" })}
+              className={buttonClass("primary", "lg", "min-w-48 text-base")}
+            >
               Start your map <ArrowRight className="size-5" />
             </Link>
             {!me && (
-              <Link href="/login" className={buttonClass("secondary", "lg", "min-w-48 text-base")}>
+              <Link href="/login" onClick={() => trackClick("have_account_hero")} className={buttonClass("secondary", "lg", "min-w-48 text-base")}>
                 I have an account
               </Link>
             )}
@@ -148,6 +153,7 @@ export function LandingPage() {
           <p className="mx-auto mt-3 max-w-lg text-lg text-white/90">It takes a minute to start. Your first country is one tap away.</p>
           <Link
             href={me ? "/home" : "/register"}
+            onClick={() => trackClick("create_account_bottom", { signed_in: me ? "yes" : "no" })}
             className="shine mt-8 inline-flex h-13 items-center gap-2 rounded-xl bg-white px-7 text-base font-semibold text-[#0c4a6e] shadow-float transition duration-300 hover:-translate-y-0.5"
           >
             {me ? "Open my world" : "Create your free account"} <ArrowRight className="size-5" />
