@@ -20,8 +20,21 @@ const RESET_TTL_MS = 60 * 60 * 1000;
 const findByEmail = (email: string) =>
   db.query.users.findFirst({ where: sql`lower(${schema.users.email}) = ${email.toLowerCase()}` });
 
-/** Caps emails sent to one address (sign-up, verification, reset), whoever asks for them. */
-const limitEmailsTo = (email: string) => rateLimit(`email:${email.toLowerCase()}`, ACCOUNT_LIMITS.email);
+/**
+ * Caps emails sent to one address, whoever asks for them, with a separate count per kind so
+ * requests of one kind can't use up another's (sign-up spam shouldn't block a password reset).
+ * Over the cap it returns false and the caller skips the send but answers as usual: an error
+ * would only tell a stranger they had found the limit, and the owner would be left with it.
+ */
+async function mayEmail(kind: "signup" | "verify" | "reset", email: string) {
+  try {
+    await rateLimit(`email:${kind}:${email.toLowerCase()}`, ACCOUNT_LIMITS.email);
+    return true;
+  } catch (err) {
+    if (err instanceof HttpError && err.code === "RATE_LIMITED") return false;
+    throw err;
+  }
+}
 
 /** Where this new user first came from (set by src/proxy.ts); the cookie has done its job after sign-up. */
 async function takeAttribution() {
@@ -58,7 +71,7 @@ async function followInviter(userId: string, inviter: { username: string } | nul
  */
 export async function register(input: { email: string; password: string; ref?: string }) {
   const { ref, email, password } = input;
-  await limitEmailsTo(email);
+  if (!(await mayEmail("signup", email))) return;
   const existing = await findByEmail(email);
 
   if (existing?.emailVerifiedAt) {
@@ -112,7 +125,7 @@ async function sendAlreadyRegistered(user: { email: string; firstName: string })
 
 /** "Send the link again". Always succeeds from the caller's point of view (no account enumeration). */
 export async function resendVerification(email: string) {
-  await limitEmailsTo(email);
+  if (!(await mayEmail("verify", email))) return;
   const user = await findByEmail(email);
   if (user && !user.emailVerifiedAt) await sendVerification(user, user.email);
 }
@@ -158,7 +171,7 @@ export async function verifyEmail(token: string) {
 
 /** Always succeeds from the caller's point of view (no account enumeration). */
 export async function requestPasswordReset(email: string) {
-  await limitEmailsTo(email);
+  if (!(await mayEmail("reset", email))) return;
   const user = await findByEmail(email);
   if (!user) return;
   const token = randomBytes(32).toString("base64url");
