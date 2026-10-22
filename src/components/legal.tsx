@@ -4,7 +4,7 @@ import { buttonClass } from "@/components/button-class";
 import { CookieSettingsButton } from "@/components/cookie-consent";
 import { Logo } from "@/components/logo";
 
-export const LEGAL_UPDATED = "October 17, 2026";
+export const LEGAL_UPDATED = "October 22, 2026";
 export const CONTACT_EMAIL = "meir@trip-folio.com";
 
 export interface LegalSection {

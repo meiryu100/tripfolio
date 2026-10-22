@@ -88,7 +88,15 @@ const SECTIONS: LegalSection[] = [
         <p>
           We count page visits with Vercel Web Analytics, which uses no cookies and stores nothing in your browser: it records the page
           (without its query, except campaign tags), the referring site, and your country and device type, and it doesn&apos;t identify
-          you. We do not use advertising or tracking tools, and we don&apos;t run analytics cookies.
+          you.
+        </p>
+        <p>
+          <strong>Google Analytics</strong>, only if you accept all cookies: it helps us see which pages people visit, how they move
+          around the site and where they come from. Google sets the <code>_ga</code> cookies and receives the page you&apos;re on
+          (without its query, except campaign tags), the referring site, your browser and device, and your IP address, which Google
+          Analytics doesn&apos;t store. We don&apos;t send your name, email or account details, we don&apos;t use it for ads, and Google keeps
+          the data for up to 14 months. If you choose &quot;Essential only&quot;, Google Analytics doesn&apos;t load, and its cookies are deleted
+          if you change your mind later. We do not use advertising tools.
         </p>
       </>
     ),
@@ -158,6 +166,9 @@ const SECTIONS: LegalSection[] = [
           </li>
           <li>
             <strong>Resend:</strong> sending our emails.
+          </li>
+          <li>
+            <strong>Google Analytics (Google):</strong> visit statistics, only if you accept all cookies.
           </li>
           <li>
             <strong>Google and Facebook (Meta):</strong> only if you sign in with them.
