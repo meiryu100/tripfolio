@@ -12,7 +12,7 @@ import { CONSENT_COOKIE } from "@/lib/consent";
  *
  * It also remembers where a signed-out visitor first came from (UTM tags or the
  * referring site), for sign-up attribution — see src/lib/attribution.ts. That cookie is optional, so it
- * is only set once the visitor chose "Accept all" in the cookie banner (tf_consent=all, src/lib/consent.ts).
+ * is only set once the visitor chose "Accept all" in the cookie banner (tf_consent_v2=all, src/lib/consent.ts).
  */
 const PROTECTED = ["/home", "/map", "/explore", "/trips", "/wishlist", "/friends", "/notifications", "/messages", "/profile", "/settings", "/u", "/onboarding"];
 

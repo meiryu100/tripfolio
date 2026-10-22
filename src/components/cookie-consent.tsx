@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { buttonClass } from "@/components/button-class";
 import { api, errorMessage } from "@/lib/api-client";
-import { CONSENT_COOKIE, COOKIE_DETAILS, isConsent, type Consent } from "@/lib/consent";
+import { CONSENT_EVENT, COOKIE_DETAILS, savedConsent, type Consent } from "@/lib/consent";
 import { toast } from "@/lib/ui";
 
 /**
@@ -27,8 +27,7 @@ const setReopened = (v: boolean) => {
   listeners.forEach((l) => l());
 };
 
-const savedChoice = () => document.cookie.split("; ").find((c) => c.startsWith(`${CONSENT_COOKIE}=`))?.split("=")[1];
-const getShown = () => reopened || !isConsent(savedChoice());
+const getShown = () => reopened || !savedConsent();
 
 export const openCookieSettings = () => setReopened(true);
 
@@ -74,6 +73,7 @@ export function CookieBanner() {
     setSaving(true);
     try {
       await api.post("/api/consent", { choice, ...(choice === "all" && firstVisit) });
+      window.dispatchEvent(new Event(CONSENT_EVENT));
       setDetails(false);
       setReopened(false);
     } catch (e) {
@@ -95,7 +95,8 @@ export function CookieBanner() {
         <div className="flex items-start gap-3">
           <Cookie className="mt-0.5 hidden size-5 shrink-0 text-brand sm:block" aria-hidden />
           <p className="min-w-0 text-sm">
-            Essential cookies keep you signed in. With your OK we also note which link brought you here. No ads, no third parties.{" "}
+            Essential cookies keep you signed in. With your OK we also note which link brought you here and use Google Analytics to
+            see how the site is used. No ads.{" "}
             <button
               type="button"
               onClick={() => setDetails((d) => !d)}

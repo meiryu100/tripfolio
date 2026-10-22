@@ -12,16 +12,17 @@ const storageOrigin = (() => {
   }
 })();
 
-// Only our own scripts, styles, fonts and API, plus photos from the storage host. Checked in
+// Only our own scripts, styles, fonts and API, plus photos from the storage host and Google Analytics
+// (loaded only after "Accept all", see src/components/analytics.tsx). Checked in
 // Report-Only mode on production first. Next.js and the theme script in layout.tsx use inline
 // scripts, hence 'unsafe-inline' until we move to nonces; eval only in development (React refresh).
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: blob: ${storageOrigin}`.trim(),
+  `img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com ${storageOrigin}`.trim(),
   "font-src 'self'",
-  `connect-src 'self'${isDev ? " ws:" : ""}`,
+  `connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com${isDev ? " ws:" : ""}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "object-src 'none'",
