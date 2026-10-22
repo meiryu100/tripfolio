@@ -72,7 +72,7 @@ You can read more about how counting works in [How Many Countries Have I Visited
 
 Seeing the world in color changes how you think about the number. Open [the countries visited map](/countries-visited-map), tap the places you've been and watch the 195 fill in. It's free, runs in your browser, and works on your phone. Then sign up if you'd like to keep it, add trips and photos, and see where your friends have been.
 
-Ready to see your number? [Try the free countries visited map](/countries-visited-map?utm_source=blog&utm_medium=organic&utm_campaign=how-many-countries-are-there-in-the-world).
+Ready to see your number? [Try the free countries visited map](/countries-visited-map).
 
 ## FAQ
 

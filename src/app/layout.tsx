@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Outfit, Work_Sans } from "next/font/google";
 import { SiteAnalytics } from "@/components/analytics";
 import { Providers } from "@/components/providers";
+import { siteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 // "Geometric Modern" pairing: Outfit headings, Work Sans body.
@@ -22,7 +23,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   // Absolute base for Open Graph image and canonical URLs.
-  metadataBase: new URL(process.env.APP_URL || "http://localhost:3000"),
+  metadataBase: new URL(siteUrl),
   title: "Tripfolio — Your world, your journeys",
   description: "Map the countries you've visited, keep your travel memories, and explore the world through other travelers.",
 };

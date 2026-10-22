@@ -1,7 +1,8 @@
 ---
-title: How Many Countries Have I Visited? How to Count, Map and Remember Them
+title: How Many Countries Have I Visited? Count and Map Them
 description: Not sure how many countries you've visited? Learn what counts, how to tally your list in four steps, and how to turn it into a map you can share.
 date: 2026-10-19
+updated: 2026-10-21
 ---
 
 Someone asks, "So, how many countries have you been to?" and you start counting on your fingers, then lose track somewhere around the third weekend trip. You're not alone. The honest answer is hard to produce from memory, but it's easy to produce from a map. Here's a simple way to get a real number, and keep it.
@@ -10,7 +11,16 @@ Someone asks, "So, how many countries have you been to?" and you start counting 
 
 There is no single official rule, so decide yours before you count. The United Nations has 193 member states, plus two permanent observer states, the Holy See (Vatican City) and Palestine. Add those and you get the commonly used total of 195 countries. Tripfolio uses that same 195 for its "% of the world" figure.
 
-Then there are territories: places like Greenland, Puerto Rico or Hong Kong that aren't UN members but feel like a destination of their own. The Travelers' Century Club, a club for people who have been to 100 or more places, counts 330 "countries and territories" on its list, which is why its numbers are much bigger than the 195 above. Neither way is wrong. They're just different games.
+Then there are territories: places like Greenland, Puerto Rico or Hong Kong that aren't UN members but feel like a destination of their own. Other organizations count them, which is why their totals are bigger:
+
+| Who's counting | How many | What they count |
+|---|---|---|
+| [United Nations](https://www.un.org/en/about-us/member-states) | 193 (195 with observers) | Member states, plus the Vatican and Palestine as observer states |
+| [Olympics (IOC)](https://en.wikipedia.org/wiki/National_Olympic_Committee) | 206 | National Olympic Committees, including Kosovo, Taiwan and some territories |
+| [FIFA](https://en.wikipedia.org/wiki/FIFA) | 211 | Football associations, including England, Scotland, Wales and Northern Ireland separately |
+| [Travelers' Century Club](https://www.travelerscenturyclub.org/) | 330 | "Countries and territories", counting distant islands as separate stops |
+
+Neither way is wrong. They're just different games, and our guide to [how many countries there are in the world](/blog/how-many-countries-are-there-in-the-world) explains each one.
 
 The other big question is the layover. Most travelers say a country counts once you've cleared immigration and spent real time there. An airport-only connection usually doesn't. Pick a rule and keep it consistent, so your number means the same thing next year.
 
@@ -26,11 +36,11 @@ Your phone remembers what you forgot. Search your photo library by year, or use 
 
 A list tells you a number. A map tells you a story. Seeing the countries filled in shows the gaps right away: the continent you've barely touched, the neighbor you somehow skipped.
 
-On Tripfolio you tap each country you've been to and it turns green; places you dream about turn orange. As you go, the page adds up countries visited, the percent of the world, and how many of the seven continents you've reached. It's free, runs in your browser, and works on your phone, so there's nothing to install. You can even try the map without signing up: [Countries visited map](/countries-visited-map?utm_source=blog&utm_medium=social&utm_campaign=how-many-countries).
+On Tripfolio you tap each country you've been to and it turns green; places you dream about turn orange. As you go, the page adds up countries visited, the percent of the world, and how many of the seven continents you've reached. It's free, runs in your browser, and works on your phone, so there's nothing to install. You can even try the map without signing up: [Countries visited map](/countries-visited-map).
 
 ## Step 4: Count the states, too
 
-If you road-trip around the United States, the 50-state tally is its own game. On Tripfolio the USA splits into its 50 states on the world map, and there's a separate "USA only" tab with an "x / 50 states" counter. Many people discover they've covered more of the country than they thought, and that one stubborn corner of the map is still empty.
+If you road-trip around the United States, the 50-state tally is its own game. On Tripfolio the USA splits into its 50 states on the world map, and there's a separate "USA only" tab with an "x / 50 states" counter. You can also try the [US states visited map](/us-states-visited-map) without signing up. Many people discover they've covered more of the country than they thought, and that one stubborn corner of the map is still empty.
 
 ## Milestones worth celebrating
 
@@ -51,4 +61,22 @@ A count is only a number; the memories are the point. When you add a country, ad
 
 ## Ready to find your number?
 
-Open the map, tap the countries you've been to, and see how much of the world you've explored. It takes about five minutes and it's free. [Start your map](/register?utm_source=blog&utm_medium=social&utm_campaign=how-many-countries).
+Open the map, tap the countries you've been to, and see how much of the world you've explored. It takes about five minutes and it's free. [Start your map](/register).
+
+## FAQ
+
+### How do I count how many countries I've visited?
+
+Pick a rule first (the 195 UN countries, or a longer list with territories, and whether layovers count). Then list countries continent by continent, check your photos, email and passport stamps for the ones you forgot, and color them in on a map that adds them up for you.
+
+### Does a layover count as visiting a country?
+
+Most travelers say no if you never left the airport, and yes once you've cleared immigration and spent some time there. There's no official rule, so choose one and use it every time.
+
+### How many countries are there to visit?
+
+The most common count is 195: the 193 UN member states plus the Vatican and Palestine. Lists that include territories are longer, up to 330 for the Travelers' Century Club.
+
+### What percentage of the world have I visited?
+
+Divide the countries you've visited by 195 and multiply by 100. Ten countries is about 5% of the world, and 50 countries is about 26%. Tripfolio's map shows the figure as you tap.

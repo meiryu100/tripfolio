@@ -45,7 +45,9 @@ const nextConfig: NextConfig = {
   // The share cards read the logo from disk; make sure it ships with those functions.
   outputFileTracingIncludes: {
     "/api/users/[username]/share-image": ["./public/brand/tripfolio-mark.png"],
+    "/opengraph-image": ["./public/brand/tripfolio-mark.png"],
     "/countries-visited-map/opengraph-image": ["./public/brand/tripfolio-mark.png"],
+    "/countries/[slug]/opengraph-image": ["./public/brand/tripfolio-mark.png"],
     // The blog posts are Markdown files read at runtime.
     "/blog": ["./content/blog/**/*"],
     "/blog/[slug]": ["./content/blog/**/*"],
@@ -55,7 +57,11 @@ const nextConfig: NextConfig = {
     "/blog/[slug]/opengraph-image": ["./content/blog/**/*", "./public/brand/tripfolio-mark.png"],
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // Promo video and poster: rarely change, so let browsers and the CDN keep them for a week.
+      { source: "/media/:file*", headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }] },
+    ];
   },
 };
 

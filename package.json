@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "countries": "node scripts/build-countries.mjs",
+    "country-facts": "node scripts/build-country-facts.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx --env-file-if-exists=.env.local scripts/db-migrate.ts",
     "db:seed": "tsx --env-file-if-exists=.env.local --conditions=react-server scripts/db-seed.ts",

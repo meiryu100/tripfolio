@@ -2,10 +2,12 @@ import { Camera, Flag, Globe2, Lock, Medal, Share2, Trophy, Users } from "lucide
 import type { Metadata } from "next";
 import Link from "next/link";
 import { buttonClass } from "@/components/button-class";
-import { CookieSettingsButton } from "@/components/cookie-consent";
 import { Logo } from "@/components/logo";
+import { SiteFooter } from "@/components/site-footer";
 import { DemoMap } from "@/features/landing/demo-map";
 import { PromoVideo } from "@/features/landing/promo-video";
+import { breadcrumbs, jsonLd, ORGANIZATION_ID } from "@/lib/seo";
+import { siteUrl } from "@/lib/site-url";
 
 /**
  * SEO landing page for "countries visited map" / "how many countries have I been to".
@@ -14,7 +16,7 @@ import { PromoVideo } from "@/features/landing/promo-video";
 
 const TITLE = "Countries Visited Map — Color Every Country You've Been To";
 const DESCRIPTION =
-  "Free countries visited map: tap the countries you've been to, see how many countries you've visited and what % of the world, track US states, and keep your trips and photos.";
+  "Free countries visited map: tap the countries you've been to and see how many you've visited and what % of the world. Track US states, trips and photos too.";
 
 export const metadata: Metadata = {
   title: `${TITLE} | Tripfolio`,
@@ -61,23 +63,35 @@ const FAQ = [
 ];
 
 const faqJsonLd = {
-  "@context": "https://schema.org",
   "@type": "FAQPage",
   mainEntity: FAQ.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+};
+
+const app = {
+  "@type": "WebApplication",
+  "@id": `${siteUrl}/countries-visited-map#app`,
+  name: "Countries visited map",
+  url: `${siteUrl}/countries-visited-map`,
+  description: DESCRIPTION,
+  applicationCategory: "TravelApplication",
+  operatingSystem: "Any (web browser)",
+  isAccessibleForFree: true,
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  publisher: { "@id": ORGANIZATION_ID },
 };
 
 export default function CountriesVisitedMapPage() {
   return (
     <div className="min-h-dvh overflow-x-clip">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(app, faqJsonLd, breadcrumbs(["Countries visited map", "/countries-visited-map"])) }} />
       <header className="glass sticky top-0 z-30 border-b border-border/60">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Logo />
           <div className="flex items-center gap-1">
-            <Link href="/login" className={buttonClass("ghost", "sm")}>
+            <Link href="/login" className={buttonClass("ghost", "md")}>
               Log In
             </Link>
-            <Link href="/register" className={buttonClass("primary", "sm", "hidden sm:inline-flex")}>
+            <Link href="/register" className={buttonClass("primary", "md", "hidden sm:inline-flex")}>
               Get Started
             </Link>
           </div>
@@ -86,7 +100,7 @@ export default function CountriesVisitedMapPage() {
 
       <main>
         <section className="mx-auto max-w-6xl px-4 pt-12 pb-16 sm:px-6 sm:pt-16">
-          <div className="animate-rise mx-auto max-w-3xl text-center">
+          <div className="animate-rise-soft mx-auto max-w-3xl text-center">
             <h1 className="text-4xl leading-[1.05] font-bold tracking-tight sm:text-6xl">
               Your <span className="text-gradient">countries visited</span> map
             </h1>
@@ -105,6 +119,11 @@ export default function CountriesVisitedMapPage() {
             How many countries have I been to?
           </h2>
           <div className="mt-4 grid gap-4 text-[17px] leading-relaxed text-muted">
+            <p className="text-fg">
+              To find out how many countries you&apos;ve been to, tap each one on the map above. The counter adds them up out of
+              195 countries (the 193 UN members plus the Vatican and Palestine) and shows your share of the world and how many of
+              the 7 continents you&apos;ve reached. Most people count a country once they&apos;ve left the airport.
+            </p>
             <p>
               It&apos;s a surprisingly hard question to answer from memory. A map makes it easy: go continent by continent, tap each
               country you&apos;ve visited, and the count, the share of the world and the continents add up as you go.
@@ -112,6 +131,17 @@ export default function CountriesVisitedMapPage() {
             <p>
               On Tripfolio, visited countries turn green and the places you dream about turn orange, so your map shows both where
               you&apos;ve been and where you&apos;re going next. Add a trip to a country and it stays marked as visited.
+            </p>
+            <p>
+              Prefer a checklist? Go through{" "}
+              <Link href="/countries" className="font-medium text-brand hover:underline">
+                every country A to Z
+              </Link>
+              . Counting the USA too? Try the{" "}
+              <Link href="/us-states-visited-map" className="font-medium text-brand hover:underline">
+                US states visited map
+              </Link>
+              .
             </p>
           </div>
         </section>
@@ -173,7 +203,7 @@ export default function CountriesVisitedMapPage() {
               <Link href="/register" className={buttonClass("primary", "lg", "min-w-48 text-base")}>
                 Create my map
               </Link>
-              <Link href="/" className={buttonClass("secondary", "lg", "min-w-48 text-base")}>
+              <Link href="/about" className={buttonClass("secondary", "lg", "min-w-48 text-base")}>
                 <Share2 className="size-4" aria-hidden /> About Tripfolio
               </Link>
             </div>
@@ -181,25 +211,7 @@ export default function CountriesVisitedMapPage() {
         </section>
       </main>
 
-      <footer className="pb-10 text-center text-sm text-muted">
-        Tripfolio · Made for people who collect places. ·{" "}
-        <Link href="/countries" className="hover:text-fg hover:underline">
-          Countries
-        </Link>{" "}
-        ·{" "}
-        <Link href="/blog" className="hover:text-fg hover:underline">
-          Blog
-        </Link>{" "}
-        ·{" "}
-        <Link href="/privacy" className="hover:text-fg hover:underline">
-          Privacy
-        </Link>{" "}
-        ·{" "}
-        <Link href="/terms" className="hover:text-fg hover:underline">
-          Terms
-        </Link>{" "}
-        · <CookieSettingsButton className="hover:text-fg hover:underline" />
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
