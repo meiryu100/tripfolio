@@ -26,6 +26,7 @@ const COLORS = {
   // A region with no status of its own inside a marked country: 45% of the country's color over land.
   visitedTint: "#7dd2bf",
   wishlistTint: "#e6b28f",
+  marker: "#0369a1",
 };
 
 const topo = world as unknown as Topology<{ countries: GeometryCollection }>;
@@ -46,7 +47,11 @@ const REGION_SHAPES = [
   ...(feature(regionsTopo, regionsTopo.objects.regions) as FeatureCollection<Geometry>).features,
 ].map((f) => ({ code: String(f.id), country: String(f.id).slice(0, 2), d: path(f) ?? "" }));
 
-export function worldMapSvg(statuses: Record<string, CountryStatus>, regionStatuses: Record<string, CountryStatus> = {}) {
+/**
+ * `marker` ([lat, lng]) adds a ring around one spot, so a small country (Tuvalu, Malta) can still be
+ * found on a map this size.
+ */
+export function worldMapSvg(statuses: Record<string, CountryStatus>, regionStatuses: Record<string, CountryStatus> = {}, marker?: [number, number]) {
   const fill = (s: CountryStatus | undefined) => (s === "visited" ? COLORS.visited : s === "wishlist" ? COLORS.wishlist : COLORS.land);
   const regionFill = (code: string, country: string) => {
     const own = regionStatuses[code];
@@ -58,5 +63,7 @@ export function worldMapSvg(statuses: Record<string, CountryStatus>, regionStatu
     ...COUNTRY_SHAPES.map(({ code, d }) => `<path d="${d}" fill="${fill(statuses[code])}"/>`),
     ...REGION_SHAPES.map(({ code, country, d }) => `<path d="${d}" fill="${regionFill(code, country)}"/>`),
   ].join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MAP_W} ${MAP_H}" width="${MAP_W}" height="${MAP_H}"><g stroke="${COLORS.border}" stroke-width="0.5" stroke-linejoin="round">${shapes}</g></svg>`;
+  const point = marker && projection([marker[1], marker[0]]);
+  const ring = point ? `<circle cx="${point[0].toFixed(1)}" cy="${point[1].toFixed(1)}" r="14" fill="none" stroke="${COLORS.marker}" stroke-width="3"/>` : "";
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MAP_W} ${MAP_H}" width="${MAP_W}" height="${MAP_H}"><g stroke="${COLORS.border}" stroke-width="0.5" stroke-linejoin="round">${shapes}</g>${ring}</svg>`;
 }

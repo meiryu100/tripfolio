@@ -4,8 +4,8 @@ import { buttonClass } from "@/components/button-class";
 import { Logo } from "@/components/logo";
 import { SiteFooter } from "@/components/site-footer";
 
-/** Header and footer around the public blog pages. */
-export function BlogShell({ children }: { children: ReactNode }) {
+/** Header and footer around the public blog pages. `wide` makes room for a map. */
+export function BlogShell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
   return (
     <div className="min-h-dvh overflow-x-clip">
       <header className="glass sticky top-0 z-30 border-b border-border/60">
@@ -22,7 +22,7 @@ export function BlogShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 pt-12 pb-16 sm:px-6 sm:pt-16">{children}</main>
+      <main className={`mx-auto ${wide ? "max-w-6xl" : "max-w-3xl"} px-4 pt-12 pb-16 sm:px-6 sm:pt-16`}>{children}</main>
 
       <SiteFooter />
     </div>

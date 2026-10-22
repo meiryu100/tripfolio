@@ -3,6 +3,7 @@ import { CookieSettingsButton } from "@/components/cookie-consent";
 
 const LINKS = [
   { href: "/countries-visited-map", label: "Countries visited map" },
+  { href: "/us-states-visited-map", label: "US states map" },
   { href: "/countries", label: "Countries" },
   { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
