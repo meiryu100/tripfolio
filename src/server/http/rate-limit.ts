@@ -25,7 +25,7 @@ export const LIMITS = {
 /** Per account, on top of the per-IP limit: slows password guessing spread over many IPs. */
 export const ACCOUNT_LIMITS = {
   login: { max: 10, window: 15 * 60, shared: true },
-  /** Sign-up / verification / reset emails to one address. */
+  /** Sign-up / verification / reset emails to one address (counted per kind; over it the send is skipped). */
   email: { max: 5, window: 60 * 60, shared: true },
 } satisfies Record<string, Limit>;
 
