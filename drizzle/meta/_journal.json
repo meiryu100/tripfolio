@@ -78,6 +78,13 @@
       "when": 1792342259336,
       "tag": "0010_pending_email",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792690383231,
+      "tag": "0011_user_role",
+      "breakpoints": true
     }
   ]
 }
