@@ -73,8 +73,8 @@ export default function EditProfilePage() {
           onRemove={() => removeAvatar.mutate(undefined, { onError: (e) => toast(errorMessage(e), "error") })}
         />
         <div className="grid grid-cols-2 gap-3">
-          <Input label="First name" value={form.firstName} onChange={set("firstName")} error={errors.firstName} autoComplete="given-name" />
-          <Input label="Last name" value={form.lastName} onChange={set("lastName")} error={errors.lastName} autoComplete="family-name" />
+          <Input label="First name" value={form.firstName} onChange={set("firstName")} maxLength={50} error={errors.firstName} autoComplete="given-name" />
+          <Input label="Last name" value={form.lastName} onChange={set("lastName")} maxLength={50} error={errors.lastName} autoComplete="family-name" />
         </div>
         <Input label="Username" value={form.username} onChange={set("username")} error={errors.username} autoCapitalize="none" autoComplete="username" />
         <Input
@@ -101,8 +101,8 @@ export default function EditProfilePage() {
           error={errors.gender}
         />
         <Textarea label="Bio" optional value={form.bio} onChange={set("bio")} maxLength={160} placeholder="Exploring the world" error={errors.bio} />
-        <Input label="Location" optional value={form.location} onChange={set("location")} placeholder="Tel Aviv, Israel" error={errors.location} />
-        <Input label="Website" optional type="url" value={form.website} onChange={set("website")} placeholder="https://" error={errors.website} />
+        <Input label="Location" optional value={form.location} onChange={set("location")} maxLength={80} placeholder="Tel Aviv, Israel" error={errors.location} />
+        <Input label="Website" optional type="url" value={form.website} onChange={set("website")} maxLength={200} placeholder="https://" error={errors.website} />
         <FormError message={formError} />
         <Button type="submit" size="lg" loading={update.isPending}>
           Save Changes
