@@ -4,7 +4,7 @@ import { Copy, Download, MessageCircle, Share2, UserPlus } from "lucide-react";
 import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { Button, Sheet, SheetClose, buttonClass } from "@/components/ui";
 import { trackClick } from "@/components/analytics";
-import { sharedMapPath } from "@/lib/map-share";
+import { encodeSharedMap, sharedMapPath } from "@/lib/map-share";
 import type { CountryStatus } from "@/lib/types";
 import { toast } from "@/lib/ui";
 import { cn } from "@/lib/utils";
@@ -130,7 +130,12 @@ export function ShareDemoMapButton({ statuses, regionStatuses, className }: { st
   const canNativeShare = useSyncExternalStore(noSubscribe, () => "share" in navigator, () => false);
   const path = sharedMapPath(statuses, regionStatuses);
   const url = `${origin}${path}`;
-  const image = `/api/map-card${path.slice("/m".length)}`;
+  // Only the map itself (no utm tags), so it is already the canonical card URL.
+  const { v, w } = encodeSharedMap(statuses, regionStatuses);
+  const cardQuery = new URLSearchParams();
+  if (v) cardQuery.set("v", v);
+  if (w) cardQuery.set("w", w);
+  const image = `/api/map-card?${cardQuery}`;
   const text = "My travel map on Tripfolio 🌍";
 
   return (
