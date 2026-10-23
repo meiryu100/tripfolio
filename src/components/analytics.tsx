@@ -98,6 +98,25 @@ function GoogleAnalytics({ id }: { id: string }) {
   return <Script src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`} strategy="afterInteractive" />;
 }
 
+// Short names for the pages with tracked buttons; the event name starts with it ("home_click_login_header").
+const PAGE_NAMES: Record<string, string> = {
+  "/": "home",
+  "/register": "register",
+  "/login": "login",
+  "/countries-visited-map": "countries_map",
+  "/us-states-visited-map": "us_states_map",
+};
+
+/**
+ * Sends a Google Analytics event for a button click, named after the page it's on, e.g.
+ * trackClick("save_map") on the home page sends "home_click_save_map". A no-op unless GA is running,
+ * which means the visitor accepted all cookies on the live site. Shows up under Reports → Engagement → Events.
+ */
+export function trackClick(button: string, params?: Record<string, string | number>) {
+  const page = PAGE_NAMES[location.pathname] ?? "other";
+  window.gtag?.("event", `${page}_click_${button}`, { ...params, page_path: location.pathname });
+}
+
 export function SiteAnalytics() {
   return (
     <>

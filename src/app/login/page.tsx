@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
+import { trackClick } from "@/components/analytics";
 import { AuthLayout } from "@/components/auth-layout";
 import { ResendVerification } from "@/components/resend-verification";
 import { SocialButtons } from "@/components/social-buttons";
@@ -28,6 +29,7 @@ function LoginForm() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    trackClick("log_in");
     login.mutate(
       { email, password },
       { onSuccess: ({ me }) => router.replace(me.onboarded ? (safeNext(params.get("next"), window.location.origin) ?? "/home") : "/onboarding") },
@@ -41,7 +43,7 @@ function LoginForm() {
         <Input label="Email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         <div>
           <Input label="Password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <Link href="/forgot-password" className="mt-1 inline-flex min-h-11 items-center text-sm font-medium text-brand hover:underline">
+          <Link href="/forgot-password" onClick={() => trackClick("forgot_password")} className="mt-1 inline-flex min-h-11 items-center text-sm font-medium text-brand hover:underline">
             Forgot password?
           </Link>
         </div>

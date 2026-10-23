@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
+import { trackClick } from "@/components/analytics";
 import { AuthLayout } from "@/components/auth-layout";
 import { ResendVerification } from "@/components/resend-verification";
 import { SocialButtons } from "@/components/social-buttons";
@@ -29,6 +30,7 @@ export default function RegisterPage() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    trackClick("create_account");
     setFormError(null);
     const parsed = registerSchema.safeParse(form);
     if (!parsed.success) {
@@ -85,7 +87,7 @@ export default function RegisterPage() {
       </p>
       <p className="mt-6 text-center text-sm text-muted">
         Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-brand hover:underline">
+        <Link href="/login" onClick={() => trackClick("login_link")} className="font-semibold text-brand hover:underline">
           Log in
         </Link>
       </p>

@@ -2,6 +2,7 @@
 
 import { RotateCcw } from "lucide-react";
 import Link from "next/link";
+import { trackClick } from "@/components/analytics";
 import { useState } from "react";
 import { buttonClass } from "@/components/button-class";
 import { WorldMap } from "@/features/map/world-map";
@@ -72,14 +73,25 @@ export function DemoMap() {
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2 border-t border-border pt-4">
         <Link
           href="/register"
-          onClick={() => saveDemoPicks({ ...statuses, ...regions })}
+          onClick={() => {
+            saveDemoPicks({ ...statuses, ...regions });
+            trackClick("save_map", { countries: stats.visited + stats.wishlist });
+          }}
           className={buttonClass("primary", "lg", "min-w-56 text-base")}
         >
           {stats.visited + stats.wishlist > 0 ? "Save my map — it's free" : "Make my map — it's free"}
         </Link>
         {Object.keys(statuses).length > 0 && <ShareDemoMapButton statuses={statuses} regionStatuses={regions} />}
         {Object.keys(statuses).length > 0 && (
-          <button onClick={() => (setCountries({}), setRegions({}), setLast(null))} className={buttonClass("ghost", "lg", "text-muted")}>
+          <button
+            onClick={() => {
+              setCountries({});
+              setRegions({});
+              setLast(null);
+              trackClick("start_over");
+            }}
+            className={buttonClass("ghost", "lg", "text-muted")}
+          >
             <RotateCcw className="size-4" aria-hidden /> Start over
           </button>
         )}
