@@ -11,6 +11,7 @@ import { ContinentChecklist, Milestones, WorldProgress } from "@/features/stats/
 import { getCountry } from "@/lib/countries";
 import { HttpError } from "@/server/http/errors";
 import { listUserTrips } from "@/server/services/trips";
+import { isIndexableProfile } from "@/lib/seo";
 import { getProfileShare, shareSummary } from "@/server/share/profile-share";
 
 /**
@@ -43,6 +44,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${name} (@${profile.username}) · Tripfolio`,
     description,
     alternates: { canonical: `/u/${profile.username}` },
+    // Only maps with something to show go to search engines (the same rule as the sitemap).
+    ...(!isIndexableProfile(profile.counts.visited) && { robots: { index: false, follow: true } }),
     openGraph: { type: "profile", url: `/u/${profile.username}`, title: `${name}'s travel map`, description, images: [{ url: image, width: 1200, height: 630 }] },
     twitter: { card: "summary_large_image", title: `${name}'s travel map`, description, images: [image] },
   };

@@ -7,9 +7,9 @@ import type { AdminStats } from "@/server/services/admin-stats";
  * has its numbers printed next to it, so nothing depends on color or hover alone.
  */
 
-const fmt = new Intl.NumberFormat("he-IL");
+export const fmt = new Intl.NumberFormat("he-IL");
 const date = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "short", timeZone: "Asia/Jerusalem" });
-const dateTime = new Intl.DateTimeFormat("he-IL", { dateStyle: "short", timeStyle: "short", timeZone: "Asia/Jerusalem" });
+export const dateTime = new Intl.DateTimeFormat("he-IL", { dateStyle: "short", timeStyle: "short", timeZone: "Asia/Jerusalem" });
 
 function bytes(n: number) {
   if (n < 1024 ** 2) return `${fmt.format(Math.round(n / 1024))} KB`;
@@ -17,7 +17,7 @@ function bytes(n: number) {
   return `${(n / 1024 ** 3).toFixed(2)} GB`;
 }
 
-function Panel({ title, note, children, className = "" }: { title: string; note?: string; children: ReactNode; className?: string }) {
+export function Panel({ title, note, children, className = "" }: { title: string; note?: string; children: ReactNode; className?: string }) {
   return (
     <section className={`rounded-2xl border border-border bg-surface p-5 ${className}`}>
       <h2 className="font-bold">{title}</h2>
@@ -27,7 +27,7 @@ function Panel({ title, note, children, className = "" }: { title: string; note?
   );
 }
 
-function Tile({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+export function Tile({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
     <div className="rounded-2xl border border-border bg-surface p-4">
       <div className="text-sm text-muted">{label}</div>
@@ -38,14 +38,16 @@ function Tile({ label, value, sub }: { label: string; value: string | number; su
 }
 
 /** Horizontal bars for a ranked list: label, bar, value. */
-function BarList({ rows, empty = "אין עדיין נתונים" }: { rows: { label: string; value: number; hint?: string }[]; empty?: string }) {
+export function BarList({ rows, empty = "אין עדיין נתונים" }: { rows: { label: string; value: number; hint?: string }[]; empty?: string }) {
   if (!rows.length) return <p className="text-sm text-muted">{empty}</p>;
   const max = Math.max(1, ...rows.map((r) => r.value));
   return (
     <ul className="grid gap-2.5">
       {rows.map((r) => (
         <li key={r.label} className="grid grid-cols-[minmax(0,7rem)_minmax(4rem,1fr)_2rem] items-center gap-3 text-sm" title={r.hint ?? `${r.label}: ${r.value}`}>
-          <span className="truncate">{r.label}</span>
+          <span className="truncate text-start" dir="auto">
+            {r.label}
+          </span>
           <span className="h-2.5 rounded-full bg-border/40">
             <span className="block h-full rounded-full bg-brand" style={{ width: `${(r.value / max) * 100}%`, minWidth: r.value ? 4 : 0 }} />
           </span>

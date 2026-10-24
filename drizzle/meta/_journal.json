@@ -85,6 +85,13 @@
       "when": 1792690383231,
       "tag": "0011_user_role",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792862392117,
+      "tag": "0012_bot_visits",
+      "breakpoints": true
     }
   ]
 }
