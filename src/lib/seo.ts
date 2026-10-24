@@ -62,3 +62,11 @@ export function jsonLd(...graph: object[]) {
  * or `twitter` replaces the inherited image too, so pages without their own image add this.
  */
 export const shareImage = { url: "/opengraph-image", width: 1200, height: 630, alt: "Tripfolio, the free travel map app" };
+
+/** A public profile goes into the sitemap and search results only with at least this many visited countries. */
+export const MIN_INDEXED_COUNTRIES = 3;
+
+/** `visited` is the profile's visited-country count as anonymous visitors see it (null when hidden). */
+export function isIndexableProfile(visited: number | null) {
+  return visited !== null && visited >= MIN_INDEXED_COUNTRIES;
+}

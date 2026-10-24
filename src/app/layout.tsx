@@ -26,6 +26,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Tripfolio — Your world, your journeys",
   description: "Map the countries you've visited, keep your travel memories, and explore the world through other travelers.",
+  // Search Console / Bing Webmaster Tools ownership tags, set as env vars in Vercel (verifying by DNS works too).
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
+    other: process.env.BING_SITE_VERIFICATION ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION } : undefined,
+  },
 };
 
 export const viewport: Viewport = {

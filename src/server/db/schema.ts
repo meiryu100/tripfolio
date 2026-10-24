@@ -140,6 +140,22 @@ export const rateLimits = pgTable(
   (t) => [index("rate_limits_reset_idx").on(t.resetAt)],
 );
 
+/**
+ * Search-engine and AI crawler requests, one row per day × bot × path (see src/lib/bots.ts and
+ * src/proxy.ts). Bots are recognized by user agent, which anyone can fake, so treat it as a signal.
+ */
+export const botVisits = pgTable(
+  "bot_visits",
+  {
+    day: date("day").notNull(),
+    bot: text("bot").notNull(),
+    path: text("path").notNull(),
+    hits: integer("hits").notNull().default(1),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.day, t.bot, t.path] }), index("bot_visits_path_idx").on(t.path)],
+);
+
 // ─── Countries ───────────────────────────────────────────────────────────────
 
 /** Reference data. Geometry lives in the static TopoJSON, joined by ISO code. */
