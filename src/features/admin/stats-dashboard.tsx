@@ -170,12 +170,13 @@ export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; gene
         )}
       </Panel>
 
-      <Panel title="נרשמו לאחרונה" note="10 המשתמשים האמיתיים האחרונים">
+      <Panel title="נרשמו לאחרונה" note={`100 המשתמשים האמיתיים האחרונים · מוצגים ${stats.recentSignups.length}`}>
         {stats.recentSignups.length ? (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-start text-xs text-muted">
                 <tr>
+                  <th className="pb-2 pe-3 text-start font-medium">#</th>
                   <th className="pb-2 text-start font-medium">שם</th>
                   <th className="pb-2 text-start font-medium">משתמש</th>
                   <th className="pb-2 text-start font-medium">נרשם</th>
@@ -185,8 +186,9 @@ export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; gene
                 </tr>
               </thead>
               <tbody>
-                {stats.recentSignups.map((u) => (
+                {stats.recentSignups.map((u, i) => (
                   <tr key={u.username} className="border-t border-border">
+                    <td className="py-2 pe-3 text-muted tabular-nums">{i + 1}</td>
                     <td className="py-2">{u.name}</td>
                     <td className="py-2 pe-4">
                       <a href={`/u/${u.username}`} dir="ltr" className="text-brand hover:underline">
