@@ -132,7 +132,7 @@ export async function getAdminStats(): Promise<AdminStats> {
              coalesce(signup_source, case when invited_by is not null then 'invite' end, signup_referrer, 'direct') as source,
              email_verified_at is not null as verified
       from users where not is_test_user
-      order by created_at desc limit 10`),
+      order by created_at desc limit 100`),
   ]);
 
   return {

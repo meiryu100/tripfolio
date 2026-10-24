@@ -3,7 +3,7 @@ import type { AdminStats } from "@/server/services/admin-stats";
 
 /**
  * The admin stats page: headline numbers as tiles, then single-series bar charts
- * (one brand hue, no legend needed). Each bar has a native tooltip and every chart
+ * (one brand hue, no legend needed). Daily bars show a tooltip on hover or tap, and every chart
  * has its numbers printed next to it, so nothing depends on color or hover alone.
  */
 
@@ -64,15 +64,32 @@ function SignupsChart({ days }: { days: AdminStats["signupsByDay"] }) {
   const total = days.reduce((s, d) => s + d.signups, 0);
   return (
     <div>
-      <div className="flex h-36 items-end gap-0.5 border-b border-border" dir="ltr">
-        {days.map((d) => (
-          <div key={d.day} className="group relative flex h-full flex-1 items-end" title={`${date.format(new Date(d.day))}: ${d.signups} הרשמות`}>
+      <div className="mt-10 flex h-36 items-end gap-0.5 border-b border-border" dir="ltr">
+        {days.map((d, i) => {
+          const label = `${date.format(new Date(d.day))}: ${d.signups === 1 ? "הרשמה אחת" : `${fmt.format(d.signups)} הרשמות`}`;
+          // Keep the bubble inside the chart at both ends.
+          const align = i < 3 ? "left-0" : i > days.length - 4 ? "right-0" : "left-1/2 -translate-x-1/2";
+          return (
             <div
-              className="w-full rounded-t-[4px] bg-brand group-hover:bg-brand-bright"
-              style={{ height: `${(d.signups / max) * 100}%`, minHeight: d.signups ? 4 : 0 }}
-            />
-          </div>
-        ))}
+              key={d.day}
+              tabIndex={0}
+              aria-label={label}
+              className="group relative flex h-full flex-1 items-end rounded-t-[4px] outline-none hover:bg-surface-2 focus-visible:bg-surface-2"
+            >
+              <div
+                className="w-full rounded-t-[4px] bg-brand group-hover:bg-brand-bright group-focus:bg-brand-bright"
+                style={{ height: `${(d.signups / max) * 100}%`, minHeight: d.signups ? 4 : 0 }}
+              />
+              <div
+                role="tooltip"
+                dir="rtl"
+                className={`pointer-events-none absolute -top-2 z-10 -translate-y-full whitespace-nowrap rounded-lg bg-fg px-2.5 py-1.5 text-xs font-medium text-bg opacity-0 shadow-card transition-opacity group-hover:opacity-100 group-focus:opacity-100 ${align}`}
+              >
+                {label}
+              </div>
+            </div>
+          );
+        })}
       </div>
       <div className="mt-1.5 flex justify-between text-xs text-muted" dir="ltr">
         <span>{days[0] && date.format(new Date(days[0].day))}</span>
@@ -85,8 +102,22 @@ function SignupsChart({ days }: { days: AdminStats["signupsByDay"] }) {
   );
 }
 
+/** Sign-ups per unique utm_campaign (summed over every source / medium it came with), most first. */
+function campaignTotals(utm: AdminStats["utm"]) {
+  const byCampaign = new Map<string, { campaign: string; total: number; last30d: number }>();
+  for (const u of utm) {
+    if (!u.campaign) continue;
+    const row = byCampaign.get(u.campaign) ?? { campaign: u.campaign, total: 0, last30d: 0 };
+    row.total += u.total;
+    row.last30d += u.last30d;
+    byCampaign.set(u.campaign, row);
+  }
+  return [...byCampaign.values()].sort((a, b) => b.total - a.total || a.campaign.localeCompare(b.campaign));
+}
+
 export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; generatedAt: string }) {
   const { users, active, content, funnel30d: f } = stats;
+  const campaigns = campaignTotals(stats.utm);
   return (
     <div dir="rtl" className="mx-auto grid max-w-6xl gap-6">
       <div>
@@ -172,12 +203,40 @@ export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; gene
         )}
       </Panel>
 
-      <Panel title="נרשמו לאחרונה" note="10 המשתמשים האמיתיים האחרונים">
+      <Panel title="קמפיינים" note="כל utm_campaign שמשתמשים אמיתיים נרשמו איתו, וכמה נרשמו ממנו בסך הכול">
+        {campaigns.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-xs text-muted">
+                <tr>
+                  <th className="pb-2 pe-4 text-start font-medium">utm_campaign</th>
+                  <th className="pb-2 pe-4 text-end font-medium">נרשמו (סה״כ)</th>
+                  <th className="pb-2 text-end font-medium">30 יום</th>
+                </tr>
+              </thead>
+              <tbody>
+                {campaigns.map((c) => (
+                  <tr key={c.campaign} className="border-t border-border">
+                    <td className="py-2 pe-4"><bdi dir="ltr">{c.campaign}</bdi></td>
+                    <td className="py-2 pe-4 text-end tabular-nums">{fmt.format(c.total)}</td>
+                    <td className="py-2 text-end tabular-nums text-muted">{fmt.format(c.last30d)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-sm text-muted">עדיין אף משתמש אמיתי לא נרשם עם utm_campaign</p>
+        )}
+      </Panel>
+
+      <Panel title="נרשמו לאחרונה" note={`100 המשתמשים האמיתיים האחרונים · מוצגים ${stats.recentSignups.length}`}>
         {stats.recentSignups.length ? (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-start text-xs text-muted">
                 <tr>
+                  <th className="pb-2 pe-3 text-start font-medium">#</th>
                   <th className="pb-2 text-start font-medium">שם</th>
                   <th className="pb-2 text-start font-medium">משתמש</th>
                   <th className="pb-2 text-start font-medium">נרשם</th>
@@ -187,8 +246,9 @@ export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; gene
                 </tr>
               </thead>
               <tbody>
-                {stats.recentSignups.map((u) => (
+                {stats.recentSignups.map((u, i) => (
                   <tr key={u.username} className="border-t border-border">
+                    <td className="py-2 pe-3 text-muted tabular-nums">{i + 1}</td>
                     <td className="py-2">{u.name}</td>
                     <td className="py-2 pe-4">
                       <a href={`/u/${u.username}`} dir="ltr" className="text-brand hover:underline">
