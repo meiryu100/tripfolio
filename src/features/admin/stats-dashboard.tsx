@@ -3,7 +3,7 @@ import type { AdminStats } from "@/server/services/admin-stats";
 
 /**
  * The admin stats page: headline numbers as tiles, then single-series bar charts
- * (one brand hue, no legend needed). Each bar has a native tooltip and every chart
+ * (one brand hue, no legend needed). Daily bars show a tooltip on hover or tap, and every chart
  * has its numbers printed next to it, so nothing depends on color or hover alone.
  */
 
@@ -62,15 +62,32 @@ function SignupsChart({ days }: { days: AdminStats["signupsByDay"] }) {
   const total = days.reduce((s, d) => s + d.signups, 0);
   return (
     <div>
-      <div className="flex h-36 items-end gap-0.5 border-b border-border" dir="ltr">
-        {days.map((d) => (
-          <div key={d.day} className="group relative flex h-full flex-1 items-end" title={`${date.format(new Date(d.day))}: ${d.signups} הרשמות`}>
+      <div className="mt-10 flex h-36 items-end gap-0.5 border-b border-border" dir="ltr">
+        {days.map((d, i) => {
+          const label = `${date.format(new Date(d.day))}: ${d.signups === 1 ? "הרשמה אחת" : `${fmt.format(d.signups)} הרשמות`}`;
+          // Keep the bubble inside the chart at both ends.
+          const align = i < 3 ? "left-0" : i > days.length - 4 ? "right-0" : "left-1/2 -translate-x-1/2";
+          return (
             <div
-              className="w-full rounded-t-[4px] bg-brand group-hover:bg-brand-bright"
-              style={{ height: `${(d.signups / max) * 100}%`, minHeight: d.signups ? 4 : 0 }}
-            />
-          </div>
-        ))}
+              key={d.day}
+              tabIndex={0}
+              aria-label={label}
+              className="group relative flex h-full flex-1 items-end rounded-t-[4px] outline-none hover:bg-surface-2 focus-visible:bg-surface-2"
+            >
+              <div
+                className="w-full rounded-t-[4px] bg-brand group-hover:bg-brand-bright group-focus:bg-brand-bright"
+                style={{ height: `${(d.signups / max) * 100}%`, minHeight: d.signups ? 4 : 0 }}
+              />
+              <div
+                role="tooltip"
+                dir="rtl"
+                className={`pointer-events-none absolute -top-2 z-10 -translate-y-full whitespace-nowrap rounded-lg bg-fg px-2.5 py-1.5 text-xs font-medium text-bg opacity-0 shadow-card transition-opacity group-hover:opacity-100 group-focus:opacity-100 ${align}`}
+              >
+                {label}
+              </div>
+            </div>
+          );
+        })}
       </div>
       <div className="mt-1.5 flex justify-between text-xs text-muted" dir="ltr">
         <span>{days[0] && date.format(new Date(days[0].day))}</span>
