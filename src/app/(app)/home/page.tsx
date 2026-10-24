@@ -289,7 +289,7 @@ function InsightCard({ statuses, explored, username }: { statuses: Record<string
   if (insight.total === 0) return null;
   const { top, next } = insight;
   return (
-    <section aria-label="Insight" className="context-card animate-rise mb-5 flex flex-wrap items-center gap-x-4 gap-y-3 rounded-r-2xl px-4 py-3.5">
+    <section aria-label="Insight" className="context-card animate-rise mb-5 flex items-center gap-x-3 gap-y-3 rounded-r-2xl px-4 py-3.5 sm:flex-wrap sm:gap-x-4">
       <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-surface text-ai shadow-soft" aria-hidden>
         <Sparkles className="size-4.5" />
       </span>
@@ -315,7 +315,7 @@ function InsightCard({ statuses, explored, username }: { statuses: Record<string
       {next && (
         <button
           onClick={() => openCountry(next.code, username)}
-          className="min-h-11 rounded-xl px-3 text-sm font-semibold text-ai transition duration-200 hover:bg-surface"
+          className="min-h-11 w-min shrink-0 rounded-xl px-2 text-center text-xs leading-tight font-semibold text-ai transition duration-200 hover:bg-surface sm:w-auto sm:px-3 sm:text-sm"
         >
           Open {next.name}
         </button>
