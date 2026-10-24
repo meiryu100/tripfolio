@@ -1,8 +1,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { NextResponse } from "next/server";
 import { computeStats } from "@/features/stats/compute";
-import { parseSharedMap } from "@/lib/map-share";
+import { encodeSharedMap, parseSharedMap } from "@/lib/map-share";
 import { route } from "@/server/http/handler";
 import { MAP_H, MAP_W, worldMapSvg } from "@/server/share/map-svg";
 import { shareSummary } from "@/server/share/profile-share";
@@ -18,9 +19,22 @@ const WIDTH = 1200;
 const HEIGHT = 630;
 const MAP_WIDTH = 940;
 
-export const GET = route({ auth: false }, async ({ req }) => {
+// Each distinct URL is a fresh render, so this route has a lower limit than other reads.
+export const GET = route({ auth: false, limit: { max: 30, window: 60 } }, async ({ req }) => {
   const q = req.nextUrl.searchParams;
   const { statuses, regionStatuses } = parseSharedMap(q.get("v"), q.get("w"));
+
+  // Many spellings of the same map would each be rendered and cached separately: send them all to one canonical URL.
+  const { v, w } = encodeSharedMap(statuses, regionStatuses);
+  const canonical = new URLSearchParams();
+  if (v) canonical.set("v", v);
+  if (w) canonical.set("w", w);
+  if (req.nextUrl.search.replace(/^\?/, "") !== canonical.toString()) {
+    const target = new URL(req.nextUrl);
+    target.search = canonical.toString();
+    return NextResponse.redirect(target, { status: 308, headers: { "Cache-Control": "public, max-age=3600, s-maxage=86400" } });
+  }
+
   const svg = worldMapSvg(statuses, regionStatuses);
   const line = shareSummary(computeStats(statuses));
 
