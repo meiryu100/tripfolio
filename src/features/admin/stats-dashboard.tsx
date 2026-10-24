@@ -100,8 +100,22 @@ function SignupsChart({ days }: { days: AdminStats["signupsByDay"] }) {
   );
 }
 
+/** Sign-ups per unique utm_campaign (summed over every source / medium it came with), most first. */
+function campaignTotals(utm: AdminStats["utm"]) {
+  const byCampaign = new Map<string, { campaign: string; total: number; last30d: number }>();
+  for (const u of utm) {
+    if (!u.campaign) continue;
+    const row = byCampaign.get(u.campaign) ?? { campaign: u.campaign, total: 0, last30d: 0 };
+    row.total += u.total;
+    row.last30d += u.last30d;
+    byCampaign.set(u.campaign, row);
+  }
+  return [...byCampaign.values()].sort((a, b) => b.total - a.total || a.campaign.localeCompare(b.campaign));
+}
+
 export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; generatedAt: string }) {
   const { users, active, content, funnel30d: f } = stats;
+  const campaigns = campaignTotals(stats.utm);
   return (
     <div dir="rtl" className="mx-auto grid max-w-6xl gap-6">
       <div>
@@ -184,6 +198,33 @@ export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; gene
           </div>
         ) : (
           <p className="text-sm text-muted">עדיין אף משתמש אמיתי לא נרשם עם UTM או מאתר מפנה (כולם direct)</p>
+        )}
+      </Panel>
+
+      <Panel title="קמפיינים" note="כל utm_campaign שמשתמשים אמיתיים נרשמו איתו, וכמה נרשמו ממנו בסך הכול">
+        {campaigns.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-xs text-muted">
+                <tr>
+                  <th className="pb-2 pe-4 text-start font-medium">utm_campaign</th>
+                  <th className="pb-2 pe-4 text-end font-medium">נרשמו (סה״כ)</th>
+                  <th className="pb-2 text-end font-medium">30 יום</th>
+                </tr>
+              </thead>
+              <tbody>
+                {campaigns.map((c) => (
+                  <tr key={c.campaign} className="border-t border-border">
+                    <td className="py-2 pe-4"><bdi dir="ltr">{c.campaign}</bdi></td>
+                    <td className="py-2 pe-4 text-end tabular-nums">{fmt.format(c.total)}</td>
+                    <td className="py-2 text-end tabular-nums text-muted">{fmt.format(c.last30d)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-sm text-muted">עדיין אף משתמש אמיתי לא נרשם עם utm_campaign</p>
         )}
       </Panel>
 
