@@ -288,7 +288,7 @@ export function Sheet({
     document.addEventListener("keydown", onKey);
     const { overflow } = document.body.style;
     document.body.style.overflow = "hidden";
-    panel.current?.focus();
+    if (panel.current && !panel.current.contains(document.activeElement)) panel.current.focus();
     return () => {
       document.removeEventListener("keydown", onKey);
       sheetStack.splice(sheetStack.indexOf(token), 1);
