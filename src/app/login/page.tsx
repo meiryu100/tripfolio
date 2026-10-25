@@ -11,6 +11,7 @@ import { Button, FormError, Input } from "@/components/ui";
 import { useLogin } from "@/features/auth/api";
 import { ApiError, errorMessage } from "@/lib/api-client";
 import { safeNext } from "@/lib/safe-next";
+import { appHome } from "@/lib/app-home";
 
 const OAUTH_ERRORS: Record<string, string> = {
   google_failed: "Google sign-in didn't complete. Please try again.",
@@ -32,7 +33,7 @@ function LoginForm() {
     trackClick("log_in");
     login.mutate(
       { email, password },
-      { onSuccess: ({ me }) => router.replace(me.onboarded ? (safeNext(params.get("next"), window.location.origin) ?? "/home") : "/onboarding") },
+      { onSuccess: ({ me }) => router.replace(me.onboarded ? (safeNext(params.get("next"), window.location.origin) ?? appHome()) : "/onboarding") },
     );
   };
 

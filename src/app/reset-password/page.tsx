@@ -9,6 +9,7 @@ import { Button, FormError, Input, buttonClass } from "@/components/ui";
 import { meKey, resetPassword } from "@/features/auth/api";
 import { errorMessage } from "@/lib/api-client";
 import { toast } from "@/lib/ui";
+import { appHome } from "@/lib/app-home";
 
 function ResetForm() {
   const token = useSearchParams().get("token") ?? "";
@@ -38,7 +39,7 @@ function ResetForm() {
       await resetPassword(token, password);
       await qc.invalidateQueries({ queryKey: meKey });
       toast("Password updated — you're signed in ✓");
-      router.replace("/home");
+      router.replace(appHome());
     } catch (err) {
       setError(errorMessage(err));
       setBusy(false);

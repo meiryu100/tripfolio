@@ -5,11 +5,14 @@ import "d3-transition";
 import { zoom as d3zoom, zoomIdentity, type ZoomBehavior } from "d3-zoom";
 import { Maximize2, Minus, Plus } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { isPhone } from "@/lib/app-home";
+import { cn } from "@/lib/utils";
 
 /**
  * Pan/zoom for an SVG map: pinch and ⌘/Ctrl+wheel to zoom, drag to pan.
  * Plain wheel still scrolls the page, and on phones one finger scrolls the
  * page until you've zoomed in.
+ * `phoneScale` opens the map already zoomed in (around its center) on phones; reset still shows it all.
  */
 export function useMapZoom(
   svg: RefObject<SVGSVGElement | null>,
@@ -17,6 +20,7 @@ export function useMapZoom(
   size: { width: number; height: number },
   enabled = true,
   maxScale = 10,
+  phoneScale = 1,
 ) {
   const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const [zoomed, setZoomed] = useState(false);
@@ -42,10 +46,13 @@ export function useMapZoom(
     zoomRef.current = z;
     // d3-zoom sets touch-action:none inline; drop it so the page can still scroll.
     const sel = select(svg.current).call(z).style("touch-action", null);
+    if (phoneScale > 1 && isPhone()) {
+      sel.call(z.transform, zoomIdentity.translate(width / 2, height / 2).scale(phoneScale).translate(-width / 2, -height / 2));
+    }
     return () => {
       sel.on(".zoom", null);
     };
-  }, [enabled, svg, g, width, height, maxScale]);
+  }, [enabled, svg, g, width, height, maxScale, phoneScale]);
 
   return {
     zoomed,
@@ -59,10 +66,20 @@ export function useMapZoom(
   };
 }
 
-/** + / − stack, with "reset" appearing to its left once zoomed. */
-export function ZoomControls({ zoomed, zoomBy, reset }: { zoomed: boolean; zoomBy: (k: number) => void; reset: () => void }) {
+/** + / − stack, with "reset" appearing to its left once zoomed (above it, with `compact`, on phones). */
+export function ZoomControls({
+  zoomed,
+  zoomBy,
+  reset,
+  compact,
+}: {
+  zoomed: boolean;
+  zoomBy: (k: number) => void;
+  reset: () => void;
+  compact?: boolean;
+}) {
   return (
-    <div className="absolute right-3 bottom-3 flex items-end gap-2">
+    <div className={cn("absolute right-3 bottom-3 flex items-end gap-2", compact && "max-md:flex-col")}>
       {zoomed && (
         <div className="animate-fade glass overflow-hidden rounded-xl border border-border shadow-card">
           <MapButton label="Reset zoom" onClick={reset}>

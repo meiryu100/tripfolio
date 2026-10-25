@@ -5,6 +5,7 @@ import { useEffect, type ReactNode } from "react";
 import { useMeQuery } from "@/features/auth/api";
 import { safeNext } from "@/lib/safe-next";
 import { Logo } from "./logo";
+import { appHome } from "@/lib/app-home";
 
 /**
  * Card layout for login/register. Signed-in visitors are sent into the app, unless the page
@@ -27,7 +28,7 @@ export function AuthLayout({
     if (!me || keepSignedIn) return;
     // Honour ?next= (only same-site paths) so login returns to the page you came from.
     const next = new URLSearchParams(window.location.search).get("next");
-    const safe = safeNext(next, window.location.origin) ?? "/home";
+    const safe = safeNext(next, window.location.origin) ?? appHome();
     router.replace(me.onboarded ? safe : "/onboarding");
   }, [me, router, keepSignedIn]);
 

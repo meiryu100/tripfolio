@@ -70,9 +70,12 @@ export function MapPanel({
   username,
   className,
   tabs = true,
+  phoneZoom,
 }: {
   username: string;
   className?: string;
+  /** Open the world map zoomed in this much on phones. */
+  phoneZoom?: number;
   /** Render the World/country switch on the map (set false to place <MapViewTabs> elsewhere). */
   tabs?: boolean;
 }) {
@@ -101,6 +104,7 @@ export function MapPanel({
           onSelect={(code) => openCountry(code, username)}
           regionStatuses={regions.data?.statuses ?? {}}
           onSelectRegion={(code) => openRegion(code, username)}
+          phoneZoom={phoneZoom}
           className={className}
         />
       ) : (

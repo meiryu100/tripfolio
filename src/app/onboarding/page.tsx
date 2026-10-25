@@ -21,6 +21,7 @@ import { toast } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 import { aboutYouSchema } from "@/lib/validation";
 import mark from "../../../public/brand/tripfolio-mark.png";
+import { appHome } from "@/lib/app-home";
 
 type Step = 0 | 1 | 2 | 3 | 4;
 const STEPS = [0, 1, 2, 3, 4];
@@ -49,7 +50,7 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (isPending) return;
     if (!me) router.replace("/login");
-    else if (me.onboarded && step === 0) router.replace("/home");
+    else if (me.onboarded && step === 0) router.replace(appHome());
   }, [isPending, me, router, step]);
 
   if (!me) {
@@ -78,7 +79,7 @@ export default function OnboardingPage() {
       await completeOnboarding();
       qc.setQueryData<Me | null>(meKey, (m) => (m ? { ...m, onboarded: true } : m));
       qc.invalidateQueries({ queryKey: ["map"] });
-      router.replace("/home");
+      router.replace(appHome());
     } catch (e) {
       toast(errorMessage(e), "error");
       setSaving(false);
