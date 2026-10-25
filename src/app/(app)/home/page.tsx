@@ -36,8 +36,8 @@ export default function HomePage() {
   return (
     <Page wide>
       <header className="mb-5 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-muted">
+        <div className="max-w-full min-w-0">
+          <p className="text-muted [overflow-wrap:anywhere]">
             {/* Client-only page, so local time is safe here. */}
             {greeting()}, {me.firstName}
           </p>

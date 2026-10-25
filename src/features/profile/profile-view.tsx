@@ -86,7 +86,7 @@ function ProfileHeader({ profile: p }: { profile: Profile }) {
       <span className="bg-aurora animate-rise rounded-full p-1 shadow-glow">
         <Avatar user={p} size={104} className="ring-4 ring-surface" />
       </span>
-      <h1 className="mt-4 text-3xl font-bold tracking-tight">
+      <h1 className="mt-4 max-w-full text-3xl font-bold tracking-tight [overflow-wrap:anywhere]">
         {p.firstName} {p.lastName}
       </h1>
       <p className="mt-0.5 flex flex-wrap items-center justify-center gap-2 text-muted">
