@@ -7,6 +7,7 @@ import { AuthLayout } from "@/components/auth-layout";
 import { buttonClass } from "@/components/ui";
 import { useVerifyEmail } from "@/features/auth/api";
 import { errorMessage } from "@/lib/api-client";
+import { appHome } from "@/lib/app-home";
 
 /** The link from the sign-up email: confirms the address, signs in and continues to onboarding. */
 function VerifyEmail() {
@@ -19,7 +20,7 @@ function VerifyEmail() {
   useEffect(() => {
     if (!token || started.current) return;
     started.current = true;
-    verify.mutate(token, { onSuccess: ({ me }) => router.replace(me.onboarded ? "/home" : "/onboarding") });
+    verify.mutate(token, { onSuccess: ({ me }) => router.replace(me.onboarded ? appHome() : "/onboarding") });
   }, [token, verify, router]);
 
   if (!token || verify.isError) {

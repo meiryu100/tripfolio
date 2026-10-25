@@ -9,15 +9,24 @@ import { plural } from "@/lib/utils";
 import { useSearch } from "./api";
 
 /** Global search for people, countries and trips (⌘K). */
-export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function SearchDialog({
+  open,
+  onClose,
+  onPickCountry,
+}: {
+  open: boolean;
+  onClose: () => void;
+  /** Handle a country result instead of going to its Explore page; returns false to go there after all. */
+  onPickCountry?: (code: string) => boolean;
+}) {
   return (
     <Sheet open={open} onClose={onClose} label="Search" className="sm:max-w-xl sm:self-start sm:mt-[12vh]">
-      {open && <SearchBody onClose={onClose} />}
+      {open && <SearchBody onClose={onClose} onPickCountry={onPickCountry} />}
     </Sheet>
   );
 }
 
-function SearchBody({ onClose }: { onClose: () => void }) {
+function SearchBody({ onClose, onPickCountry }: { onClose: () => void; onPickCountry?: (code: string) => boolean }) {
   const [q, setQ] = useState("");
   const router = useRouter();
   const { data, isFetching, isError, debouncedQuery, isDebouncing } = useSearch(q);
@@ -57,7 +66,13 @@ function SearchBody({ onClose }: { onClose: () => void }) {
             {data.countries.length > 0 && (
               <Group title="Countries">
                 {data.countries.map((c) => (
-                  <Row key={c.code} onClick={() => go(`/explore/${c.code.toLowerCase()}`)}>
+                  <Row
+                    key={c.code}
+                    onClick={() => {
+                      if (onPickCountry?.(c.code)) onClose();
+                      else go(`/explore/${c.code.toLowerCase()}`);
+                    }}
+                  >
                     <span className="text-2xl">{c.flag}</span>
                     <span className="min-w-0 flex-1 truncate">
                       {c.name} <span className="text-muted">· {c.continent}</span>

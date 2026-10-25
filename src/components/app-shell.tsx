@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { useMe, useMeQuery } from "@/features/auth/api";
 import { SearchDialog } from "@/features/explore/search-dialog";
-import { useUI } from "@/lib/ui";
+import { isPhone } from "@/lib/app-home";
+import { openCountry, useUI } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 import { Logo } from "./logo";
 import { Avatar } from "./ui";
@@ -27,10 +28,10 @@ const SIDEBAR: NavItem[] = [
   { href: "/notifications", label: "Notifications", icon: Bell },
 ];
 
+// Phones: the map comes first (like a travel-map app); Home stays one tap away on the top bar's logo.
 const BOTTOM: NavItem[] = [
-  { href: "/home", label: "Home", icon: Home },
-  { href: "/explore", label: "Explore", icon: Compass },
   { href: "/map", label: "Map", icon: Map },
+  { href: "/explore", label: "Explore", icon: Compass },
   { href: "/trips", label: "Trips", icon: Luggage },
   { href: "/profile", label: "Profile", icon: User },
 ];
@@ -152,7 +153,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Mobile bottom navigation */}
       <nav aria-label="Main" className="glass pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border shadow-float md:hidden">
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-4">
           {BOTTOM.map(({ href, label, icon: Icon }) => {
             const active = href === "/profile" ? profileActive || isActive(pathname, "/settings") : isActive(pathname, href);
             return (
@@ -173,7 +174,16 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </nav>
 
-      <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <SearchDialog
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        // On a phone's map, a country result opens its sheet right there (the map has no "Find a country" box there).
+        onPickCountry={(code) => {
+          if (pathname !== "/map" || !isPhone()) return false;
+          openCountry(code, me.username);
+          return true;
+        }}
+      />
     </div>
   );
 }

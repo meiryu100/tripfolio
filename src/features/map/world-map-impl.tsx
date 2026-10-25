@@ -120,6 +120,7 @@ export function WorldMap({
   photoCountries,
   regionStatuses,
   onSelectRegion,
+  phoneZoom,
   className,
 }: {
   statuses: Record<string, CountryStatus>;
@@ -132,6 +133,8 @@ export function WorldMap({
   legend?: boolean;
   /** Countries with photos; enables the "With photos" legend toggle. */
   photoCountries?: string[];
+  /** Open zoomed in this much on phones (the full-screen /map page). */
+  phoneZoom?: number;
   className?: string;
 }) {
   const pulse = useUI((s) => s.pulse);
@@ -144,7 +147,7 @@ export function WorldMap({
   const svg = useRef<SVGSVGElement>(null);
   const g = useRef<SVGGElement>(null);
   const [hover, setHover] = useState<{ code: string; x: number; y: number } | null>(null);
-  const { zoomed, zoomBy, reset } = useMapZoom(svg, g, { width: W, height: H }, zoomable);
+  const { zoomed, zoomBy, reset } = useMapZoom(svg, g, { width: W, height: H }, zoomable, undefined, phoneZoom);
 
   const codeFrom = (target: EventTarget) => (target as Element).getAttribute?.("data-code");
 
@@ -204,11 +207,12 @@ export function WorldMap({
         </div>
       )}
 
-      {zoomable && <ZoomControls zoomed={zoomed} zoomBy={zoomBy} reset={reset} />}
+      {zoomable && <ZoomControls zoomed={zoomed} zoomBy={zoomBy} reset={reset} compact={Boolean(phoneZoom)} />}
 
       {legend && (
         <MapLegend
-          className={cn("absolute bottom-3 left-3", zoomed ? "max-w-[calc(100%-7.5rem)]" : "max-w-[calc(100%-4.5rem)]")}
+          className={cn("absolute bottom-3 left-3", zoomed ? "max-w-[calc(100%-7.5rem)]" : "max-w-[calc(100%-4.5rem)]", phoneZoom && "max-md:max-w-[calc(100%-4.5rem)]")}
+          compact={Boolean(phoneZoom)}
           photos={showPhotos}
           onTogglePhotos={photoCountries?.length ? () => setShowPhotos((v) => !v) : undefined}
         />
