@@ -18,7 +18,7 @@ import type { Attribution } from "@/lib/attribution";
 import { SOVEREIGN_CODES } from "@/lib/countries";
 import type { Me, Profile } from "@/lib/types";
 import type { z } from "zod";
-import { isReservedUsername, type aboutYouSchema, type profileSchema, type settingsSchema } from "@/lib/validation";
+import { confirmsAccount, isReservedUsername, type aboutYouSchema, type profileSchema, type settingsSchema } from "@/lib/validation";
 import type { Device } from "@/lib/device";
 
 export async function findByUsername(username: string) {
@@ -318,8 +318,8 @@ export function avatarObjectKey(avatarKey: string) {
 }
 
 export async function deleteAccount(user: UserRow, password: string, confirm: string) {
-  if (confirm.trim().toLowerCase() !== user.username.toLowerCase())
-    throw new HttpError("VALIDATION", "Type your username to confirm.", "confirm");
+  if (!confirmsAccount(confirm, user))
+    throw new HttpError("VALIDATION", `Type your username (${user.username}) or your email to confirm.`, "confirm");
   if (user.passwordHash && !(await verifyPassword(password, user.passwordHash)))
     throw new HttpError("VALIDATION", "Password is incorrect.", "password");
 

@@ -206,3 +206,12 @@ export const consentSchema = z.object({
   landing: z.string().max(2048).optional(),
   referrer: z.string().max(2048).optional(),
 });
+
+/**
+ * Deleting an account asks you to type it out: your username or your account email both count
+ * (people often type the email), ignoring case, spaces and a leading "@".
+ */
+export function confirmsAccount(input: string, account: { username: string; email: string }) {
+  const v = input.trim().toLowerCase().replace(/^@/, "");
+  return v.length > 0 && (v === account.username.toLowerCase() || v === account.email.toLowerCase());
+}

@@ -33,6 +33,7 @@ import { ApiError, errorMessage } from "@/lib/api-client";
 import type { Me, Theme, UserSummary } from "@/lib/types";
 import { toast } from "@/lib/ui";
 import { cn, timeAgo } from "@/lib/utils";
+import { confirmsAccount } from "@/lib/validation";
 
 const THEMES: { id: Theme; label: string; icon: typeof Sun }[] = [
   { id: "light", label: "Light", icon: Sun },
@@ -377,6 +378,7 @@ function DeleteAccountForm({ onCancel }: { onCancel: () => void }) {
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ message: string; field?: string } | null>(null);
+  const confirmed = confirmsAccount(confirm, me);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -398,12 +400,14 @@ function DeleteAccountForm({ onCancel }: { onCancel: () => void }) {
     <DialogForm title="Delete Account" danger onClose={onCancel} onSubmit={submit}>
       <p className="text-sm text-muted">This permanently deletes your profile, map, trips and photos. It can&apos;t be undone.</p>
       <Input
-        label={`Type your username (${me.username}) to confirm`}
+        label={`Type your username (${me.username}) or email to confirm`}
         autoComplete="off"
         autoCapitalize="none"
         value={confirm}
         onChange={(e) => setConfirm(e.target.value)}
         error={error?.field === "confirm" ? error.message : undefined}
+        // Say why the button is still off, instead of leaving it silently disabled.
+        hint={confirm.trim() && !confirmed ? `Doesn't match yet — type ${me.username} or ${me.email}.` : undefined}
       />
       {me.hasPassword && (
         <Input label="Password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} error={error?.field === "password" ? error.message : undefined} />
@@ -413,7 +417,7 @@ function DeleteAccountForm({ onCancel }: { onCancel: () => void }) {
         <Button variant="secondary" size="lg" className="flex-1" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" variant="danger" size="lg" className="flex-1" loading={busy} disabled={confirm.toLowerCase() !== me.username.toLowerCase() || (me.hasPassword && !password)}>
+        <Button type="submit" variant="danger" size="lg" className="flex-1" loading={busy} disabled={!confirmed || (me.hasPassword && !password)}>
           Delete forever
         </Button>
       </div>
