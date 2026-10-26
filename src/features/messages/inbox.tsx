@@ -159,10 +159,8 @@ export function MessagesHome() {
   const [composing, setComposing] = useState(false);
   return (
     <div className="animate-rise flex flex-1 flex-col items-center justify-center p-8 text-center">
-      <span className="bg-aurora rounded-full p-[3px] shadow-glow">
-        <span className="flex size-24 items-center justify-center rounded-full bg-surface">
-          <Send className="size-10 -translate-x-0.5 translate-y-0.5 text-fg" aria-hidden />
-        </span>
+      <span className="flex size-24 items-center justify-center rounded-full bg-surface shadow-float ring-4 ring-surface">
+        <Send className="size-10 -translate-x-0.5 translate-y-0.5 text-fg" aria-hidden />
       </span>
       <h2 className="mt-5 text-xl font-bold">Your messages</h2>
       <p className="mt-1 max-w-xs text-muted">Send a private message to a fellow traveler.</p>

@@ -190,21 +190,25 @@ function Discover() {
   );
 }
 
+/**
+ * One row of country cards that scrolls sideways. The cards stay put on hover (no lift), and the
+ * row's padding, offset by negative margins, leaves room so their shadows aren't cut off.
+ */
 function CountryStrip({ items, loading }: { items?: { code: string; meta: string }[]; loading: boolean }) {
   return (
-    <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-4 sm:px-0 lg:grid-cols-8">
+    <div className="no-scrollbar -mx-4 -my-4 flex snap-x gap-3 overflow-x-auto scroll-px-4 px-4 py-4">
       {loading
-        ? Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-32 w-32 shrink-0 sm:w-auto" />)
+        ? Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-32 w-32 shrink-0" />)
         : items?.map(({ code, meta }, i) => {
             const c = getCountry(code);
             if (!c) return null;
             return (
-              <Reveal key={code} index={i} className="shrink-0 sm:shrink">
+              <Reveal key={code} index={i} className="shrink-0 snap-start">
               <Link
                 href={`/explore/${code.toLowerCase()}`}
-                className="lift group flex h-full w-32 flex-col items-center rounded-3xl border border-border bg-surface/85 px-3 py-5 text-center shadow-card backdrop-blur hover:border-brand/40 sm:w-auto"
+                className="flex h-full w-32 flex-col items-center rounded-3xl border border-border bg-surface/85 px-3 py-5 text-center shadow-card backdrop-blur transition-colors hover:border-brand/40"
               >
-                <span className="text-5xl transition duration-500 group-hover:scale-110" aria-hidden>
+                <span className="text-5xl" aria-hidden>
                   {c.flag}
                 </span>
                 <span className="mt-2 w-full truncate text-sm font-semibold">{c.name}</span>

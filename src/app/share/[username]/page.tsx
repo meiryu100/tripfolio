@@ -74,9 +74,7 @@ export default async function PublicProfilePage({ params }: Props) {
 
       <main className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
         <section className="flex flex-col items-center pt-6 text-center">
-          <span className="bg-aurora rounded-full p-1 shadow-glow">
-            <Avatar user={p} size={104} className="ring-4 ring-surface" />
-          </span>
+          <Avatar user={p} size={104} className="shadow-float ring-4 ring-surface" />
           <h1 className="mt-4 max-w-full text-3xl font-bold tracking-tight [overflow-wrap:anywhere] sm:text-4xl">
             {p.firstName} {p.lastName}
           </h1>
