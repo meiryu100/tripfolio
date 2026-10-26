@@ -22,8 +22,9 @@ import type { Profile } from "@/lib/types";
 import { toast } from "@/lib/ui";
 
 import { cn } from "@/lib/utils";
+import { CompareMaps } from "./compare-maps";
 
-type Tab = "world" | "trips" | "photos";
+type Tab = "world" | "trips" | "photos" | "compare";
 
 export function ProfileView({ profile }: { profile: Profile }) {
   const [tab, setTab] = useState<Tab>("world");
@@ -32,6 +33,7 @@ export function ProfileView({ profile }: { profile: Profile }) {
     { id: "world", label: "World", show: profile.canView.visited || profile.canView.wishlist },
     { id: "trips", label: "Trips", show: profile.canView.trips },
     { id: "photos", label: "Photos", show: profile.canView.photos },
+    { id: "compare", label: "Compare", show: !profile.isMe && profile.canView.visited },
   ];
   const visibleTabs = tabs.filter((t) => t.show);
   const active = visibleTabs.some((t) => t.id === tab) ? tab : visibleTabs[0]?.id;
@@ -75,6 +77,7 @@ export function ProfileView({ profile }: { profile: Profile }) {
             {active === "world" && <WorldTab profile={profile} />}
             {active === "trips" && <TripsTab profile={profile} />}
             {active === "photos" && <PhotosTab profile={profile} />}
+            {active === "compare" && <CompareMaps profile={profile} />}
           </div>
         </>
       )}
