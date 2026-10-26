@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { DEVICE_LABEL, type Device } from "@/lib/device";
 import type { AdminStats } from "@/server/services/admin-stats";
 
 /**
@@ -115,6 +116,77 @@ function campaignTotals(utm: AdminStats["utm"]) {
   return [...byCampaign.values()].sort((a, b) => b.total - a.total || a.campaign.localeCompare(b.campaign));
 }
 
+/** Fixed colors per device (validated for light and dark surfaces); "unknown" is a neutral gray. */
+const DEVICE_COLOR: Record<Device | "unknown", string> = {
+  mobile: "fill-[#0369a1] bg-[#0369a1] dark:fill-[#0891d1] dark:bg-[#0891d1]",
+  desktop: "fill-[#c2410c] bg-[#c2410c] dark:fill-[#ea580c] dark:bg-[#ea580c]",
+  tablet: "fill-[#7c3aed] bg-[#7c3aed] dark:fill-[#8b5cf6] dark:bg-[#8b5cf6]",
+  unknown: "fill-[#94a3b8] bg-[#94a3b8] dark:fill-[#64748b] dark:bg-[#64748b]",
+};
+const DEVICE_ORDER = ["mobile", "desktop", "tablet", "unknown"] as const;
+
+/** Ring segments for a donut (outer radius 60, inner 38, centered in a 140×140 box), clockwise from 12 o'clock. */
+function donutPaths<T extends { value: number }>(slices: T[], total: number) {
+  const R = 60;
+  const r = 38;
+  const at = (a: number, rad: number) => `${70 + rad * Math.cos(a)} ${70 + rad * Math.sin(a)}`;
+  const starts = slices.map((_, i) => -Math.PI / 2 + (slices.slice(0, i).reduce((sum, x) => sum + x.value, 0) / total) * Math.PI * 2);
+  return slices.map((s, i) => {
+    const start = starts[i];
+    const sweep = (s.value / total) * Math.PI * 2;
+    const end = start + sweep;
+    if (sweep >= Math.PI * 2 - 1e-6) {
+      // One slice is the whole ring: draw it as two halves, since an SVG arc can't start and end at the same point.
+      const mid = start + Math.PI;
+      return { ...s, d: `M ${at(start, R)} A ${R} ${R} 0 1 1 ${at(mid, R)} A ${R} ${R} 0 1 1 ${at(start, R)} M ${at(start, r)} A ${r} ${r} 0 1 0 ${at(mid, r)} A ${r} ${r} 0 1 0 ${at(start, r)} Z` };
+    }
+    const large = sweep > Math.PI ? 1 : 0;
+    return { ...s, d: `M ${at(start, R)} A ${R} ${R} 0 ${large} 1 ${at(end, R)} L ${at(end, r)} A ${r} ${r} 0 ${large} 0 ${at(start, r)} Z` };
+  });
+}
+
+/** A donut of sign-ups per device, with a legend that carries every number (so nothing relies on color). */
+function DevicePie({ devices, period }: { devices: AdminStats["devices"]; period: "total" | "last30d" }) {
+  const slices = DEVICE_ORDER.map((key) => ({
+    key,
+    value: devices.filter((d) => (d.device ?? "unknown") === key).reduce((s, d) => s + d[period], 0),
+  })).filter((s) => s.value > 0);
+  const total = slices.reduce((s, d) => s + d.value, 0);
+  if (!total) return <p className="text-sm text-muted">אין עדיין נתונים</p>;
+
+  const paths = donutPaths(slices, total);
+  const pct = (v: number) => `${Math.round((v / total) * 100)}%`;
+
+  return (
+    <div className="flex flex-wrap items-center gap-6">
+      <svg viewBox="0 0 140 140" className="size-36 flex-none" role="img" aria-label="הרשמות לפי מכשיר">
+        {paths.map((p) => (
+          <path key={p.key} d={p.d} fillRule="evenodd" className={`${DEVICE_COLOR[p.key]} stroke-surface stroke-2 hover:opacity-80`}>
+            <title>{`${DEVICE_LABEL[p.key]}: ${p.value} (${pct(p.value)})`}</title>
+          </path>
+        ))}
+        <text x="70" y="68" textAnchor="middle" className="fill-fg text-[20px] font-bold">
+          {fmt.format(total)}
+        </text>
+        <text x="70" y="86" textAnchor="middle" className="fill-muted text-[10px]">
+          נרשמו
+        </text>
+      </svg>
+      <ul className="grid gap-2 text-sm">
+        {slices.map((s) => (
+          <li key={s.key} className="flex items-center gap-2">
+            <span className={`size-3 flex-none rounded-sm ${DEVICE_COLOR[s.key]}`} />
+            <span>{DEVICE_LABEL[s.key]}</span>
+            <span className="tabular-nums text-muted">
+              {fmt.format(s.value)} · {pct(s.value)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; generatedAt: string }) {
   const { users, active, content, funnel30d: f } = stats;
   const campaigns = campaignTotals(stats.utm);
@@ -155,6 +227,18 @@ export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; gene
         </Panel>
         <Panel title="מאיפה הגיעו" note="מקור ההרשמה, 30 הימים האחרונים">
           <BarList rows={stats.sources30d.map((s) => ({ label: s.source, value: s.signups }))} />
+        </Panel>
+        <Panel title="נרשמו מטלפון או ממחשב" note="כל המשתמשים האמיתיים, לפי המכשיר שממנו נרשמו">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div>
+              <h3 className="mb-3 text-sm font-medium text-muted">מאז ומעולם</h3>
+              <DevicePie devices={stats.devices} period="total" />
+            </div>
+            <div>
+              <h3 className="mb-3 text-sm font-medium text-muted">30 הימים האחרונים</h3>
+              <DevicePie devices={stats.devices} period="last30d" />
+            </div>
+          </div>
         </Panel>
         <Panel title="המדינות הכי מסומנות">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
@@ -240,6 +324,7 @@ export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; gene
                   <th className="pb-2 text-start font-medium">שם</th>
                   <th className="pb-2 text-start font-medium">משתמש</th>
                   <th className="pb-2 text-start font-medium">נרשם</th>
+                  <th className="pb-2 text-start font-medium">מכשיר</th>
                   <th className="pb-2 text-start font-medium">מקור</th>
                   <th className="pb-2 text-start font-medium">medium / campaign</th>
                   <th className="pb-2 text-start font-medium">מייל מאומת</th>
@@ -256,6 +341,12 @@ export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; gene
                       </a>
                     </td>
                     <td className="py-2 pe-4 whitespace-nowrap text-muted">{dateTime.format(new Date(u.createdAt))}</td>
+                    <td className="py-2 pe-4 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className={`size-2.5 rounded-sm ${DEVICE_COLOR[u.device ?? "unknown"]}`} />
+                        {DEVICE_LABEL[u.device ?? "unknown"]}
+                      </span>
+                    </td>
                     <td className="py-2 pe-4 text-muted">{u.source}</td>
                     <td className="py-2 pe-4 text-muted"><bdi dir="ltr">{[u.medium, u.campaign].filter(Boolean).join(" / ") || "—"}</bdi></td>
                     <td className="py-2">{u.verified ? "מאומת" : "לא מאומת"}</td>

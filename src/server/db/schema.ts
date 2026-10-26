@@ -66,6 +66,8 @@ export const users = pgTable(
     signupCampaign: text("signup_campaign"),
     /** Host of the external page that linked here, e.g. "google.com". */
     signupReferrer: text("signup_referrer"),
+    /** The device type the user signed up on ("mobile" | "tablet" | "desktop", see src/lib/device.ts). */
+    signupDevice: text("signup_device"),
     // Privacy
     isPrivate: boolean("is_private").notNull().default(false),
     showVisited: boolean("show_visited").notNull().default(true),

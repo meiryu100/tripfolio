@@ -92,6 +92,13 @@
       "when": 1792862392117,
       "tag": "0012_bot_visits",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793004635929,
+      "tag": "0013_signup_device",
+      "breakpoints": true
     }
   ]
 }
