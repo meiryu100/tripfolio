@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Camera, PartyPopper, X } from "lucide-react";
+import { ArrowRight, Camera, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
@@ -24,8 +24,10 @@ import { aboutYouSchema } from "@/lib/validation";
 import mark from "../../../public/brand/tripfolio-mark.png";
 import { appHome } from "@/lib/app-home";
 
-type Step = 0 | 1 | 2 | 3 | 4;
-const STEPS = [0, 1, 2, 3, 4];
+// Welcome → visited → wishlist → about you. The map comes first and the name form last (and can be
+// skipped): people who see the map mark countries, while a form up front lost some before the map.
+type Step = 0 | 1 | 2 | 3;
+const STEPS = [0, 1, 2, 3];
 
 const noSubscribe = () => () => {};
 
@@ -66,9 +68,9 @@ export default function OnboardingPage() {
   const next = async () => {
     setSaving(true);
     try {
-      if (step === 2 && visited.length) await setStatuses(visited, "visited");
-      if (step === 3 && wishlist.length) await setStatuses(wishlist, "wishlist");
-      setStep((s) => Math.min(4, s + 1) as Step);
+      if (step === 1 && visited.length) await setStatuses(visited, "visited");
+      if (step === 2 && wishlist.length) await setStatuses(wishlist, "wishlist");
+      setStep((s) => Math.min(3, s + 1) as Step);
     } catch (e) {
       toast(errorMessage(e), "error");
     } finally {
@@ -106,8 +108,6 @@ export default function OnboardingPage() {
     next();
   };
 
-  const total = visited.length + wishlist.filter((c) => !visited.includes(c)).length;
-
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
@@ -117,7 +117,7 @@ export default function OnboardingPage() {
             <span key={i} className={cn("h-1.5 rounded-full transition-all", i === step ? "w-6 bg-brand" : i < step ? "w-1.5 bg-brand/50" : "w-1.5 bg-border")} />
           ))}
         </div>
-        {step > 0 && step < 4 ? (
+        {step > 0 && step < 3 ? (
           <button onClick={finish} className="text-sm font-medium text-muted hover:text-fg">
             Skip all
           </button>
@@ -127,12 +127,12 @@ export default function OnboardingPage() {
       </header>
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 pb-8 sm:px-6">
-        {step === 0 && <AboutYouStep me={me} onDone={() => setStep(1)} />}
-
-        {step === 1 && (
+        {step === 0 && (
           <Centered>
             <Image src={mark} alt="" priority className="animate-float h-32 w-auto drop-shadow-xl" />
-            <h1 className="mt-6 text-4xl font-bold tracking-tight">Welcome to Tripfolio, {me.firstName} 🌎</h1>
+            <h1 className="mt-6 text-4xl font-bold tracking-tight">
+              Welcome to Tripfolio{hasName(me) ? `, ${me.firstName}` : ""} 🌎
+            </h1>
             <p className="mt-3 max-w-md text-lg text-muted">
               {demoCount || demoStateCount
                 ? `We kept the ${demoSummary} you colored. Check them and add the rest — it takes about a minute.`
@@ -144,7 +144,7 @@ export default function OnboardingPage() {
           </Centered>
         )}
 
-        {step === 2 && (
+        {step === 1 && (
           <PickStep
             title="Tell us where you've been."
             subtitle="Tap every country you've visited."
@@ -154,12 +154,12 @@ export default function OnboardingPage() {
             locked={[]}
             onNext={next}
             saving={saving}
-            onSkip={() => setStep(3)}
+            onSkip={() => setStep(2)}
             onImport={() => setImporting(true)}
           />
         )}
 
-        {step === 3 && (
+        {step === 2 && (
           <PickStep
             title="Where do you want to go next?"
             subtitle="Pick the places on your wishlist."
@@ -169,24 +169,12 @@ export default function OnboardingPage() {
             locked={visited}
             onNext={next}
             saving={saving}
-            onSkip={() => setStep(4)}
+            onSkip={() => setStep(3)}
           />
         )}
 
-        {step === 4 && (
-          <Centered>
-            <HeroBadge><PartyPopper className="size-10" /></HeroBadge>
-            <h1 className="mt-6 text-4xl font-semibold tracking-tight">You&apos;re ready to explore.</h1>
-            <p className="mt-3 text-lg text-muted">
-              {total > 0
-                ? `You've added ${total} ${total === 1 ? "country" : "countries"} to your world.`
-                : "Your map is a blank canvas — tap any country to start."}
-            </p>
-            <Button size="lg" className="mt-8 min-w-56" onClick={finish} loading={saving}>
-              Explore My World <ArrowRight className="size-5" />
-            </Button>
-          </Centered>
-        )}
+        {step === 3 && <AboutYouStep me={me} onDone={finish} finishing={saving} />}
+
       </main>
 
       <ImportSheet
@@ -199,11 +187,13 @@ export default function OnboardingPage() {
   );
 }
 
-function AboutYouStep({ me, onDone }: { me: Me; onDone: () => void }) {
+/** Sign-up gives people without a name yet the placeholder "Traveler" (see services/auth.ts). */
+const hasName = (me: Me) => !(me.firstName === "Traveler" && !me.lastName);
+
+function AboutYouStep({ me, onDone, finishing }: { me: Me; onDone: () => void; finishing: boolean }) {
   const save = useSaveAboutYou();
-  // "Traveler" is the placeholder sign-up gives people who haven't told us their name yet.
   const [form, setForm] = useState({
-    firstName: me.firstName === "Traveler" && !me.lastName ? "" : me.firstName,
+    firstName: hasName(me) ? me.firstName : "",
     lastName: me.lastName,
     username: me.username,
   });
@@ -233,8 +223,8 @@ function AboutYouStep({ me, onDone }: { me: Me; onDone: () => void }) {
     <Centered>
       <form onSubmit={submit} className="grid w-full max-w-sm gap-4 text-left" noValidate>
         <div className="text-center">
-          <h1 className="text-3xl font-semibold tracking-tight">First, about you</h1>
-          <p className="mt-2 text-muted">This is how friends will find you on Tripfolio.</p>
+          <h1 className="text-3xl font-semibold tracking-tight">Last thing: about you</h1>
+          <p className="mt-2 text-muted">This is how friends will find you on Tripfolio. You can change it any time in Edit Profile.</p>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Input label="First name" autoComplete="given-name" value={form.firstName} onChange={set("firstName")} error={errors.firstName} />
@@ -250,19 +240,14 @@ function AboutYouStep({ me, onDone }: { me: Me; onDone: () => void }) {
           hint="Lowercase letters, numbers, dots and underscores"
         />
         <FormError message={formError} />
-        <Button type="submit" size="lg" loading={save.isPending}>
-          Continue <ArrowRight className="size-5" />
+        <Button type="submit" size="lg" loading={save.isPending || finishing}>
+          Explore My World <ArrowRight className="size-5" />
+        </Button>
+        <Button type="button" variant="ghost" onClick={onDone} disabled={save.isPending || finishing}>
+          Skip for now
         </Button>
       </form>
     </Centered>
-  );
-}
-
-function HeroBadge({ children }: { children: React.ReactNode }) {
-  return (
-    <span aria-hidden className="flex size-20 items-center justify-center rounded-3xl bg-aurora text-white shadow-float">
-      {children}
-    </span>
   );
 }
 
