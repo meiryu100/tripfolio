@@ -2,12 +2,27 @@
 
 import { useEffect, useRef, useState } from "react";
 
+const VIDEOS = {
+  short: {
+    src: "/media/promo.mp4",
+    poster: "/media/promo-poster.jpg",
+    label: "Tripfolio in 10 seconds: a world map filling with visited and wishlist countries, travel stats, a trip with photos, and the US states map",
+  },
+  long: {
+    src: "/media/promo-25s.mp4",
+    poster: "/media/promo-25s-poster.jpg",
+    label: "Tripfolio in 25 seconds: travel photos, the home page, a world map filling with visited and wishlist countries, a trip with photos, travel stats and the US states map",
+  },
+};
+
 /**
- * The 10-second promo video (no audio): plays muted on a loop, like a GIF. It's below the fold, so
- * nothing is downloaded until it scrolls near the screen. With reduced motion it stays on the
+ * A promo video without sound: the 10-second one, or the 25-second one with its soundtrack removed.
+ * Plays muted on a loop, like a GIF. It's below the fold, so nothing is downloaded until it scrolls
+ * near the screen. With reduced motion it stays on the
  * poster and shows controls instead.
  */
-export function PromoVideo() {
+export function PromoVideo({ version = "short" }: { version?: keyof typeof VIDEOS }) {
+  const promo = VIDEOS[version];
   const ref = useRef<HTMLVideoElement>(null);
   const [reduced, setReduced] = useState(false);
 
@@ -39,8 +54,8 @@ export function PromoVideo() {
   return (
     <video
       ref={ref}
-      src="/media/promo.mp4"
-      poster="/media/promo-poster.jpg"
+      src={promo.src}
+      poster={promo.poster}
       width={1280}
       height={720}
       muted
@@ -48,7 +63,7 @@ export function PromoVideo() {
       playsInline
       preload="none"
       controls={reduced}
-      aria-label="Tripfolio in 10 seconds: a world map filling with visited and wishlist countries, travel stats, a trip with photos, and the US states map"
+      aria-label={promo.label}
       className="aspect-video w-full rounded-3xl border border-border bg-surface shadow-card"
     />
   );
