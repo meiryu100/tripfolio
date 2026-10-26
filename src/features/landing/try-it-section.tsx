@@ -59,10 +59,10 @@ export function TryItSection() {
           See it in action
         </h2>
         <div className="mt-8">
-          <PromoVideo />
+          <PromoVideo version="long" />
         </div>
         <p className="mt-3 text-center text-xs text-muted">
-          Trip photos: Basile Morin (CC BY-SA 4.0), Stjepko Krehula (CC BY 4.0), Martin Falbisoner (CC BY-SA 4.0), via Wikimedia Commons.
+          Photos: Ayanadak123 (CC BY-SA 4.0), Vyacheslav Argenberg (CC BY 4.0), Marek Gehrmann (CC BY-SA 3.0), kallerna (CC BY-SA 4.0), Stjepko Krehula (CC BY 4.0), Emrahuygun (CC BY-SA 4.0), MurielBendel (CC BY-SA 4.0), Basile Morin (CC BY-SA 4.0), Martin Falbisoner (CC BY-SA 4.0), via Wikimedia Commons.
         </p>
       </section>
     </>
