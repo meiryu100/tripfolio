@@ -270,9 +270,7 @@ function ChatScreen({ username, chat }: { username: string; chat: Chat }) {
 function ProfileIntro({ user }: { user: UserSummary }) {
   return (
     <div className="animate-rise flex flex-col items-center pt-4 pb-8 text-center">
-      <span className="bg-aurora rounded-full p-[3px] shadow-glow">
-        <Avatar user={user} size={88} className="ring-4 ring-surface" />
-      </span>
+      <Avatar user={user} size={88} className="shadow-float ring-4 ring-surface" />
       <p className="mt-3 text-lg font-bold">
         {user.firstName} {user.lastName}
       </p>

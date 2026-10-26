@@ -2,21 +2,24 @@
 
 import { CalendarDays, Camera, Globe2, Link2, Lock, MapPin, MoreHorizontal, Settings, UserCheck } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { FollowButton, LoadMore, TripGrid, TripGridSkeleton } from "@/components/cards";
 import { Photo } from "@/components/photo";
-import { Avatar, Button, EmptyState, ErrorState, Skeleton, buttonClass } from "@/components/ui";
+import { Avatar, Button, EmptyState, ErrorState, Skeleton, Spinner, buttonClass } from "@/components/ui";
 import { useUserMap } from "@/features/map/api";
 import { MapPanel } from "@/features/map/map-panel";
 import { useChatAction } from "@/features/messages/api";
 import { UserActionsSheet } from "@/features/messages/sheets";
+import { useUploadAvatar } from "@/features/settings/api";
 import { ShareProfileButton } from "@/features/share/share";
 import { flatten } from "@/features/social/api";
 import { computeStats } from "@/features/stats/compute";
 import { ContinentChecklist, Milestones, WorldProgress } from "@/features/stats/stats-panel";
 import { useUserPhotos, useUserTrips } from "@/features/trips/api";
 import { getCountry } from "@/lib/countries";
+import { errorMessage } from "@/lib/api-client";
 import type { Profile } from "@/lib/types";
+import { toast } from "@/lib/ui";
 
 import { cn } from "@/lib/utils";
 
@@ -79,13 +82,56 @@ export function ProfileView({ profile }: { profile: Profile }) {
   );
 }
 
+/** Your own avatar: tap it to pick a photo, and it uploads and updates right away (no edit page). */
+function MyAvatar({ profile }: { profile: Profile }) {
+  const input = useRef<HTMLInputElement>(null);
+  const upload = useUploadAvatar();
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => input.current?.click()}
+        disabled={upload.isPending}
+        className="group animate-rise relative rounded-full"
+        aria-label={profile.avatarUrl ? "Change profile photo" : "Add profile photo"}
+      >
+        <Avatar user={profile} size={104} className="shadow-float ring-4 ring-surface" />
+        <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/35 text-white opacity-0 transition duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+          <Camera className="size-6" aria-hidden />
+        </span>
+        <span className="absolute right-0.5 bottom-0.5 flex size-8 items-center justify-center rounded-full bg-brand text-brand-fg shadow-float ring-2 ring-surface">
+          <Camera className="size-4" aria-hidden />
+        </span>
+        {upload.isPending && (
+          <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/45">
+            <Spinner className="text-white" label="Uploading" />
+          </span>
+        )}
+      </button>
+      <input
+        ref={input}
+        type="file"
+        accept="image/*,.heic,.heif"
+        hidden
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (file)
+            upload.mutate(file, {
+              onSuccess: () => toast("Profile photo updated ✓"),
+              onError: (err) => toast(errorMessage(err), "error"),
+            });
+        }}
+      />
+    </>
+  );
+}
+
 function ProfileHeader({ profile: p }: { profile: Profile }) {
   const joined = new Date(p.joinedAt).toLocaleDateString(undefined, { month: "long", year: "numeric" });
   return (
     <header className="flex flex-col items-center text-center">
-      <span className="bg-aurora animate-rise rounded-full p-1 shadow-glow">
-        <Avatar user={p} size={104} className="ring-4 ring-surface" />
-      </span>
+      {p.isMe ? <MyAvatar profile={p} /> : <Avatar user={p} size={104} className="animate-rise shadow-float ring-4 ring-surface" />}
       <h1 className="mt-4 max-w-full text-3xl font-bold tracking-tight [overflow-wrap:anywhere]">
         {p.firstName} {p.lastName}
       </h1>
