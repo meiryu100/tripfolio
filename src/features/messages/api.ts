@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { meKey } from "@/features/auth/api";
-import { api, qs } from "@/lib/api-client";
+import { api, ApiError, qs } from "@/lib/api-client";
 import type { Chat, ConversationSummary, Message, MessageFolder, UserSummary } from "@/lib/types";
 import { resizeImage } from "@/lib/utils";
 
@@ -24,7 +24,8 @@ export function useChat(username: string) {
     queryFn: () => api.get<{ chat: Chat }>(`/api/messages/with/${encodeURIComponent(username)}`).then((r) => r.chat),
     refetchInterval: 4_000,
     refetchIntervalInBackground: false,
-    retry: (n, e) => (e as { status?: number }).status !== 404 && n < 2,
+    // A 4xx (no such user, can't message them) won't change on retry.
+    retry: (n, e) => !(e instanceof ApiError && e.status >= 400 && e.status < 500) && n < 2,
   });
 }
 

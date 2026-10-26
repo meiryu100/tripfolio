@@ -8,6 +8,15 @@ const require = createRequire(import.meta.url);
 const all = require("world-countries");
 const cca3To2 = new Map(all.map((c) => [c.cca3, c.cca2]));
 
+// Countries whose dial code the data splits into a one-digit root and many suffixes, so the
+// generic rule below would show just "+3" or "+2". (+1 and +7 are real one-digit codes.)
+const CALLING_CODES = { VA: "+379", SH: "+290", EH: "+212" };
+
+function callingCode(c) {
+  if (CALLING_CODES[c.cca2]) return CALLING_CODES[c.cca2];
+  return c.idd?.root ? `${c.idd.root}${c.idd.suffixes?.length === 1 ? c.idd.suffixes[0] : ""}` : "";
+}
+
 const facts = Object.fromEntries(
   all.map((c) => [
     c.cca2,
@@ -19,7 +28,7 @@ const facts = Object.fromEntries(
       languages: Object.values(c.languages ?? {}),
       currencies: Object.values(c.currencies ?? {}).map((x) => x.name),
       demonym: c.demonyms?.eng?.m ?? "",
-      callingCode: c.idd?.root ? `${c.idd.root}${c.idd.suffixes?.length === 1 ? c.idd.suffixes[0] : ""}` : "",
+      callingCode: callingCode(c),
       tld: c.tld?.[0] ?? "",
       latlng: c.latlng,
     },

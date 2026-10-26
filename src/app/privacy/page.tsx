@@ -42,12 +42,13 @@ const SECTIONS: LegalSection[] = [
             website and profile picture. We use these to run your account and show your profile.
           </li>
           <li>
-            <strong>Your password:</strong> stored only as a one-way hash, never in plain text. If you sign in with Google or Facebook
-            you may have no password at all.
+            <strong>Your password:</strong> stored only as a one-way hash, never in plain text. If you sign in with Google you may have
+            no password at all.
           </li>
           <li>
-            <strong>Google and Facebook sign-in:</strong> if you choose it, we receive your email, name and that service&apos;s account
-            ID, and store the ID so we can recognise you next time. We don&apos;t post anything on your behalf.
+            <strong>Google sign-in:</strong> if you choose it, we receive your email, name and your Google account ID, and store the
+            ID so we can recognise you next time. We don&apos;t post anything on your behalf. (Sign-in with Facebook was offered until
+            21 October 2026; accounts made with it keep the Facebook ID we stored then.)
           </li>
           <li>
             <strong>Your travel data:</strong> the countries and US states you mark as visited or want to visit, and your trips (country,
@@ -171,7 +172,7 @@ const SECTIONS: LegalSection[] = [
             <strong>Google Analytics (Google):</strong> visit statistics, only if you accept all cookies.
           </li>
           <li>
-            <strong>Google and Facebook (Meta):</strong> only if you sign in with them.
+            <strong>Google:</strong> only if you sign in with it.
           </li>
         </ul>
         <p>
@@ -207,7 +208,7 @@ const SECTIONS: LegalSection[] = [
         </p>
         <p>Deleting your account permanently removes:</p>
         <ul>
-          <li>your profile, email, name and sign-in details (including linked Google or Facebook IDs);</li>
+          <li>your profile, email, name and sign-in details (including a linked Google ID, or a Facebook ID from before 21 October 2026);</li>
           <li>your visited countries, wishlist, US states and trips;</li>
           <li>your photos and profile picture, from our storage as well as the database;</li>
           <li>your follows, followers, blocks, notifications, feed activity and sessions;</li>
@@ -215,8 +216,8 @@ const SECTIONS: LegalSection[] = [
         </ul>
         <p>This can&apos;t be undone.</p>
         <p>
-          If you can&apos;t sign in, or you signed up with Facebook and want your data removed, email {mail} from the address on your
-          account, and we will delete it for you.
+          If you can&apos;t sign in (for example, you signed up with Facebook before we removed it) and want your data removed, email
+          {mail} from the address on your account, and we will delete it for you.
         </p>
       </>
     ),
