@@ -134,7 +134,7 @@ export default function SettingsPage() {
         <Group title="Notifications">
           <ToggleRow label="Follow notifications" hint="When someone follows you, unfollows you, or sends you a message request." checked={me.settings.notifyFollows} onChange={(v) => set({ notifyFollows: v })} />
           <ToggleRow label="Trip notifications" hint="When people you follow add a trip." checked={me.settings.notifyTrips} onChange={(v) => set({ notifyTrips: v })} />
-          <ToggleRow label="Email notifications" hint="A digest of activity, sent to your email." checked={me.settings.notifyEmail} onChange={(v) => set({ notifyEmail: v })} />
+          <ToggleRow label="Email notifications" hint="A weekly email with new trips from people you follow and your next milestone. Only when there's something new." checked={me.settings.notifyEmail} onChange={(v) => set({ notifyEmail: v })} />
         </Group>
 
         <Group title="Appearance">

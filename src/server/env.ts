@@ -23,6 +23,8 @@ export const env = {
     /** Sender address; "onboarding@resend.dev" works before you verify a domain. */
     from: optional("MAIL_FROM", "Tripfolio <onboarding@resend.dev>"),
   },
+  /** Vercel Cron sends it as "Authorization: Bearer <CRON_SECRET>"; cron routes refuse requests without it. */
+  cronSecret: optional("CRON_SECRET"),
   google: {
     clientId: optional("GOOGLE_CLIENT_ID"),
     clientSecret: optional("GOOGLE_CLIENT_SECRET"),
