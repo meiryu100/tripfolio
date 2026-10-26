@@ -9,6 +9,7 @@ import { SearchDialog } from "@/features/explore/search-dialog";
 import { isPhone } from "@/lib/app-home";
 import { openCountry, useUI } from "@/lib/ui";
 import { cn } from "@/lib/utils";
+import { InstallHint } from "./install-hint";
 import { Logo } from "./logo";
 import { Avatar } from "./ui";
 
@@ -129,6 +130,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
+      <InstallHint />
       <div className="min-w-0 flex-1 pb-20 md:pb-0">
         {/* Mobile top bar: search, friends, notifications, messages (the bottom bar holds the main sections) */}
         <header className="glass sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border px-4 md:hidden">
