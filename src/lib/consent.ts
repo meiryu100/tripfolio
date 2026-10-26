@@ -28,6 +28,7 @@ export const isConsent = (v: string | undefined | null): v is Consent => v === "
 export const COOKIE_DETAILS = [
   { name: "tv_session", why: "Keeps you signed in.", duration: "Up to 30 days", necessary: true },
   { name: "tripfolio-theme", why: "Remembers light or dark mode (stored in this browser).", duration: "Until you clear it", necessary: true },
+  { name: "tripfolio-install-hint", why: "Remembers that you closed the \"Add to home screen\" tip (stored in this browser).", duration: "Until you clear it", necessary: true },
   { name: "tf_consent_v2", why: "Remembers your cookie choice.", duration: "12 months", necessary: true },
   { name: "tf_src", why: "Remembers which link brought you here when you sign up. No ads, no third parties.", duration: "30 days", necessary: false },
   { name: "_ga, _ga_*", why: "Google Analytics: counts visits and how the site is used, without identifying you. No ads.", duration: "13 months", necessary: false },
