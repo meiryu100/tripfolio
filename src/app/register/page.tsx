@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
 import { trackClick } from "@/components/analytics";
 import { AuthLayout } from "@/components/auth-layout";
+import { InviteCard } from "@/components/invite-card";
 import { ResendVerification } from "@/components/resend-verification";
 import { SocialButtons } from "@/components/social-buttons";
 import { Button, FormError, Input } from "@/components/ui";
@@ -26,6 +27,9 @@ export default function RegisterPage() {
   const [sentTo, setSentTo] = useState<string | null>(null);
   // Invite links send people to /register?ref=<username>.
   const ref = useSyncExternalStore(noSubscribe, readRef, () => null);
+  // Unknown or misspelled invite username: drop the "Join @…" wording (sign-up still passes ref on).
+  const [inviterMissing, setInviterMissing] = useState(false);
+  const inviter = inviterMissing ? null : ref;
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const submit = (e: React.FormEvent) => {
@@ -63,7 +67,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthLayout title="Create your account" subtitle={ref ? `Join @${ref} and start mapping your world.` : "Start mapping your world."}>
+    <AuthLayout
+      title={inviter ? `Join @${inviter} on Tripfolio` : "Create your account"}
+      subtitle={inviter ? "Color in the countries you've been to and compare maps. It's free." : "Start mapping your world."}
+    >
+      {ref && <InviteCard username={ref} onMissing={() => setInviterMissing(true)} />}
       <SocialButtons verb="Sign up" invite={ref} />
       <form onSubmit={submit} className="grid gap-4" noValidate>
         <Input label="Email" type="email" autoComplete="email" value={form.email} onChange={set("email")} error={errors.email} />
