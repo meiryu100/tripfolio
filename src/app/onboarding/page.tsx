@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, PartyPopper, X } from "lucide-react";
+import { ArrowRight, Camera, PartyPopper, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
@@ -10,6 +10,7 @@ import { Button, FormError, Input, Spinner } from "@/components/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { meKey, useMeQuery } from "@/features/auth/api";
 import { clearDemoPicks, parseDemoPicks, readDemoPicksRaw } from "@/features/landing/demo-picks";
+import { ImportSheet } from "@/features/import/import-sheet";
 import { setStatuses } from "@/features/map/api";
 import { WorldMap } from "@/features/map/world-map";
 import { completeOnboarding, useSaveAboutYou } from "@/features/settings/api";
@@ -36,6 +37,7 @@ export default function OnboardingPage() {
   const [visited, setVisited] = useState<string[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [importing, setImporting] = useState(false);
   // Countries they colored on the landing page's demo map before signing up.
   const demo = parseDemoPicks(useSyncExternalStore(noSubscribe, readDemoPicksRaw, () => null));
   const demoCount = demo.visited.length + demo.wishlist.length;
@@ -153,6 +155,7 @@ export default function OnboardingPage() {
             onNext={next}
             saving={saving}
             onSkip={() => setStep(3)}
+            onImport={() => setImporting(true)}
           />
         )}
 
@@ -185,6 +188,13 @@ export default function OnboardingPage() {
           </Centered>
         )}
       </main>
+
+      <ImportSheet
+        open={importing}
+        onClose={() => setImporting(false)}
+        username={me.username}
+        onImported={(codes) => setVisited((v) => [...v, ...codes.filter((c) => !v.includes(c))])}
+      />
     </div>
   );
 }
@@ -270,6 +280,7 @@ function PickStep({
   onNext,
   onSkip,
   saving,
+  onImport,
 }: {
   title: string;
   subtitle: string;
@@ -280,6 +291,8 @@ function PickStep({
   onNext: () => void;
   onSkip: () => void;
   saving: boolean;
+  /** Shows the "fill from photos" card (visited step only). */
+  onImport?: () => void;
 }) {
   const statuses = useMemo(() => {
     const m: Record<string, CountryStatus> = {};
@@ -309,6 +322,20 @@ function PickStep({
           placeholder="Search, e.g. Japan"
         />
       </div>
+
+      {onImport && (
+        <button
+          onClick={onImport}
+          className="mb-4 flex min-h-12 w-full items-center gap-3 rounded-2xl border border-border bg-brand-soft px-4 py-2.5 text-left font-medium text-brand transition hover:shadow-soft"
+        >
+          <Camera className="size-5 shrink-0" aria-hidden />
+          <span className="min-w-0 flex-1">
+            Fill your map from your photos
+            <span className="block text-xs font-normal text-muted">Read on your device, nothing is uploaded</span>
+          </span>
+          <ArrowRight className="size-4 shrink-0" aria-hidden />
+        </button>
+      )}
 
       <WorldMap statuses={statuses} onSelect={toggle} className="aspect-[4/3] w-full border border-border sm:aspect-[2/1]" legend={false} />
 
