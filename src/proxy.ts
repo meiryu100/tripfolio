@@ -18,7 +18,7 @@ import { CONSENT_COOKIE } from "@/lib/consent";
  * Requests from known search-engine and AI crawlers (src/lib/bots.ts) are counted per page for
  * the admin SEO page, after the response is sent so they never slow a page down.
  */
-const PROTECTED = ["/home", "/map", "/explore", "/trips", "/wishlist", "/friends", "/notifications", "/messages", "/profile", "/settings", "/u", "/onboarding"];
+const PROTECTED = ["/home", "/map", "/explore", "/trips", "/wishlist", "/friends", "/notifications", "/messages", "/profile", "/settings", "/u", "/onboarding", "/year"];
 
 export function proxy(req: NextRequest, event: NextFetchEvent) {
   const hasSession = req.cookies.has("tv_session");

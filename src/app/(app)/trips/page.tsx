@@ -7,6 +7,7 @@ import { LoadMore, TripGrid, TripGridSkeleton } from "@/components/cards";
 import { Button, EmptyState, ErrorState } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
 import { flatten, useProfile } from "@/features/social/api";
+import { YearRecapCard } from "@/features/stats/year-recap-card";
 import { useUserTrips } from "@/features/trips/api";
 import { getCountry } from "@/lib/countries";
 import type { Trip } from "@/lib/types";
@@ -55,6 +56,7 @@ export default function TripsPage() {
         </Button>
       }
     >
+      <YearRecapCard className="mb-5" />
       {query.isPending ? (
         <TripGridSkeleton count={6} />
       ) : query.isError ? (

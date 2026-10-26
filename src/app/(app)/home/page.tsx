@@ -17,6 +17,7 @@ import { ActivityItem } from "@/features/social/activity-item";
 import { flatten, useFeed, useProfile } from "@/features/social/api";
 import { computeStats, type TravelStats } from "@/features/stats/compute";
 import { ByContinent, ContinentChecklist, Milestones, WorldProgress } from "@/features/stats/stats-panel";
+import { YearRecapCard } from "@/features/stats/year-recap-card";
 import { useUserTrips } from "@/features/trips/api";
 import { getCountry } from "@/lib/countries";
 import { countVisitedRegions } from "@/lib/regions";
@@ -105,6 +106,8 @@ export default function HomePage() {
           }
         />
       )}
+
+      <YearRecapCard className="mt-6" />
 
       <section className="mt-10" aria-labelledby="recent-trips">
         <div className="mb-3 flex items-center justify-between">
