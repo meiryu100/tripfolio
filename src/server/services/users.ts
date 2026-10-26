@@ -19,6 +19,7 @@ import { SOVEREIGN_CODES } from "@/lib/countries";
 import type { Me, Profile } from "@/lib/types";
 import type { z } from "zod";
 import { isReservedUsername, type aboutYouSchema, type profileSchema, type settingsSchema } from "@/lib/validation";
+import type { Device } from "@/lib/device";
 
 export async function findByUsername(username: string) {
   const row = await db.query.users.findFirst({
@@ -95,6 +96,7 @@ export async function createUser(input: {
   emailVerified?: boolean;
   invitedBy?: string;
   attribution?: Attribution;
+  device?: Device | null;
 }) {
   await assertAvailable(input);
   const [user] = await db
@@ -115,6 +117,7 @@ export async function createUser(input: {
       signupMedium: input.attribution?.medium,
       signupCampaign: input.attribution?.campaign,
       signupReferrer: input.attribution?.referrer,
+      signupDevice: input.device,
     })
     .returning();
   return user;

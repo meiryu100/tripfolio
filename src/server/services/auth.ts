@@ -1,7 +1,7 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { getDummyHash, hashPassword, verifyPassword } from "../auth/password";
 import { revokeAllSessions, sha256 } from "../auth/session";
 import { db, schema } from "../db";
@@ -14,6 +14,7 @@ import { follow } from "./social";
 import { createUser, findByUsername, generateUsername, sendSecurityNotice } from "./users";
 import { sendVerification } from "./verification";
 import { ATTRIBUTION_COOKIE, decodeAttribution } from "@/lib/attribution";
+import { deviceFromUserAgent } from "@/lib/device";
 
 const RESET_TTL_MS = 60 * 60 * 1000;
 
@@ -34,6 +35,11 @@ async function mayEmail(kind: "signup" | "verify" | "reset", email: string) {
     if (err instanceof HttpError && err.code === "RATE_LIMITED") return false;
     throw err;
   }
+}
+
+/** Phone, tablet or computer: the browser the sign-up request came from. */
+async function signupDevice() {
+  return deviceFromUserAgent((await headers()).get("user-agent"));
 }
 
 /** Where this new user first came from (set by src/proxy.ts); the cookie has done its job after sign-up. */
@@ -100,6 +106,7 @@ export async function register(input: { email: string; password: string; ref?: s
     password,
     invitedBy: inviter?.id,
     attribution: await takeAttribution(),
+    device: await signupDevice(),
   });
   await followInviter(user.id, inviter);
   await sendVerification(user, user.email);
@@ -267,6 +274,7 @@ export async function upsertGoogleUser(
     emailVerified: true,
     invitedBy: inviter?.id,
     attribution: await takeAttribution(),
+    device: await signupDevice(),
   });
   await followInviter(user.id, inviter);
   return { user, created: true };

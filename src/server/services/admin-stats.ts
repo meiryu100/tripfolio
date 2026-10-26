@@ -1,5 +1,6 @@
 import "server-only";
 import { sql } from "drizzle-orm";
+import type { Device } from "@/lib/device";
 import { db } from "../db";
 
 /**
@@ -53,12 +54,15 @@ export interface AdminStats {
     source: string;
     medium: string | null;
     campaign: string | null;
+    device: Device | null;
     verified: boolean;
   }[];
+  /** Sign-ups per device type (null = unknown: signed up before it was recorded and no session left). */
+  devices: { device: Device | null; total: number; last30d: number }[];
 }
 
 export async function getAdminStats(): Promise<AdminStats> {
-  const [users, active, content, funnel30d, byDay, sources, utm, topVisited, topWishlisted, recent] = await Promise.all([
+  const [users, active, content, funnel30d, byDay, sources, utm, topVisited, topWishlisted, recent, devices] = await Promise.all([
     one<AdminStats["users"]>(sql`
       select
         count(*) filter (where not is_test_user)                                                as real,
@@ -126,13 +130,20 @@ export async function getAdminStats(): Promise<AdminStats> {
       source: string;
       medium: string | null;
       campaign: string | null;
+      device: Device | null;
       verified: boolean;
     }>(sql`
       select username, first_name || ' ' || last_name as name, created_at, signup_medium as medium, signup_campaign as campaign,
+             signup_device as device,
              coalesce(signup_source, case when invited_by is not null then 'invite' end, signup_referrer, 'direct') as source,
              email_verified_at is not null as verified
       from users where not is_test_user
       order by created_at desc limit 100`),
+    db.execute<AdminStats["devices"][number]>(sql`
+      select signup_device as device, count(*)::int as total,
+             (count(*) filter (where created_at > now() - interval '30 days'))::int as "last30d"
+      from users where not is_test_user
+      group by 1 order by total desc`),
   ]);
 
   return {
@@ -152,8 +163,10 @@ export async function getAdminStats(): Promise<AdminStats> {
       source: r.source,
       medium: r.medium,
       campaign: r.campaign,
+      device: r.device,
       verified: r.verified,
     })),
+    devices: devices.rows,
   };
 }
 
