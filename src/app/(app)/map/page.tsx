@@ -1,9 +1,10 @@
 "use client";
 
-import { Globe2 } from "lucide-react";
-import { useMemo } from "react";
+import { Camera, Globe2 } from "lucide-react";
+import { useMemo, useState } from "react";
 import { CountrySearch } from "@/components/country-search";
 import { useMe } from "@/features/auth/api";
+import { ImportSheet } from "@/features/import/import-sheet";
 import { useUserMap } from "@/features/map/api";
 import { MapPanel, MapViewTabs, RegionPicker } from "@/features/map/map-panel";
 import { useUserRegions } from "@/features/map/regions-api";
@@ -21,6 +22,7 @@ export default function MapPage() {
   const me = useMe();
   const map = useUserMap(me.username);
   const view = useUI((s) => s.mapView);
+  const [importing, setImporting] = useState(false);
   const stats = computeStats(map.data?.statuses ?? {});
   const regions = useUserRegions(view !== "world" ? me.username : undefined);
   // In a country's mode the card summarises its regions instead of countries.
@@ -48,6 +50,14 @@ export default function MapPage() {
           <Globe2 className="size-4" aria-hidden /> World
         </button>
       )}
+      <button
+        onClick={() => setImporting(true)}
+        aria-label="Import from photos"
+        className="glass absolute top-3 right-3 flex size-11 items-center justify-center rounded-xl border border-border shadow-card md:hidden"
+      >
+        <Camera className="size-5" aria-hidden />
+      </button>
+      <ImportSheet open={importing} onClose={() => setImporting(false)} username={me.username} />
       <div className="pointer-events-none absolute inset-x-3 top-3 hidden flex-wrap items-start justify-between gap-2 md:inset-x-6 md:top-6 md:flex">
         <div className="pointer-events-auto flex flex-col gap-2">
         <MapViewTabs username={me.username} />
@@ -58,16 +68,24 @@ export default function MapPage() {
           <p className="text-xs text-muted">{summary.caption}</p>
         </div>
         </div>
-{view !== "world" ? (
-          <RegionPicker country={view} username={me.username} className="pointer-events-auto w-full sm:w-72" />
-        ) : (
-                  <CountrySearch
-            className="pointer-events-auto w-full sm:w-72"
-            statuses={map.data?.statuses}
-            onPick={(c) => openCountry(c.code, me.username)}
-            placeholder="Find a country…"
-          />
-        )}
+        <div className="pointer-events-auto flex w-full items-center gap-2 sm:w-auto">
+          {view !== "world" ? (
+            <RegionPicker country={view} username={me.username} className="w-full sm:w-72" />
+          ) : (
+            <CountrySearch
+              className="w-full sm:w-72"
+              statuses={map.data?.statuses}
+              onPick={(c) => openCountry(c.code, me.username)}
+              placeholder="Find a country…"
+            />
+          )}
+          <button
+            onClick={() => setImporting(true)}
+            className="glass flex h-12 shrink-0 items-center gap-2 rounded-2xl border border-border px-4 text-sm font-semibold shadow-card hover:text-brand"
+          >
+            <Camera className="size-4" aria-hidden /> Import
+          </button>
+        </div>
       </div>
     </main>
   );
