@@ -87,7 +87,8 @@ export default function HomePage() {
           className="aspect-[4/3] w-full border border-border shadow-card sm:aspect-[16/9] lg:aspect-[2/1]"
         />
         {isEmpty && (
-          <div className="pointer-events-none absolute inset-x-0 top-4 hidden justify-center px-4 sm:flex">
+          // Below the map's World / USA / Canada / Australia tabs (top-left), which got too wide to share the top row.
+          <div className="pointer-events-none absolute inset-x-0 top-[4.5rem] hidden justify-center px-4 sm:flex">
             <p className="glass rounded-full px-4 py-2 text-sm font-medium shadow-card">Tap any country to start building your world</p>
           </div>
         )}
