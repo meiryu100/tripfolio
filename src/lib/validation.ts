@@ -142,9 +142,16 @@ export const bulkStatusSchema = z.object({
   countryCodes: z.array(countryCodeSchema).max(260),
 });
 
+/** YYYY-MM-DD that is a real calendar day (no Feb 30 or month 13) from 1900 on; Postgres rejects the rest. */
+function isRealDate(v: string) {
+  const d = new Date(`${v}T00:00:00Z`);
+  return v >= "1900-01-01" && !Number.isNaN(d.getTime()) && d.toISOString().startsWith(v);
+}
+
 const dateSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Use a valid date.")
+  .refine(isRealDate, "Use a valid date.")
   .nullable()
   .optional()
   .transform((v) => v || null);

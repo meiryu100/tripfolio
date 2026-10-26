@@ -6,7 +6,7 @@ import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
-import { Avatar, Button, ErrorState, NotFound, Spinner, buttonClass } from "@/components/ui";
+import { Avatar, Button, EmptyState, ErrorState, NotFound, Spinner, buttonClass } from "@/components/ui";
 import { meKey, useMe } from "@/features/auth/api";
 import { ApiError, errorMessage } from "@/lib/api-client";
 import type { Chat, Message, UserSummary } from "@/lib/types";
@@ -49,6 +49,32 @@ function linkify(text: string): ReactNode[] {
 }
 
 export function ChatView({ username }: { username: string }) {
+  const me = useMe();
+  // You can't message yourself: say so instead of asking the API (which answers 400).
+  if (username.toLowerCase() === me.username.toLowerCase())
+    return <ChatUnavailable title="You can't message yourself" body="Pick someone from your friends to start a conversation." />;
+  return <ChatLoader username={username} />;
+}
+
+/** A chat that can't be opened, with a way back to the inbox (an empty screen would leave phones stuck). */
+function ChatUnavailable({ title, body }: { title: string; body?: string }) {
+  return (
+    <div className="flex flex-1 items-center justify-center p-6">
+      <EmptyState
+        icon={<Info />}
+        title={title}
+        body={body}
+        action={
+          <Link href="/messages" className={buttonClass("secondary")}>
+            Back to messages
+          </Link>
+        }
+      />
+    </div>
+  );
+}
+
+function ChatLoader({ username }: { username: string }) {
   const q = useChat(username);
   if (q.isPending)
     return (
@@ -56,6 +82,7 @@ export function ChatView({ username }: { username: string }) {
         <Spinner />
       </div>
     );
+  if (q.isError && q.error instanceof ApiError && q.error.status === 400) return <ChatUnavailable title="This chat can't be opened" body={q.error.message} />;
   if (q.isError)
     return (
       <div className="flex flex-1 items-center justify-center p-6">
