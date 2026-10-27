@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
-import { DEVICE_LABEL, type Device } from "@/lib/device";
+import { DEVICE_LABEL } from "@/lib/device";
 import type { AdminStats } from "@/server/services/admin-stats";
+import { DEVICE_COLOR, DEVICE_ORDER, dateTime, fmt } from "./admin-format";
+import { UserActivity } from "./user-activity";
 
 /**
  * The admin stats page: headline numbers as tiles, then single-series bar charts
@@ -8,9 +10,7 @@ import type { AdminStats } from "@/server/services/admin-stats";
  * has its numbers printed next to it, so nothing depends on color or hover alone.
  */
 
-export const fmt = new Intl.NumberFormat("he-IL");
 const date = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "short", timeZone: "Asia/Jerusalem" });
-export const dateTime = new Intl.DateTimeFormat("he-IL", { dateStyle: "short", timeStyle: "short", timeZone: "Asia/Jerusalem" });
 
 function bytes(n: number) {
   if (n < 1024 ** 2) return `${fmt.format(Math.round(n / 1024))} KB`;
@@ -116,14 +116,6 @@ function campaignTotals(utm: AdminStats["utm"]) {
   return [...byCampaign.values()].sort((a, b) => b.total - a.total || a.campaign.localeCompare(b.campaign));
 }
 
-/** Fixed colors per device (validated for light and dark surfaces); "unknown" is a neutral gray. */
-const DEVICE_COLOR: Record<Device | "unknown", string> = {
-  mobile: "fill-[#0369a1] bg-[#0369a1] dark:fill-[#0891d1] dark:bg-[#0891d1]",
-  desktop: "fill-[#c2410c] bg-[#c2410c] dark:fill-[#ea580c] dark:bg-[#ea580c]",
-  tablet: "fill-[#7c3aed] bg-[#7c3aed] dark:fill-[#8b5cf6] dark:bg-[#8b5cf6]",
-  unknown: "fill-[#94a3b8] bg-[#94a3b8] dark:fill-[#64748b] dark:bg-[#64748b]",
-};
-const DEVICE_ORDER = ["mobile", "desktop", "tablet", "unknown"] as const;
 
 /** Ring segments for a donut (outer radius 60, inner 38, centered in a 140×140 box), clockwise from 12 o'clock. */
 function donutPaths<T extends { value: number }>(slices: T[], total: number) {
@@ -312,6 +304,10 @@ export function StatsDashboard({ stats, generatedAt }: { stats: AdminStats; gene
         ) : (
           <p className="text-sm text-muted">עדיין אף משתמש אמיתי לא נרשם עם utm_campaign</p>
         )}
+      </Panel>
+
+      <Panel title="פעילות לפי מכשיר" note="כל המשתמשים האמיתיים (בלי דמו), לפי המכשיר שממנו נרשמו. לחיצה על כותרת עמודה ממיינת">
+        <UserActivity rows={stats.userActivity} />
       </Panel>
 
       <Panel title="נרשמו לאחרונה" note={`100 המשתמשים האמיתיים האחרונים · מוצגים ${stats.recentSignups.length}`}>
