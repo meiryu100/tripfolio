@@ -1,7 +1,8 @@
 import { BOT_KIND_LABEL } from "@/lib/bots";
 import { KEY_BOTS, type SeoStats } from "@/server/services/admin-seo";
 import { IndexNowButton } from "./indexnow-button";
-import { BarList, dateTime, fmt, Panel, Tile } from "./stats-dashboard";
+import { dateTime, fmt } from "./admin-format";
+import { BarList, Panel, Tile } from "./stats-dashboard";
 
 /** The admin "Bots & SEO" page: which crawlers read which pages, plus SEO tools and next steps. */
 

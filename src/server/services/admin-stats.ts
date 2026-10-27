@@ -57,12 +57,24 @@ export interface AdminStats {
     device: Device | null;
     verified: boolean;
   }[];
+  /** Every real user with what they've done so far, for the activity-by-device table. */
+  userActivity: {
+    username: string;
+    name: string;
+    createdAt: string;
+    device: Device | null;
+    onboarded: boolean;
+    countries: number;
+    trips: number;
+    active7d: boolean;
+    hasAvatar: boolean;
+  }[];
   /** Sign-ups per device type (null = unknown: signed up before it was recorded and no session left). */
   devices: { device: Device | null; total: number; last30d: number }[];
 }
 
 export async function getAdminStats(): Promise<AdminStats> {
-  const [users, active, content, funnel30d, byDay, sources, utm, topVisited, topWishlisted, recent, devices] = await Promise.all([
+  const [users, active, content, funnel30d, byDay, sources, utm, topVisited, topWishlisted, recent, devices, activity] = await Promise.all([
     one<AdminStats["users"]>(sql`
       select
         count(*) filter (where not is_test_user)                                                as real,
@@ -144,6 +156,24 @@ export async function getAdminStats(): Promise<AdminStats> {
              (count(*) filter (where created_at > now() - interval '30 days'))::int as "last30d"
       from users where not is_test_user
       group by 1 order by total desc`),
+    db.execute<{
+      username: string;
+      name: string;
+      created_at: Date;
+      device: Device | null;
+      onboarded: boolean;
+      countries: number;
+      trips: number;
+      active7d: boolean;
+      has_avatar: boolean;
+    }>(sql`
+      select u.username, u.first_name || ' ' || u.last_name as name, u.created_at, u.signup_device as device, u.onboarded,
+             (select count(*)::int from user_countries uc where uc.user_id = u.id)                                    as countries,
+             (select count(*)::int from trips t where t.user_id = u.id)                                               as trips,
+             exists (select 1 from sessions s where s.user_id = u.id and s.last_seen_at > now() - interval '7 days') as "active7d",
+             u.avatar_key is not null                                                                                 as has_avatar
+      from users u where not u.is_test_user
+      order by u.created_at desc`),
   ]);
 
   return {
@@ -167,6 +197,7 @@ export async function getAdminStats(): Promise<AdminStats> {
       verified: r.verified,
     })),
     devices: devices.rows,
+    userActivity: activity.rows.map(({ created_at, has_avatar, ...r }) => ({ ...r, createdAt: new Date(created_at).toISOString(), hasAvatar: has_avatar })),
   };
 }
 
