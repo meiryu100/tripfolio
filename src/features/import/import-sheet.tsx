@@ -79,8 +79,13 @@ export function ImportSheet({
       return n;
     });
 
-  // Home country first (most photos), then by photo count.
+  // Most photos first.
   const countryRows = Object.entries(scan?.countries ?? {}).sort((a, b) => b[1].count - a[1].count);
+  // Only call a country "Home" when it clearly has the most photos, not just the first row of a tie.
+  const homeCode =
+    countryRows.length > 0 && countryRows[0][1].count >= 5 && (countryRows.length === 1 || countryRows[0][1].count >= countryRows[1][1].count * 2)
+      ? countryRows[0][0]
+      : null;
   const regionsOf = (country: string) =>
     Object.entries(scan?.regions ?? {})
       .filter(([code]) => code.startsWith(`${country}-`))
@@ -175,13 +180,13 @@ export function ImportSheet({
                   {scan.noLocation > 0 && ` · ${plural(scan.noLocation, "photo")} had no location`}
                 </p>
                 <ul className="grid gap-1.5">
-                  {countryRows.map(([code, found], i) => (
+                  {countryRows.map(([code, found]) => (
                     <li key={code}>
                       <Row
                         flag={getCountry(code)?.flag}
                         name={getCountry(code)?.name ?? code}
                         note={`${when(found)} · ${plural(found.count, "photo")}`}
-                        badge={i === 0 ? "Home" : undefined}
+                        badge={code === homeCode ? "Home" : undefined}
                         state={visited(code) ? "have" : skipped.has(code) ? "off" : "on"}
                         onToggle={() => toggle(code)}
                       />
