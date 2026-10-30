@@ -2,6 +2,7 @@
 
 import { Share, SquarePlus, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CONSENT_EVENT, savedConsent } from "@/lib/consent";
 import { Button } from "./ui";
 
 /**
@@ -41,12 +42,23 @@ export function InstallHint() {
   const [ios, setIos] = useState(false);
 
   useEffect(() => {
-    // Give the page a moment first, so the card doesn't land on top of a first impression.
-    const t = setTimeout(() => {
-      setIos(/iphone|ipad|ipod/i.test(navigator.userAgent));
-      setShow(shouldShow());
-    }, 4000);
-    return () => clearTimeout(t);
+    let t: ReturnType<typeof setTimeout> | undefined;
+    // Wait for the cookie banner to be answered (it would cover the card), then give the page a
+    // moment, so the card doesn't land on top of a first impression.
+    const start = () => {
+      clearTimeout(t);
+      if (!savedConsent()) return;
+      t = setTimeout(() => {
+        setIos(/iphone|ipad|ipod/i.test(navigator.userAgent));
+        setShow(shouldShow());
+      }, 4000);
+    };
+    start();
+    window.addEventListener(CONSENT_EVENT, start);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener(CONSENT_EVENT, start);
+    };
   }, []);
 
   function close() {
