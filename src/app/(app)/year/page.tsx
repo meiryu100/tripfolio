@@ -132,7 +132,7 @@ export default function YearInTravelPage() {
 
 function Card({ icon, label, value, unit, children }: { icon: ReactNode; label: string; value: number; unit?: string; children?: ReactNode }) {
   return (
-    <Reveal className="rounded-2xl border border-border bg-surface p-5 shadow-card">
+    <Reveal className="min-w-0 rounded-2xl border border-border bg-surface p-5 shadow-card">
       <div className="flex items-center gap-2 text-sm font-medium text-muted [&_svg]:size-4">
         {icon}
         {label}
@@ -141,7 +141,7 @@ function Card({ icon, label, value, unit, children }: { icon: ReactNode; label: 
         <CountUp value={value} decimals={Number.isInteger(value) ? 0 : 1} />
         {unit && <span className="ml-1 text-xl font-semibold text-muted">{unit}</span>}
       </p>
-      {children && <p className="mt-1 text-sm text-muted">{children}</p>}
+      {children && <p className="mt-1 text-sm text-muted [overflow-wrap:anywhere]">{children}</p>}
     </Reveal>
   );
 }
