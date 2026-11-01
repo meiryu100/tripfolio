@@ -8,7 +8,7 @@ import { Avatar, Button, Sheet, SheetClose, Skeleton } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
 import { useCountryDetail } from "@/features/explore/api";
 import { flatten, useProfile } from "@/features/social/api";
-import { useUserTrips } from "@/features/trips/api";
+import { useSaveTrip, useUserTrips } from "@/features/trips/api";
 import { errorMessage } from "@/lib/api-client";
 import { getCountry } from "@/lib/countries";
 import { isRegionCountry, REGION_COUNTRIES, type RegionCountry } from "@/lib/regions";
@@ -166,6 +166,8 @@ function MyCountry({ code, name }: { code: string; name: string }) {
         </div>
       )}
 
+      {status === "visited" && !tripsQuery.isPending && trips.length === 0 && <YearChips code={code} name={name} />}
+
       <Button
         size="lg"
         variant={trips.length ? "secondary" : "primary"}
@@ -174,6 +176,49 @@ function MyCountry({ code, name }: { code: string; name: string }) {
       >
         <Plus className="size-5" /> {trips.length ? "Add Another Trip" : "Add Trip"}
       </Button>
+    </div>
+  );
+}
+
+/** One-tap "When did you go?": saves a trip titled "Country YEAR" without opening the full editor. */
+function YearChips({ code, name }: { code: string; name: string }) {
+  const me = useMe();
+  const save = useSaveTrip(me.username);
+  const thisYear = new Date().getFullYear();
+  const years = [thisYear, thisYear - 1, thisYear - 2, thisYear - 3];
+
+  const add = (year: number | null) =>
+    save.mutate(
+      {
+        input: {
+          countryCode: code,
+          title: year ? `${name} ${year}` : name,
+          description: "",
+          cities: [],
+          startDate: year ? `${year}-01-01` : null,
+          endDate: null,
+          photoIds: [],
+        },
+      },
+      {
+        onSuccess: () => toast(`Trip added to ${name} ✓`),
+        onError: (e) => toast(errorMessage(e), "error"),
+      },
+    );
+
+  return (
+    <div className="mt-4">
+      <p className="mb-2 text-sm font-semibold">When did you go?</p>
+      <div className="flex flex-wrap gap-2">
+        {years.map((y) => (
+          <Button key={y} size="sm" variant="secondary" disabled={save.isPending} onClick={() => add(y)}>
+            {y}
+          </Button>
+        ))}
+        <Button size="sm" variant="secondary" disabled={save.isPending} onClick={() => add(null)}>
+          Don&apos;t remember
+        </Button>
+      </div>
     </div>
   );
 }
