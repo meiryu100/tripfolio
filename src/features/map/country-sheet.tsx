@@ -3,6 +3,7 @@
 import { CalendarDays, Check, ChevronRight, Circle, Compass, Heart, Images, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useRef } from "react";
 import { TripCover } from "@/components/photo";
 import { Avatar, Button, Sheet, SheetClose, Skeleton } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
@@ -187,7 +188,12 @@ function YearChips({ code, name }: { code: string; name: string }) {
   const thisYear = new Date().getFullYear();
   const years = [thisYear, thisYear - 1, thisYear - 2, thisYear - 3];
 
-  const add = (year: number | null) =>
+  // `disabled` only applies after a re-render, so a fast double-click would send two requests.
+  const busy = useRef(false);
+
+  const add = (year: number | null) => {
+    if (busy.current) return;
+    busy.current = true;
     save.mutate(
       {
         input: {
@@ -203,8 +209,12 @@ function YearChips({ code, name }: { code: string; name: string }) {
       {
         onSuccess: () => toast(`Trip added to ${name} ✓`),
         onError: (e) => toast(errorMessage(e), "error"),
+        onSettled: () => {
+          busy.current = false;
+        },
       },
     );
+  };
 
   return (
     <div className="mt-4">
