@@ -98,7 +98,7 @@ export default function YearInTravelPage() {
             <Card icon={<CalendarDays />} label="Trips" value={recap.trips.length}>
               {plural(recap.days, "day")} on the road
             </Card>
-            <Card icon={<Timer />} label="Longest trip" value={recap.longest?.days ?? 0} unit="days">
+            <Card icon={<Timer />} label="Longest trip" value={recap.longest?.days ?? 0} unit={recap.longest?.days === 1 ? "day" : "days"}>
               {recap.longest ? (
                 <Link href={`/trips/${recap.longest.trip.id}`} className="text-brand hover:underline">
                   {getCountry(recap.longest.trip.countryCode)?.flag} {recap.longest.trip.title}
