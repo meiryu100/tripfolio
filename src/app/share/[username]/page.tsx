@@ -142,7 +142,7 @@ export default async function PublicProfilePage({ params }: Props) {
 
         <section className="bg-aurora mt-12 rounded-3xl p-8 text-center text-white shadow-glow sm:p-12">
           <h2 className="text-2xl font-bold sm:text-3xl">Map your own world</h2>
-          <p className="mx-auto mt-2 max-w-lg text-white/90">
+          <p className="mx-auto mt-2 max-w-lg text-white/90 [overflow-wrap:anywhere]">
             Mark the countries you&apos;ve been to and dream of, keep your trips and photos, and follow {p.firstName} on Tripfolio. It&apos;s free.
           </p>
           <Link href={join} className={buttonClass("secondary", "lg", "mt-6 h-auto min-h-12 max-w-full min-w-48 py-2 text-center whitespace-normal [overflow-wrap:anywhere]")}>
