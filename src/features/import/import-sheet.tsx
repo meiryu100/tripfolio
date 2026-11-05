@@ -16,6 +16,16 @@ import { type Found, type PhotoScan, scanPhotos } from "./read-photos";
 const month = (ms: number) => new Date(ms).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 const when = (f: Found) => (month(f.first) === month(f.last) ? month(f.first) : `${month(f.first)} · ${month(f.last)}`);
 
+/** Years the photos of a country were taken in, newest first. */
+const yearsOf = (f: Found) => {
+  const last = new Date(f.last).getFullYear();
+  const first = new Date(f.first).getFullYear();
+  return Array.from({ length: last - first + 1 }, (_, i) => last - i);
+};
+
+/** `null` = no trip for this country. */
+type TripYears = Record<string, number | null>;
+
 type Phase = "pick" | "reading" | "review" | "saving";
 
 /** Fill the map from photos: reads each photo's location and date on this device, then lets the user choose what to add. */
@@ -39,6 +49,8 @@ export function ImportSheet({
   const [scan, setScan] = useState<PhotoScan | null>(null);
   const [done, setDone] = useState(0);
   const [skipped, setSkipped] = useState<Set<string>>(new Set());
+  // The user's choice of trip year per country; countries not listed get the year of their latest photo.
+  const [tripYears, setTripYears] = useState<TripYears>({});
 
   const visited = (code: string) => map.data?.statuses[code] === "visited";
   const regionVisited = (code: string) => regions.data?.statuses[code] === "visited";
@@ -48,6 +60,7 @@ export function ImportSheet({
     setPhase("pick");
     setScan(null);
     setSkipped(new Set());
+    setTripYears({});
     onClose();
   };
 
@@ -64,6 +77,7 @@ export function ImportSheet({
       });
       setScan(result);
       setSkipped(new Set());
+      setTripYears({});
       setPhase("review");
     } catch (e) {
       toast(errorMessage(e), "error");
@@ -94,6 +108,7 @@ export function ImportSheet({
   const pickedRegions = countryRows.flatMap(([code]) =>
     skipped.has(code) ? [] : regionsOf(code).filter(([r]) => !regionVisited(r) && !skipped.has(r)).map(([r]) => r),
   );
+  const tripYearOf = (code: string, found: Found) => (code in tripYears ? tripYears[code] : new Date(found.last).getFullYear());
   const addCount = new Set([...pickedCountries, ...pickedRegions.map((r) => r.slice(0, 2))]).size;
 
   const save = async () => {
@@ -101,12 +116,30 @@ export function ImportSheet({
     try {
       if (pickedCountries.length) await setStatuses(pickedCountries, "visited");
       for (const regionCode of pickedRegions) await api.post("/api/me/regions", { regionCode, status: "VISITED" });
+      // One trip ("Country YEAR") per newly added country, like the one-tap year chips on the country sheet.
+      let trips = 0;
+      for (const code of pickedCountries) {
+        const year = tripYearOf(code, scan!.countries[code]);
+        if (year === null) continue;
+        await api.post("/api/trips", {
+          countryCode: code,
+          title: `${getCountry(code)?.name ?? code} ${year}`,
+          description: "",
+          cities: [],
+          startDate: `${year}-01-01`,
+          endDate: null,
+          photoIds: [],
+        });
+        trips += 1;
+      }
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["map"] }),
+        qc.invalidateQueries({ queryKey: ["trips"] }),
+        qc.invalidateQueries({ queryKey: ["country"] }),
         qc.invalidateQueries({ queryKey: regionsKey(username) }),
         qc.invalidateQueries({ queryKey: ["profile", username.toLowerCase()] }),
       ]);
-      toast(`Added ${plural(addCount, "country", "countries")} to your map`);
+      toast(`Added ${plural(addCount, "country", "countries")} to your map${trips ? ` and ${plural(trips, "trip")}` : ""}`);
       onImported?.([...new Set([...pickedCountries, ...pickedRegions.map((r) => r.slice(0, 2))])]);
       setPhase("pick");
       setScan(null);
@@ -190,6 +223,24 @@ export function ImportSheet({
                         state={visited(code) ? "have" : skipped.has(code) ? "off" : "on"}
                         onToggle={() => toggle(code)}
                       />
+                      {pickedCountries.includes(code) && (
+                        <label className="mt-1.5 ml-6 flex items-center gap-2 text-sm text-muted">
+                          When did you go?
+                          <select
+                            value={tripYearOf(code, found) ?? ""}
+                            disabled={phase === "saving"}
+                            onChange={(e) => setTripYears((t) => ({ ...t, [code]: e.target.value ? Number(e.target.value) : null }))}
+                            className="h-9 rounded-xl border border-border bg-surface px-2 text-sm text-fg"
+                          >
+                            {yearsOf(found).map((y) => (
+                              <option key={y} value={y}>
+                                {y}
+                              </option>
+                            ))}
+                            <option value="">No trip</option>
+                          </select>
+                        </label>
+                      )}
                       {regionsOf(code).map(([r, rf]) => (
                         <div key={r} className="mt-1.5 ml-6">
                           <Row
