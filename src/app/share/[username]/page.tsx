@@ -146,7 +146,7 @@ export default async function PublicProfilePage({ params }: Props) {
             Mark the countries you&apos;ve been to and dream of, keep your trips and photos, and follow {p.firstName} on Tripfolio. It&apos;s free.
           </p>
           <Link href={join} className={buttonClass("secondary", "lg", "mt-6 h-auto min-h-12 max-w-full min-w-48 py-2 text-center whitespace-normal [overflow-wrap:anywhere]")}>
-            Join {p.firstName} on Tripfolio
+            <span className="min-w-0 [overflow-wrap:anywhere]">Join {p.firstName} on Tripfolio</span>
           </Link>
         </section>
       </main>
