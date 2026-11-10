@@ -24,10 +24,11 @@ import { aboutYouSchema } from "@/lib/validation";
 import mark from "../../../public/brand/tripfolio-mark.png";
 import { appHome } from "@/lib/app-home";
 
-// Welcome → visited → wishlist → about you. The map comes first and the name form last (and can be
-// skipped): people who see the map mark countries, while a form up front lost some before the map.
-type Step = 0 | 1 | 2 | 3;
-const STEPS = [0, 1, 2, 3];
+// Welcome → visited → wishlist → "when did you go?" (only with visited countries) → about you. The map
+// comes first and the name form last (and can be skipped): people who see the map mark countries, while
+// a form up front lost some before the map.
+type Step = 0 | 1 | 2 | 3 | 4;
+const STEPS = [0, 1, 2, 3, 4];
 
 const noSubscribe = () => () => {};
 
@@ -70,7 +71,7 @@ export default function OnboardingPage() {
     try {
       if (step === 1 && visited.length) await setStatuses(visited, "visited");
       if (step === 2 && wishlist.length) await setStatuses(wishlist, "wishlist");
-      setStep((s) => Math.min(3, s + 1) as Step);
+      setStep(afterStep(step, visited.length > 0));
     } catch (e) {
       toast(errorMessage(e), "error");
     } finally {
@@ -117,7 +118,7 @@ export default function OnboardingPage() {
             <span key={i} className={cn("h-1.5 rounded-full transition-all", i === step ? "w-6 bg-brand" : i < step ? "w-1.5 bg-brand/50" : "w-1.5 bg-border")} />
           ))}
         </div>
-        {step > 0 && step < 3 ? (
+        {step > 0 && step < 4 ? (
           <button onClick={finish} className="text-sm font-medium text-muted hover:text-fg">
             Skip all
           </button>
@@ -169,11 +170,13 @@ export default function OnboardingPage() {
             locked={visited}
             onNext={next}
             saving={saving}
-            onSkip={() => setStep(3)}
+            onSkip={() => setStep(afterStep(2, visited.length > 0))}
           />
         )}
 
-        {step === 3 && <AboutYouStep me={me} onDone={finish} finishing={saving} />}
+        {step === 3 && <YearsStep codes={visited} onDone={() => setStep(4)} />}
+
+        {step === 4 && <AboutYouStep me={me} onDone={finish} finishing={saving} />}
 
       </main>
 
@@ -183,6 +186,90 @@ export default function OnboardingPage() {
         username={me.username}
         onImported={(codes) => setVisited((v) => [...v, ...codes.filter((c) => !v.includes(c))])}
       />
+    </div>
+  );
+}
+
+/** The step after `step`; the years step is skipped when nothing was marked as visited. */
+const afterStep = (step: Step, hasVisited: boolean): Step => (step === 2 && !hasVisited ? 4 : (Math.min(4, step + 1) as Step));
+
+/** One optional trip year per visited country; each year becomes a trip "Country YEAR", like the year chips. */
+function YearsStep({ codes, onDone }: { codes: string[]; onDone: () => void }) {
+  const qc = useQueryClient();
+  const [years, setYears] = useState<Record<string, number>>({});
+  const [saving, setSaving] = useState(false);
+  const thisYear = new Date().getFullYear();
+  const options = Array.from({ length: thisYear - 1979 }, (_, i) => thisYear - i);
+  const picked = Object.keys(years).length;
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      for (const [code, year] of Object.entries(years)) {
+        await api.post("/api/trips", {
+          countryCode: code,
+          title: `${getCountry(code)?.name ?? code} ${year}`,
+          description: "",
+          cities: [],
+          startDate: `${year}-01-01`,
+          endDate: null,
+          photoIds: [],
+        });
+      }
+      await Promise.all([qc.invalidateQueries({ queryKey: ["trips"] }), qc.invalidateQueries({ queryKey: ["country"] })]);
+      onDone();
+    } catch (e) {
+      toast(errorMessage(e), "error");
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="animate-fade mx-auto flex w-full max-w-md flex-1 flex-col">
+      <h1 className="text-3xl font-semibold tracking-tight">When did you go?</h1>
+      <p className="mt-1 text-muted">Pick a year for any country you like. It adds a trip to your profile. You can skip this.</p>
+      <ul className="mt-4 grid gap-1.5">
+        {codes.map((code) => {
+          const c = getCountry(code);
+          return (
+            <li key={code} className="flex min-h-12 items-center gap-3 rounded-xl border border-border bg-surface px-3 py-2">
+              <span aria-hidden className="text-xl leading-none">
+                {c?.flag}
+              </span>
+              <span className="min-w-0 flex-1 font-medium [overflow-wrap:anywhere]">{c?.name ?? code}</span>
+              <select
+                aria-label={`Year you went to ${c?.name ?? code}`}
+                value={years[code] ?? ""}
+                disabled={saving}
+                onChange={(e) =>
+                  setYears((y) => {
+                    const next = { ...y };
+                    if (e.target.value) next[code] = Number(e.target.value);
+                    else delete next[code];
+                    return next;
+                  })
+                }
+                className="h-9 rounded-xl border border-border bg-surface px-2 text-sm text-fg"
+              >
+                <option value="">No trip</option>
+                {options.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="sticky bottom-0 mt-auto flex items-center justify-between gap-3 glass -mx-4 px-4 pt-4 pb-3 sm:-mx-6 sm:px-6">
+        <Button variant="ghost" size="lg" onClick={onDone} disabled={saving}>
+          Skip
+        </Button>
+        <Button size="lg" className="min-w-40" onClick={picked ? save : onDone} loading={saving}>
+          {picked ? `Continue · ${picked}` : "Continue"} <ArrowRight className="size-5" />
+        </Button>
+      </div>
     </div>
   );
 }
