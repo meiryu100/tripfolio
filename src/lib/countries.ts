@@ -17,17 +17,53 @@ export function countryName(code: string) {
   return byCode.get(code.toUpperCase())?.name ?? code;
 }
 
+/** Lowercase and strip accents, so "cote" finds "Côte d'Ivoire". */
+function fold(s: string) {
+  return s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+}
+
+/** Everyday names people type that differ from the official name. */
+const ALIASES: Record<string, string[]> = {
+  US: ["usa", "america", "united states of america"],
+  GB: ["uk", "england", "scotland", "wales", "britain", "great britain"],
+  TR: ["turkey"],
+  AE: ["uae", "emirates"],
+  NL: ["holland"],
+  MM: ["burma"],
+  CI: ["ivory coast", "cote d'ivoire"],
+  CZ: ["czech republic"],
+  KR: ["south korea"],
+  KP: ["north korea"],
+  RU: ["russia"],
+  CD: ["drc", "congo kinshasa"],
+  CG: ["congo brazzaville"],
+  SZ: ["swaziland"],
+  MK: ["macedonia"],
+  CV: ["cape verde"],
+  TL: ["east timor"],
+};
+
 export function searchCountries(query: string, limit = 8): Country[] {
-  const q = query.trim().toLowerCase();
+  const q = fold(query.trim());
   if (!q) return [];
   const starts: Country[] = [];
+  const aliased: Country[] = [];
   const contains: Country[] = [];
   for (const c of COUNTRIES) {
-    const name = c.name.toLowerCase();
+    const name = fold(c.name);
+    const aliases = (ALIASES[c.code] ?? []).map(fold);
     if (name.startsWith(q) || c.code.toLowerCase() === q) starts.push(c);
-    else if (name.includes(q) || c.capital.toLowerCase().includes(q)) contains.push(c);
+    else if (aliases.some((a) => a.startsWith(q))) aliased.push(c);
+    else if (name.includes(q)) contains.push(c);
   }
-  return [...starts, ...contains].slice(0, limit);
+  // Capital matches come last so "USA" doesn't surface Israel through "Jerusalem".
+  const viaCapital = COUNTRIES.filter(
+    (c) => fold(c.capital).includes(q) && ![...starts, ...aliased, ...contains].includes(c),
+  );
+  return [...starts, ...aliased, ...contains, ...viaCapital].slice(0, limit);
 }
 
 /** URL slug for the public country pages: "Côte d'Ivoire" → "cote-d-ivoire", "Türkiye" → "turkiye". */
