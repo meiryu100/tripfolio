@@ -3,7 +3,7 @@
 import { RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { trackClick } from "@/components/analytics";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { buttonClass } from "@/components/button-class";
 import { WorldMap } from "@/features/map/world-map";
 import { ShareDemoMapButton } from "@/features/share/share";
@@ -15,6 +15,19 @@ import { saveDemoPicks } from "./demo-picks";
 
 const NEXT: Record<string, CountryStatus | undefined> = { none: "visited", visited: "wishlist", wishlist: undefined };
 
+const noSubscribe = () => () => {};
+
+/** `?want=JP` (from a public country page): that country starts as "Want to visit". Null on the server. */
+function useWantedCountry() {
+  const code = useSyncExternalStore(
+    noSubscribe,
+    () => new URLSearchParams(window.location.search).get("want"),
+    () => null,
+  );
+  const country = code ? getCountry(code.toUpperCase()) : undefined;
+  return country?.code ?? null;
+}
+
 /**
  * "Try it" map for the SEO landing page: tap a country to cycle visited → want to go → clear.
  * The picks are kept in this browser so onboarding can offer them after sign-up.
@@ -23,6 +36,13 @@ export function DemoMap() {
   const [countries, setCountries] = useState<Record<string, CountryStatus>>({});
   const [regions, setRegions] = useState<Record<string, CountryStatus>>({});
   const [last, setLast] = useState<string | null>(null);
+  const wanted = useWantedCountry();
+  const [seeded, setSeeded] = useState<string | null>(null);
+  if (wanted && seeded !== wanted) {
+    setSeeded(wanted);
+    setCountries((s) => ({ ...s, [wanted]: "wishlist" }));
+    setLast(wanted);
+  }
   // A country follows its regions (US states, Canadian provinces, ...), like the server does:
   // any visited region → visited, else any wished region → want to go.
   const statuses = withRegionCountries(countries, regions);
