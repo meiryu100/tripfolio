@@ -229,6 +229,11 @@ export async function updateProfile(userId: string, input: z.infer<typeof profil
 }
 
 export async function updateSettings(userId: string, input: z.infer<typeof settingsSchema>) {
+  // Nothing known to change (empty body or only unknown keys): Drizzle would throw "No values to set".
+  if (Object.keys(input).length === 0) {
+    const [current] = await db.select().from(schema.users).where(eq(schema.users.id, userId)).limit(1);
+    return current;
+  }
   const [u] = await db.update(schema.users).set(input).where(eq(schema.users.id, userId)).returning();
   // Going public auto-accepts anyone who was waiting.
   if (input.isPrivate === false) {
