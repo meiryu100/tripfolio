@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { Button, Sheet, SheetClose } from "@/components/ui";
 import { setStatuses, useUserMap } from "@/features/map/api";
 import { regionsKey, useUserRegions } from "@/features/map/regions-api";
+import { InviteCard } from "@/features/share/share";
 import { api, errorMessage } from "@/lib/api-client";
 import { getCountry } from "@/lib/countries";
 import { getRegion } from "@/lib/regions";
@@ -26,7 +27,7 @@ const yearsOf = (f: Found) => {
 /** `null` = no trip for this country. */
 type TripYears = Record<string, number | null>;
 
-type Phase = "pick" | "reading" | "review" | "saving";
+type Phase = "pick" | "reading" | "review" | "saving" | "done";
 
 /** Fill the map from photos: reads each photo's location and date on this device, then lets the user choose what to add. */
 export function ImportSheet({
@@ -141,9 +142,9 @@ export function ImportSheet({
       ]);
       toast(`Added ${plural(addCount, "country", "countries")} to your map${trips ? ` and ${plural(trips, "trip")}` : ""}`);
       onImported?.([...new Set([...pickedCountries, ...pickedRegions.map((r) => r.slice(0, 2))])]);
-      setPhase("pick");
+      // Stay open on a short "done" step with the invite card; closing resets the sheet.
+      setPhase("done");
       setScan(null);
-      onClose();
     } catch (e) {
       toast(errorMessage(e), "error");
       setPhase("review");
@@ -181,6 +182,16 @@ export function ImportSheet({
             <p className="max-w-xs text-muted">Pick photos from your trips — the more the better. Photos without a location are skipped.</p>
             <Button size="lg" onClick={() => input.current?.click()}>
               Choose photos
+            </Button>
+          </div>
+        )}
+
+        {phase === "done" && (
+          <div className="grid gap-4 py-2">
+            <p className="text-center font-medium">Your map is updated ✓</p>
+            <InviteCard username={username} />
+            <Button size="lg" onClick={close}>
+              Done
             </Button>
           </div>
         )}

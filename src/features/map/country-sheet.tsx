@@ -3,11 +3,12 @@
 import { CalendarDays, Check, ChevronRight, Circle, Compass, Heart, Images, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { TripCover } from "@/components/photo";
 import { Avatar, Button, Sheet, SheetClose, Skeleton } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
 import { useCountryDetail } from "@/features/explore/api";
+import { InviteCard } from "@/features/share/share";
 import { flatten, useProfile } from "@/features/social/api";
 import { useSaveTrip, useUserTrips } from "@/features/trips/api";
 import { errorMessage } from "@/lib/api-client";
@@ -102,6 +103,8 @@ function MyCountry({ code, name }: { code: string; name: string }) {
   const trips = flatten(tripsQuery.data);
   const status = map.data?.statuses[code] ?? null;
   const { apply } = useApplyStatus();
+  // After a one-tap year saves a trip, offer the invite card (the chips disappear once a trip exists).
+  const [yearSaved, setYearSaved] = useState(false);
   const locked = trips.length > 0;
 
   if (map.isPending) return <Skeleton className="h-28" />;
@@ -167,7 +170,11 @@ function MyCountry({ code, name }: { code: string; name: string }) {
         </div>
       )}
 
-      {status === "visited" && !tripsQuery.isPending && trips.length === 0 && <YearChips code={code} name={name} />}
+      {status === "visited" && !tripsQuery.isPending && trips.length === 0 && (
+        <YearChips code={code} name={name} onSaved={() => setYearSaved(true)} />
+      )}
+
+      {yearSaved && trips.length > 0 && <InviteCard username={me.username} className="mt-4" />}
 
       <Button
         size="lg"
@@ -182,7 +189,7 @@ function MyCountry({ code, name }: { code: string; name: string }) {
 }
 
 /** One-tap "When did you go?": saves a trip titled "Country YEAR" without opening the full editor. */
-function YearChips({ code, name }: { code: string; name: string }) {
+function YearChips({ code, name, onSaved }: { code: string; name: string; onSaved: () => void }) {
   const me = useMe();
   const save = useSaveTrip(me.username);
   const thisYear = new Date().getFullYear();
@@ -207,7 +214,10 @@ function YearChips({ code, name }: { code: string; name: string }) {
         },
       },
       {
-        onSuccess: () => toast(`Trip added to ${name} ✓`),
+        onSuccess: () => {
+          toast(`Trip added to ${name} ✓`);
+          onSaved();
+        },
         onError: (e) => toast(errorMessage(e), "error"),
         onSettled: () => {
           busy.current = false;
