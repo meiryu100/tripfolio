@@ -130,7 +130,7 @@ export default function OnboardingPage() {
         {step === 0 && (
           <Centered>
             <Image src={mark} alt="" priority className="animate-float h-32 w-auto drop-shadow-xl" />
-            <h1 className="mt-6 text-4xl font-bold tracking-tight">
+            <h1 className="mt-6 max-w-full text-4xl font-bold tracking-tight [overflow-wrap:anywhere]">
               Welcome to Tripfolio{hasName(me) ? `, ${me.firstName}` : ""} 🌎
             </h1>
             <p className="mt-3 max-w-md text-lg text-muted">
@@ -252,7 +252,7 @@ function AboutYouStep({ me, onDone, finishing }: { me: Me; onDone: () => void; f
 }
 
 function Centered({ children }: { children: React.ReactNode }) {
-  return <div className="animate-fade flex flex-1 flex-col items-center justify-center py-12 text-center">{children}</div>;
+  return <div className="animate-fade flex min-w-0 flex-1 flex-col items-center justify-center py-12 text-center">{children}</div>;
 }
 
 function PickStep({
