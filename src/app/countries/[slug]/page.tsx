@@ -168,11 +168,8 @@ export default async function CountryPublicPage({ params }: { params: Promise<{ 
       <p className="mt-5 text-[17px] leading-relaxed text-muted">{lead}</p>
 
       <div className="mt-6 flex flex-wrap gap-2">
-        <Link href="/countries-visited-map" className={buttonClass("primary", "lg")}>
-          Been there? Mark it on the map
-        </Link>
-        <Link href="/register" className={buttonClass("secondary", "lg")}>
-          Create my map
+        <Link href={`/countries-visited-map?want=${country.code}`} className={buttonClass("primary", "lg")}>
+          Color your map
         </Link>
       </div>
 
