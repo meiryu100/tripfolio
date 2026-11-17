@@ -145,8 +145,8 @@ export default async function PublicProfilePage({ params }: Props) {
           <p className="mx-auto mt-2 max-w-lg text-white/90 [overflow-wrap:anywhere]">
             Mark the countries you&apos;ve been to and dream of, keep your trips and photos, and follow {p.firstName} on Tripfolio. It&apos;s free.
           </p>
-          <Link href={join} className={buttonClass("secondary", "lg", "mt-6 h-auto min-h-12 max-w-full min-w-48 py-2 text-center whitespace-normal [overflow-wrap:anywhere]")}>
-            <span className="min-w-0 [overflow-wrap:anywhere]">Join {p.firstName} on Tripfolio</span>
+          <Link href={join} className={buttonClass("secondary", "lg", "mt-6 h-auto min-h-12 max-w-full min-w-48 py-2 text-center whitespace-normal! [overflow-wrap:anywhere]")}>
+            <span className="min-w-0 [overflow-wrap:anywhere] [white-space:normal]">Join {p.firstName} on Tripfolio</span>
           </Link>
         </section>
       </main>
