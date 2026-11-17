@@ -43,6 +43,7 @@ function SearchBody({ onClose, onPickCountry }: { onClose: () => void; onPickCou
         <input
           autoFocus
           value={q}
+          maxLength={60}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search people, countries, trips…"
           aria-label="Search people, countries and trips"
