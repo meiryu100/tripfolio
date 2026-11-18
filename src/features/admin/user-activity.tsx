@@ -2,6 +2,7 @@
 
 import { ArrowDown, ArrowUp, Check } from "lucide-react";
 import { useState } from "react";
+import { getCountry } from "@/lib/countries";
 import { DEVICE_LABEL, type Device } from "@/lib/device";
 import type { AdminStats } from "@/server/services/admin-stats";
 import { DEVICE_COLOR, DEVICE_ORDER, dateTime, fmt } from "./admin-format";
@@ -11,10 +12,12 @@ import { DEVICE_COLOR, DEVICE_ORDER, dateTime, fmt } from "./admin-format";
  * marked a country, added a trip...) and every real user underneath, sortable by any column.
  */
 type Row = AdminStats["userActivity"][number];
-type Key = "name" | "username" | "createdAt" | "device" | "onboarded" | "countries" | "trips" | "active7d" | "over10" | "hasAvatar";
+type Key = "name" | "username" | "createdAt" | "device" | "country" | "onboarded" | "countries" | "trips" | "active7d" | "over10" | "hasAvatar";
 
 const deviceKey = (d: Device | null) => d ?? "unknown";
 const deviceRank = (d: Device | null) => DEVICE_ORDER.indexOf(deviceKey(d));
+const hebrewRegion = new Intl.DisplayNames(["he"], { type: "region" });
+const countryName = (code: string | null) => (code ? (hebrewRegion.of(code) ?? getCountry(code)?.name ?? code) : "");
 // Same count as the "countries marked" column (visited + wishlist).
 const over10 = (r: Row) => r.countries > 10;
 
@@ -23,6 +26,7 @@ const COLUMNS: { key: Key; label: string; numeric?: boolean }[] = [
   { key: "username", label: "משתמש" },
   { key: "createdAt", label: "נרשם" },
   { key: "device", label: "מכשיר" },
+  { key: "country", label: "מדינה" },
   { key: "onboarded", label: "סיים הרשמה", numeric: true },
   { key: "countries", label: "מדינות שסומנו", numeric: true },
   { key: "trips", label: "טיולים", numeric: true },
@@ -35,6 +39,8 @@ function value(r: Row, key: Key): string | number {
   switch (key) {
     case "device":
       return deviceRank(r.device);
+    case "country":
+      return countryName(r.country);
     case "over10":
       return over10(r) ? 1 : 0;
     case "onboarded":
@@ -68,10 +74,12 @@ const Yes = ({ on }: { on: boolean }) =>
   on ? <Check className="mx-auto size-4 text-visited" aria-label="כן" /> : <span className="text-muted/60" aria-label="לא">—</span>;
 
 export function UserActivity({ rows }: { rows: Row[] }) {
-  const [sort, setSort] = useState<{ key: Key; dir: 1 | -1 }>({ key: "device", dir: 1 });
+  const [sort, setSort] = useState<{ key: Key; dir: 1 | -1 }>({ key: "createdAt", dir: -1 });
   const devices = DEVICE_ORDER.filter((d) => rows.some((r) => deviceKey(r.device) === d));
 
   const sorted = [...rows].sort((a, b) => {
+    // Unknown countries stay at the bottom in both directions.
+    if (sort.key === "country" && !a.country !== !b.country) return a.country ? -1 : 1;
     const x = value(a, sort.key);
     const y = value(b, sort.key);
     const c = typeof x === "string" && typeof y === "string" ? x.localeCompare(y) : Number(x) - Number(y);
@@ -79,7 +87,7 @@ export function UserActivity({ rows }: { rows: Row[] }) {
     return c * sort.dir || b.createdAt.localeCompare(a.createdAt);
   });
 
-  const toggle = (key: Key) => setSort((s) => (s.key === key ? { key, dir: s.dir === 1 ? -1 : 1 } : { key, dir: key === "device" || key === "name" || key === "username" ? 1 : -1 }));
+  const toggle = (key: Key) => setSort((s) => (s.key === key ? { key, dir: s.dir === 1 ? -1 : 1 } : { key, dir: key === "device" || key === "country" || key === "name" || key === "username" ? 1 : -1 }));
 
   return (
     <div className="grid gap-6">
@@ -146,6 +154,15 @@ export function UserActivity({ rows }: { rows: Row[] }) {
                 <td className="px-3 py-2 whitespace-nowrap text-muted">{dateTime.format(new Date(r.createdAt))}</td>
                 <td className="px-3 py-2">
                   <DeviceChip device={r.device} />
+                </td>
+                <td className="px-3 py-2 whitespace-nowrap">
+                  {r.country ? (
+                    <span title={r.country}>
+                      <span aria-hidden>{getCountry(r.country)?.flag}</span> {countryName(r.country)}
+                    </span>
+                  ) : (
+                    <span className="text-muted/60">—</span>
+                  )}
                 </td>
                 <td className="px-3 py-2 text-center">
                   <Yes on={r.onboarded} />
