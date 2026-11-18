@@ -49,21 +49,24 @@ const ALIASES: Record<string, string[]> = {
 export function searchCountries(query: string, limit = 8): Country[] {
   const q = fold(query.trim());
   if (!q) return [];
+  const exact: Country[] = [];
   const starts: Country[] = [];
   const aliased: Country[] = [];
   const contains: Country[] = [];
   for (const c of COUNTRIES) {
     const name = fold(c.name);
     const aliases = (ALIASES[c.code] ?? []).map(fold);
-    if (name.startsWith(q) || c.code.toLowerCase() === q) starts.push(c);
+    // An exact everyday name ("uk") beats a name that merely starts with it ("Ukraine").
+    if (aliases.includes(q)) exact.push(c);
+    else if (name.startsWith(q) || c.code.toLowerCase() === q) starts.push(c);
     else if (aliases.some((a) => a.startsWith(q))) aliased.push(c);
     else if (name.includes(q)) contains.push(c);
   }
   // Capital matches come last so "USA" doesn't surface Israel through "Jerusalem".
   const viaCapital = COUNTRIES.filter(
-    (c) => fold(c.capital).includes(q) && ![...starts, ...aliased, ...contains].includes(c),
+    (c) => fold(c.capital).includes(q) && ![...exact, ...starts, ...aliased, ...contains].includes(c),
   );
-  return [...starts, ...aliased, ...contains, ...viaCapital].slice(0, limit);
+  return [...exact, ...starts, ...aliased, ...contains, ...viaCapital].slice(0, limit);
 }
 
 /** URL slug for the public country pages: "Côte d'Ivoire" → "cote-d-ivoire", "Türkiye" → "turkiye". */

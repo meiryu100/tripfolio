@@ -3,12 +3,12 @@ import { and, count, desc, eq, ilike, inArray, isNotNull, lt, ne, or, sql, type 
 import { db, schema } from "../db";
 import type { UserRow } from "../db/schema";
 import { notFound } from "../http/errors";
-import { COUNTRIES, getCountry } from "./countries";
+import { getCountry } from "./countries";
 import { toPhoto, toStatus, toUserSummary } from "./mappers";
 import { decodeCursor, encodeCursor } from "./pagination";
 import { followedIds, getRelationships } from "./privacy";
 import { hydrateTrips } from "./trips";
-import { SOVEREIGN_CODES } from "@/lib/countries";
+import { searchCountries, SOVEREIGN_CODES } from "@/lib/countries";
 import type { Activity, CountryDetail, ExploreData, Page, SearchResults, Traveler, UserSummary } from "@/lib/types";
 
 const u = schema.users;
@@ -200,13 +200,8 @@ export async function getExplore(viewerId: string | null): Promise<ExploreData> 
 export async function search(viewerId: string | null, q: string): Promise<SearchResults> {
   const query = q.trim().replace(/^@/, "");
   const like = `%${query.replace(/[%_\\]/g, (m) => "\\" + m)}%`;
-  const lower = query.toLowerCase();
 
-  const countries = COUNTRIES.filter(
-    (c) => c.name.toLowerCase().includes(lower) || c.capital.toLowerCase().includes(lower) || c.code.toLowerCase() === lower,
-  )
-    .sort((a, b) => Number(!a.name.toLowerCase().startsWith(lower)) - Number(!b.name.toLowerCase().startsWith(lower)))
-    .slice(0, 6);
+  const countries = searchCountries(query, 6);
   const countryCodes = countries.map((c) => c.code);
 
   const followed = await followedIds(viewerId);
