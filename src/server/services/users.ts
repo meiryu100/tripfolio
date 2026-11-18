@@ -97,7 +97,6 @@ export async function createUser(input: {
   invitedBy?: string;
   attribution?: Attribution;
   device?: Device | null;
-  country?: string | null;
 }) {
   await assertAvailable(input);
   const [user] = await db
@@ -119,7 +118,6 @@ export async function createUser(input: {
       signupCampaign: input.attribution?.campaign,
       signupReferrer: input.attribution?.referrer,
       signupDevice: input.device,
-      signupCountry: input.country,
     })
     .returning();
   return user;

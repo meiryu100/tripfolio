@@ -99,13 +99,6 @@
       "when": 1793004635929,
       "tag": "0013_signup_device",
       "breakpoints": true
-    },
-    {
-      "idx": 14,
-      "version": "7",
-      "when": 1795029153244,
-      "tag": "0014_signup_country",
-      "breakpoints": true
     }
   ]
 }

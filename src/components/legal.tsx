@@ -14,18 +14,7 @@ export interface LegalSection {
 }
 
 /** Shared layout for the public Privacy Policy and Terms of Service pages. */
-export function LegalPage({
-  title,
-  intro,
-  sections,
-  updated = LEGAL_UPDATED,
-}: {
-  title: string;
-  intro: ReactNode;
-  sections: LegalSection[];
-  /** When this page last changed, if later than the shared date. */
-  updated?: string;
-}) {
+export function LegalPage({ title, intro, sections }: { title: string; intro: ReactNode; sections: LegalSection[] }) {
   return (
     <div className="min-h-dvh overflow-x-clip">
       <header className="glass sticky top-0 z-30 border-b border-border/60">
@@ -44,7 +33,7 @@ export function LegalPage({
 
       <main className="mx-auto max-w-3xl px-4 pt-12 pb-16 sm:px-6 sm:pt-16">
         <h1 className="text-4xl leading-[1.05] font-bold tracking-tight sm:text-5xl">{title}</h1>
-        <p className="mt-3 text-sm text-muted">Last updated: {updated}</p>
+        <p className="mt-3 text-sm text-muted">Last updated: {LEGAL_UPDATED}</p>
         <div className="mt-6 grid gap-4 text-[17px] leading-relaxed text-muted [overflow-wrap:anywhere]">{intro}</div>
 
         <nav aria-label="Contents" className="mt-8 rounded-3xl border border-border bg-surface/85 p-5 shadow-card">

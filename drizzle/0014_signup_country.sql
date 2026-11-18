@@ -1,1 +1,0 @@
-ALTER TABLE "users" ADD COLUMN "signup_country" char(2);

@@ -63,8 +63,6 @@ export interface AdminStats {
     name: string;
     createdAt: string;
     device: Device | null;
-    /** Country the sign-up came from (ISO alpha-2); null before it was recorded (2026-11) or when unknown. */
-    country: string | null;
     onboarded: boolean;
     countries: number;
     trips: number;
@@ -163,14 +161,13 @@ export async function getAdminStats(): Promise<AdminStats> {
       name: string;
       created_at: Date;
       device: Device | null;
-      country: string | null;
       onboarded: boolean;
       countries: number;
       trips: number;
       active7d: boolean;
       has_avatar: boolean;
     }>(sql`
-      select u.username, u.first_name || ' ' || u.last_name as name, u.created_at, u.signup_device as device, u.signup_country as country, u.onboarded,
+      select u.username, u.first_name || ' ' || u.last_name as name, u.created_at, u.signup_device as device, u.onboarded,
              (select count(*)::int from user_countries uc where uc.user_id = u.id)                                    as countries,
              (select count(*)::int from trips t where t.user_id = u.id)                                               as trips,
              exists (select 1 from sessions s where s.user_id = u.id and s.last_seen_at > now() - interval '7 days') as "active7d",

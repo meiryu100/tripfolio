@@ -68,8 +68,6 @@ export const users = pgTable(
     signupReferrer: text("signup_referrer"),
     /** The device type the user signed up on ("mobile" | "tablet" | "desktop", see src/lib/device.ts). */
     signupDevice: text("signup_device"),
-    /** The country the sign-up request came from (ISO alpha-2, from Vercel's IP geolocation; null when unknown). */
-    signupCountry: char("signup_country", { length: 2 }),
     // Privacy
     isPrivate: boolean("is_private").notNull().default(false),
     showVisited: boolean("show_visited").notNull().default(true),
