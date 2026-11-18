@@ -72,6 +72,11 @@ const SECTIONS: LegalSection[] = [
             agent), your IP address and when it was last used, so you can see and end your active sessions in Settings.
           </li>
           <li>
+            <strong>Sign-up device and country:</strong> when you create an account we save the type of device you used (phone, tablet
+            or computer) and the country your connection came from, which our host works out from your IP address. We use them only
+            for overall statistics; the IP address itself isn&apos;t saved with them.
+          </li>
+          <li>
             <strong>Sign-up source:</strong> if you accept all cookies, we remember the link or website that brought you to Tripfolio
             (for example campaign tags such as utm_source, or the referring site) and save it on your account when you sign up. We use it
             to learn which channels bring people in. If you chose &quot;Essential only&quot;, we don&apos;t record it. If you joined from
@@ -279,6 +284,7 @@ const SECTIONS: LegalSection[] = [
 export default function PrivacyPage() {
   return (
     <LegalPage
+      updated="November 18, 2026"
       title={TITLE}
       intro={
         <p>

@@ -14,6 +14,7 @@ import { follow } from "./social";
 import { createUser, findByUsername, generateUsername, sendSecurityNotice } from "./users";
 import { sendVerification } from "./verification";
 import { ATTRIBUTION_COOKIE, decodeAttribution } from "@/lib/attribution";
+import { getCountry } from "@/lib/countries";
 import { deviceFromUserAgent } from "@/lib/device";
 
 const RESET_TTL_MS = 60 * 60 * 1000;
@@ -40,6 +41,12 @@ async function mayEmail(kind: "signup" | "verify" | "reset", email: string) {
 /** Phone, tablet or computer: the browser the sign-up request came from. */
 async function signupDevice() {
   return deviceFromUserAgent((await headers()).get("user-agent"));
+}
+
+/** The country the sign-up request came from, by Vercel's IP geolocation (null locally or when unknown). */
+async function signupCountry() {
+  const code = (await headers()).get("x-vercel-ip-country")?.toUpperCase();
+  return code && getCountry(code) ? code : null;
 }
 
 /** Where this new user first came from (set by src/proxy.ts); the cookie has done its job after sign-up. */
@@ -107,6 +114,7 @@ export async function register(input: { email: string; password: string; ref?: s
     invitedBy: inviter?.id,
     attribution: await takeAttribution(),
     device: await signupDevice(),
+    country: await signupCountry(),
   });
   await followInviter(user.id, inviter);
   await sendVerification(user, user.email);
@@ -275,6 +283,7 @@ export async function upsertGoogleUser(
     invitedBy: inviter?.id,
     attribution: await takeAttribution(),
     device: await signupDevice(),
+    country: await signupCountry(),
   });
   await followInviter(user.id, inviter);
   return { user, created: true };
