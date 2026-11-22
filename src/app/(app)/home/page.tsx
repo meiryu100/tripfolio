@@ -4,17 +4,17 @@ import { ArrowRight, Camera, Globe2, Heart, Luggage, MapPinned, Plus, Sparkles }
 import Link from "next/link";
 import { useMemo } from "react";
 import { Page } from "@/components/app-shell";
-import { Stat, TripGrid, TripGridSkeleton, UserRow, UserRowSkeleton } from "@/components/cards";
+import { Stat, TripGrid, TripGridSkeleton } from "@/components/cards";
 import { CountUp, Reveal } from "@/components/motion";
 import { CountrySearch } from "@/components/country-search";
 import { Button, EmptyState, ErrorState, Skeleton, buttonClass } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
-import { useExplore } from "@/features/explore/api";
 import { useUserMap } from "@/features/map/api";
 import { MapPanel } from "@/features/map/map-panel";
 import { useUserRegions } from "@/features/map/regions-api";
 import { ActivityItem } from "@/features/social/activity-item";
 import { flatten, useFeed, useProfile } from "@/features/social/api";
+import { FollowSuggestions } from "@/features/social/follow-suggestions";
 import { computeStats, type TravelStats } from "@/features/stats/compute";
 import { ByContinent, ContinentChecklist, Milestones, WorldProgress } from "@/features/stats/stats-panel";
 import { YearRecapCard } from "@/features/stats/year-recap-card";
@@ -23,7 +23,7 @@ import { getCountry } from "@/lib/countries";
 import { countVisitedRegions } from "@/lib/regions";
 import type { CountryStatus } from "@/lib/types";
 import { openCountry, openTripEditor } from "@/lib/ui";
-import { greeting, plural } from "@/lib/utils";
+import { greeting } from "@/lib/utils";
 
 export default function HomePage() {
   const me = useMe();
@@ -247,31 +247,6 @@ function FirstSteps({ statuses, trips, following }: { statuses: Record<string, C
       )}
       {needsFollows && <FollowSuggestions />}
     </Reveal>
-  );
-}
-
-function FollowSuggestions() {
-  const me = useMe();
-  const q = useExplore();
-  const people = q.data?.suggestions.slice(0, 3) ?? [];
-  if (q.isError || (q.isSuccess && people.length === 0)) return null;
-  return (
-    <div className="rounded-3xl border border-border bg-surface p-5 shadow-card">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-bold tracking-tight">Follow 3 travelers</h2>
-        <Link href="/explore" className={buttonClass("ghost", "sm")}>
-          More <ArrowRight className="size-4" />
-        </Link>
-      </div>
-      <p className="mt-1 text-sm text-muted">See where they&apos;ve been and get ideas for your next trip.</p>
-      <div className="mt-2 divide-y divide-border">
-        {q.isPending
-          ? Array.from({ length: 3 }, (_, i) => <UserRowSkeleton key={i} />)
-          : people.map((u) => (
-              <UserRow key={u.id} user={u} relationship={u.relationship} isMe={u.id === me.id} meta={u.visited ? plural(u.visited, "country", "countries") : undefined} />
-            ))}
-      </div>
-    </div>
   );
 }
 
