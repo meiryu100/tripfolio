@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { Button, Sheet, SheetClose } from "@/components/ui";
 import { setStatuses, useUserMap } from "@/features/map/api";
 import { regionsKey, useUserRegions } from "@/features/map/regions-api";
+import { FollowSuggestions } from "@/features/social/follow-suggestions";
 import { InviteCard } from "@/features/share/share";
 import { api, errorMessage } from "@/lib/api-client";
 import { getCountry } from "@/lib/countries";
@@ -137,6 +138,7 @@ export function ImportSheet({
         qc.invalidateQueries({ queryKey: ["map"] }),
         qc.invalidateQueries({ queryKey: ["trips"] }),
         qc.invalidateQueries({ queryKey: ["country"] }),
+        qc.invalidateQueries({ queryKey: ["explore"] }),
         qc.invalidateQueries({ queryKey: regionsKey(username) }),
         qc.invalidateQueries({ queryKey: ["profile", username.toLowerCase()] }),
       ]);
@@ -189,6 +191,7 @@ export function ImportSheet({
         {phase === "done" && (
           <div className="grid gap-4 py-2">
             <p className="text-center font-medium">Your map is updated ✓</p>
+            <FollowSuggestions className="p-4 shadow-none" />
             <InviteCard username={username} />
             <Button size="lg" onClick={close}>
               Done

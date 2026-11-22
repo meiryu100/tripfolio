@@ -117,6 +117,17 @@ export async function getExplore(viewerId: string | null): Promise<ExploreData> 
   const followed = await followedIds(viewerId);
   const uc = schema.userCountries;
 
+  // The viewer's own visited countries: suggestions who share the most come first.
+  const mine = viewerId
+    ? (
+        await db
+          .select({ code: uc.countryCode })
+          .from(uc)
+          .where(and(eq(uc.userId, viewerId), eq(uc.status, "VISITED"), inArray(uc.countryCode, SOVEREIGN_CODES)))
+      ).map((r) => r.code)
+    : [];
+  const shared = mine.length ? sql<number>`count(${uc.id}) filter (where ${inArray(uc.countryCode, mine)})` : sql<number>`0`;
+
   const [statusCounts, topRows, suggestionRows, journeys, photoRows] = await Promise.all([
     db
       .select({ code: uc.countryCode, status: uc.status, n: count() })
@@ -132,7 +143,7 @@ export async function getExplore(viewerId: string | null): Promise<ExploreData> 
       .groupBy(u.id)
       .orderBy(desc(count()))
       .limit(8),
-    // Suggestions: people you don't follow yet, most-travelled first.
+    // Suggestions: people you don't follow yet, sharing the most countries with you, then most-travelled.
     db
       .select({ user: u, n: count(uc.id) })
       .from(u)
@@ -144,7 +155,7 @@ export async function getExplore(viewerId: string | null): Promise<ExploreData> 
         ),
       )
       .groupBy(u.id)
-      .orderBy(desc(count(uc.id)))
+      .orderBy(desc(shared), desc(count(uc.id)))
       .limit(6),
     tripsWithAuthors(viewerId, viewerId ? ne(schema.trips.userId, viewerId) : undefined, 9, followed),
     db
