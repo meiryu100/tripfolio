@@ -45,7 +45,14 @@ export const GENDERS = ["male", "female"] as const;
 /** Required: there is no default, the user must pick one. */
 export const genderSchema = z.enum(GENDERS, { message: "Please choose male or female." });
 
-const nameSchema = (label: string) => z.string().trim().min(1, `${label} is required.`).max(50, `${label} can be up to 50 characters.`);
+// Zero-width space / joiners / word joiner / BOM: `trim()` keeps them, so a name made only of them looked filled in.
+const ZERO_WIDTH = /[​-‍⁠﻿]/g;
+
+const nameSchema = (label: string) =>
+  z
+    .string()
+    .transform((s) => s.replace(ZERO_WIDTH, ""))
+    .pipe(z.string().trim().min(1, `${label} is required.`).max(50, `${label} can be up to 50 characters.`));
 
 export const registerSchema = z
   .object({
