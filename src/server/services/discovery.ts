@@ -126,7 +126,8 @@ export async function getExplore(viewerId: string | null): Promise<ExploreData> 
           .where(and(eq(uc.userId, viewerId), eq(uc.status, "VISITED"), inArray(uc.countryCode, SOVEREIGN_CODES)))
       ).map((r) => r.code)
     : [];
-  const shared = mine.length ? sql<number>`count(${uc.id}) filter (where ${inArray(uc.countryCode, mine)})` : sql<number>`0`;
+  // Only when there is something to share: a bare `0` in ORDER BY is read as column position 0 and fails.
+  const byShared = mine.length ? [desc(sql<number>`count(${uc.id}) filter (where ${inArray(uc.countryCode, mine)})`)] : [];
 
   const [statusCounts, topRows, suggestionRows, journeys, photoRows] = await Promise.all([
     db
@@ -155,7 +156,7 @@ export async function getExplore(viewerId: string | null): Promise<ExploreData> 
         ),
       )
       .groupBy(u.id)
-      .orderBy(desc(shared), desc(count(uc.id)))
+      .orderBy(...byShared, desc(count(uc.id)))
       .limit(6),
     tripsWithAuthors(viewerId, viewerId ? ne(schema.trips.userId, viewerId) : undefined, 9, followed),
     db
