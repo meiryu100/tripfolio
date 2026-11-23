@@ -145,10 +145,21 @@ export async function getExplore(viewerId: string | null): Promise<ExploreData> 
       .orderBy(desc(count()))
       .limit(8),
     // Suggestions: people you don't follow yet, sharing the most countries with you, then most-travelled.
+    // Followed people are excluded above, so only public profiles with "show visited" on are counted;
+    // everyone else counts as 0 and the order can't reveal a hidden map.
     db
       .select({ user: u, n: count(uc.id) })
       .from(u)
-      .leftJoin(uc, and(eq(uc.userId, u.id), eq(uc.status, "VISITED"), inArray(uc.countryCode, SOVEREIGN_CODES)))
+      .leftJoin(
+        uc,
+        and(
+          eq(uc.userId, u.id),
+          eq(uc.status, "VISITED"),
+          inArray(uc.countryCode, SOVEREIGN_CODES),
+          eq(u.isPrivate, false),
+          eq(u.showVisited, true),
+        ),
+      )
       .where(
         and(
           viewerId ? ne(u.id, viewerId) : undefined,
