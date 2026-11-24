@@ -1,5 +1,5 @@
 import "server-only";
-import { and, count, desc, eq, ilike, inArray, isNotNull, lt, ne, or, sql, type SQL } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, isNotNull, lt, ne, notInArray, or, sql, type SQL } from "drizzle-orm";
 import { db, schema } from "../db";
 import type { UserRow } from "../db/schema";
 import { notFound } from "../http/errors";
@@ -21,6 +21,18 @@ function visibleOwner(viewerId: string | null, followed: Set<string>, flag: type
   const audience = followed.size ? or(eq(u.isPrivate, false), inArray(u.id, [...followed])) : eq(u.isPrivate, false);
   const others = and(audience, eq(flag, true));
   return viewerId ? or(eq(u.id, viewerId), others) : others;
+}
+
+/** SQL condition: leaves out people the viewer blocked or who blocked the viewer (either direction). */
+async function notBlockedWith(viewerId: string | null): Promise<SQL | undefined> {
+  if (!viewerId) return undefined;
+  const b = schema.blocks;
+  const rows = await db
+    .select({ blocker: b.blockerId, blocked: b.blockedId })
+    .from(b)
+    .where(or(eq(b.blockerId, viewerId), eq(b.blockedId, viewerId)));
+  const ids = [...new Set(rows.map((r) => (r.blocker === viewerId ? r.blocked : r.blocker)))];
+  return ids.length ? notInArray(u.id, ids) : undefined;
 }
 
 async function travelers(viewerId: string | null, users: UserRow[]): Promise<Traveler[]> {
@@ -114,7 +126,7 @@ export async function getFeed(viewerId: string, cursor: string | undefined, limi
 // ─── Explore ─────────────────────────────────────────────────────────────────
 
 export async function getExplore(viewerId: string | null): Promise<ExploreData> {
-  const followed = await followedIds(viewerId);
+  const [followed, notBlocked] = await Promise.all([followedIds(viewerId), notBlockedWith(viewerId)]);
   const uc = schema.userCountries;
 
   // The viewer's own visited countries: suggestions who share the most come first.
@@ -140,7 +152,7 @@ export async function getExplore(viewerId: string | null): Promise<ExploreData> 
       .select({ user: u, n: count() })
       .from(u)
       .innerJoin(uc, and(eq(uc.userId, u.id), eq(uc.status, "VISITED"), inArray(uc.countryCode, SOVEREIGN_CODES)))
-      .where(and(eq(u.isPrivate, false), eq(u.showVisited, true)))
+      .where(and(eq(u.isPrivate, false), eq(u.showVisited, true), notBlocked))
       .groupBy(u.id)
       .orderBy(desc(count()))
       .limit(8),
@@ -153,12 +165,13 @@ export async function getExplore(viewerId: string | null): Promise<ExploreData> 
         and(
           viewerId ? ne(u.id, viewerId) : undefined,
           followed.size ? sql`${u.id} not in (${sql.join([...followed].map((id) => sql`${id}`), sql`, `)})` : undefined,
+          notBlocked,
         ),
       )
       .groupBy(u.id)
       .orderBy(...byShared, desc(count(uc.id)))
       .limit(6),
-    tripsWithAuthors(viewerId, viewerId ? ne(schema.trips.userId, viewerId) : undefined, 9, followed),
+    tripsWithAuthors(viewerId, and(viewerId ? ne(schema.trips.userId, viewerId) : undefined, notBlocked), 9, followed),
     db
       .select({ p: schema.tripPhotos, t: schema.trips, a: u })
       .from(schema.tripPhotos)
@@ -169,6 +182,7 @@ export async function getExplore(viewerId: string | null): Promise<ExploreData> 
           visibleOwner(viewerId, followed, u.showPhotos),
           eq(u.showTrips, true),
           viewerId ? ne(u.id, viewerId) : undefined,
+          notBlocked,
         ),
       )
       .orderBy(desc(schema.tripPhotos.createdAt))
@@ -216,26 +230,32 @@ export async function search(viewerId: string | null, q: string): Promise<Search
   const countries = searchCountries(query, 6);
   const countryCodes = countries.map((c) => c.code);
 
-  const followed = await followedIds(viewerId);
+  const [followed, notBlocked] = await Promise.all([followedIds(viewerId), notBlockedWith(viewerId)]);
   const [userRows, trips] = await Promise.all([
     db
       .select()
       .from(u)
       .where(
-        or(
-          ilike(u.username, like),
-          ilike(u.firstName, like),
-          ilike(u.lastName, like),
-          ilike(sql`${u.firstName} || ' ' || ${u.lastName}`, like),
+        and(
+          or(
+            ilike(u.username, like),
+            ilike(u.firstName, like),
+            ilike(u.lastName, like),
+            ilike(sql`${u.firstName} || ' ' || ${u.lastName}`, like),
+          ),
+          notBlocked,
         ),
       )
       .limit(8),
     tripsWithAuthors(
       viewerId,
-      or(
-        ilike(schema.trips.title, like),
-        sql`exists (select 1 from unnest(${schema.trips.cities}) c where c ilike ${like})`,
-        countryCodes.length ? inArray(schema.trips.countryCode, countryCodes) : undefined,
+      and(
+        or(
+          ilike(schema.trips.title, like),
+          sql`exists (select 1 from unnest(${schema.trips.cities}) c where c ilike ${like})`,
+          countryCodes.length ? inArray(schema.trips.countryCode, countryCodes) : undefined,
+        ),
+        notBlocked,
       ),
       8,
       followed,
