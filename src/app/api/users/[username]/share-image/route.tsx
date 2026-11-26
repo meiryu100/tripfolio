@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { getSession } from "@/server/auth/session";
+import { safeDecode } from "@/lib/utils";
+import { notFound } from "@/server/http/errors";
 import { errorResponse } from "@/server/http/handler";
 import { MAP_H, MAP_W, worldMapSvg } from "@/server/share/map-svg";
 import { getProfileShare, shareSummary } from "@/server/share/profile-share";
@@ -22,7 +24,9 @@ export async function GET(_req: Request, ctx: { params: Promise<{ username: stri
   try {
     const { username } = await ctx.params;
     const viewer = await getSession();
-    const { profile, map, regionStatuses, stats } = await getProfileShare(viewer?.user.id ?? null, decodeURIComponent(username));
+    const name = safeDecode(username);
+    if (name.includes("\u0000")) throw notFound();
+    const { profile, map, regionStatuses, stats } = await getProfileShare(viewer?.user.id ?? null, name);
     const showMap = profile.canView.visited || profile.canView.wishlist;
     const svg = worldMapSvg(showMap ? map.statuses : {}, showMap ? regionStatuses : {});
     const line = profile.canView.visited ? shareSummary(stats) : "Mapping the world on Tripfolio";

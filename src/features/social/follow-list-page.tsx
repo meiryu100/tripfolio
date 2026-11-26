@@ -10,12 +10,12 @@ import { EmptyState, ErrorState } from "@/components/ui";
 import { useMe } from "@/features/auth/api";
 import { api, ApiError, errorMessage } from "@/lib/api-client";
 import { toast } from "@/lib/ui";
-import { cn } from "@/lib/utils";
+import { cn, safeDecode } from "@/lib/utils";
 import { flatten, useFollowList, useProfile } from "./api";
 
 export function FollowListPage({ kind }: { kind: "followers" | "following" }) {
   const { username: raw } = useParams<{ username: string }>();
-  const username = decodeURIComponent(raw);
+  const username = safeDecode(raw);
   const me = useMe();
   const qc = useQueryClient();
   const profile = useProfile(username);

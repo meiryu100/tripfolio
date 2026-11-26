@@ -185,7 +185,7 @@ export const cursorQuerySchema = z.object({
 });
 
 export const searchQuerySchema = z.object({
-  q: z.string().trim().min(1).max(60),
+  q: z.string().trim().min(1).max(60).refine((v) => !v.includes("\u0000"), "Invalid search."),
 });
 
 export const MESSAGE_MAX = 2000;

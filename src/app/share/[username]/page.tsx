@@ -12,6 +12,7 @@ import { getCountry } from "@/lib/countries";
 import { HttpError } from "@/server/http/errors";
 import { listUserTrips } from "@/server/services/trips";
 import { isIndexableProfile } from "@/lib/seo";
+import { safeDecode } from "@/lib/utils";
 import { getProfileShare, shareSummary } from "@/server/share/profile-share";
 
 /**
@@ -25,7 +26,9 @@ type Props = { params: Promise<{ username: string }> };
 
 async function load(raw: string) {
   try {
-    return await getProfileShare(null, decodeURIComponent(raw));
+    const username = safeDecode(raw);
+    if (username.includes("\u0000")) notFound();
+    return await getProfileShare(null, username);
   } catch (err) {
     if (err instanceof HttpError && err.code === "NOT_FOUND") notFound();
     throw err;

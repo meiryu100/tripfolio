@@ -1,5 +1,14 @@
 export { clsx as cn } from "clsx";
 
+/** decodeURIComponent that returns the input unchanged on a broken escape like `%E0%A4%A`. */
+export function safeDecode(raw: string) {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
 export function uid(prefix = "") {
   return prefix + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
 }

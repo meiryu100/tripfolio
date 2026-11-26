@@ -2,7 +2,7 @@ import "server-only";
 import { NextResponse, type NextRequest } from "next/server";
 import { z, ZodError, type ZodType } from "zod";
 import { getSession, type Session } from "../auth/session";
-import { HttpError, unauthenticated } from "./errors";
+import { HttpError, notFound, unauthenticated } from "./errors";
 import { LIMITS, rateLimit, type Limit } from "./rate-limit";
 
 interface Options {
@@ -85,6 +85,10 @@ export function route<P>(opts: Options, fn: (ctx: AuthedCtx<P>) => Promise<unkno
       const session = await getSession();
       if (opts.auth !== false && !session) throw unauthenticated();
       const params = rc?.params ? await rc.params : ({} as P);
+      // Postgres can't store a NUL byte in text, so such a param can never match anything.
+      if (Object.values(params as Record<string, unknown>).some((v) => typeof v === "string" && v.includes("\u0000"))) {
+        throw notFound();
+      }
 
       const result = await fn({ req, params, session: session as Session, ip });
       if (result instanceof Response) return result;
