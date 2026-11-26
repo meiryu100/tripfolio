@@ -9,7 +9,7 @@ import { useMe } from "@/features/auth/api";
 import { useSearch } from "@/features/explore/api";
 import { useFriends } from "@/features/social/api";
 import type { ConversationSummary, MessageFolder, UserSummary } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, safeDecode } from "@/lib/utils";
 import { shortAgo, useConversations } from "./api";
 
 const folderFor = (pathname: string): MessageFolder => (pathname.startsWith("/messages/requests") ? "requests" : "inbox");
@@ -27,7 +27,7 @@ export function ConversationList() {
     if (!pathname.startsWith("/messages/t/")) setFolder(folderFor(pathname));
   }
   const q = useConversations(folder);
-  const active = pathname.startsWith("/messages/t/") ? decodeURIComponent(pathname.split("/")[3] ?? "").toLowerCase() : null;
+  const active = pathname.startsWith("/messages/t/") ? safeDecode(pathname.split("/")[3] ?? "").toLowerCase() : null;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">

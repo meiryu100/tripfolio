@@ -7,10 +7,11 @@ import { ErrorState, NotFound } from "@/components/ui";
 import { ProfileSkeleton, ProfileView } from "@/features/profile/profile-view";
 import { useProfile } from "@/features/social/api";
 import { ApiError } from "@/lib/api-client";
+import { safeDecode } from "@/lib/utils";
 
 export default function UserProfilePage() {
   const { username: raw } = useParams<{ username: string }>();
-  const username = decodeURIComponent(raw);
+  const username = safeDecode(raw);
   const { data, isPending, isError, error, refetch } = useProfile(username);
   return (
     <Page wide back={<BackLink fallback="/explore" label="Back" />}>
