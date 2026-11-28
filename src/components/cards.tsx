@@ -269,9 +269,10 @@ export function BackLink({ fallback, label }: { fallback: string; label: string 
   return (
     <button
       onClick={() => (window.history.length > 1 ? router.back() : router.push(fallback))}
-      className="-ml-1 mb-4 flex min-h-11 items-center gap-1.5 rounded-lg px-1 py-1 text-[15px] font-medium text-muted transition hover:text-fg"
+      className="-ml-1 mb-4 flex min-h-11 max-w-full items-center gap-1.5 rounded-lg px-1 py-1 text-[15px] font-medium text-muted transition hover:text-fg"
     >
-      <ArrowLeft className="size-5" aria-hidden /> {label}
+      <ArrowLeft className="size-5 shrink-0" aria-hidden />
+      <span className="min-w-0 truncate">{label}</span>
     </button>
   );
 }
